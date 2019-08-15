@@ -17,65 +17,30 @@ class LinearDecoration private constructor(private val type: Int, private val co
         private const val MIDDLE = 1 shl 1
         private const val END = 1 shl 2
 
-        /**
-         * @param context
-         * @param space         分割距离
-         * @param spacePxUnit   space的单位 true px false dp
-         */
         fun beginEnd(context: Context, space: Int = 1, spacePxUnit: Boolean = true): LinearDecoration {
             return LinearDecoration(BEGIN or END, context, space, spacePxUnit)
         }
 
-        /**
-         * @param context
-         * @param space         分割距离
-         * @param spacePxUnit   space的单位 true px false dp
-         */
         fun middleEnd(context: Context, space: Int = 1, spacePxUnit: Boolean = true): LinearDecoration {
             return LinearDecoration(MIDDLE or END, context, space, spacePxUnit)
         }
 
-        /**
-         * @param context
-         * @param space         分割距离
-         * @param spacePxUnit   space的单位 true px false dp
-         */
         fun beginMiddle(context: Context, space: Int = 1, spacePxUnit: Boolean = true): LinearDecoration {
             return LinearDecoration(BEGIN or MIDDLE, context, space, spacePxUnit)
         }
 
-        /**
-         * @param context
-         * @param space         分割距离
-         * @param spacePxUnit   space的单位 true px false dp
-         */
         fun beginMiddleEnd(context: Context, space: Int = 1, spacePxUnit: Boolean = true): LinearDecoration {
             return LinearDecoration(BEGIN or MIDDLE or END, context, space, spacePxUnit)
         }
 
-        /**
-         * @param context
-         * @param space         分割距离
-         * @param spacePxUnit   space的单位 true px false dp
-         */
         fun begin(context: Context, space: Int = 1, spacePxUnit: Boolean = true): LinearDecoration {
             return LinearDecoration(BEGIN, context, space, spacePxUnit)
         }
 
-        /**
-         * @param context
-         * @param space         分割距离
-         * @param spacePxUnit   space的单位 true px false dp
-         */
         fun middle(context: Context, space: Int = 1, spacePxUnit: Boolean = true): LinearDecoration {
             return LinearDecoration(MIDDLE, context, space, spacePxUnit)
         }
 
-        /**
-         * @param context
-         * @param space         分割距离
-         * @param spacePxUnit   space的单位 true px false dp
-         */
         fun end(context: Context, space: Int = 1, spacePxUnit: Boolean = true): LinearDecoration {
             return LinearDecoration(END, context, space, spacePxUnit)
         }
