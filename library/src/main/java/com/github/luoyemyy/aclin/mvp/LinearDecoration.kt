@@ -8,7 +8,8 @@ import android.view.View
 import androidx.recyclerview.widget.RecyclerView
 import kotlin.math.roundToInt
 
-class LinearDecoration private constructor(private val type: Int, private val context: Context, space: Int, spacePxUnit: Boolean) : RecyclerView.ItemDecoration() {
+class LinearDecoration private constructor(private val type: Int, private val context: Context, space: Int, spacePxUnit: Boolean) :
+    RecyclerView.ItemDecoration() {
 
     companion object {
 
@@ -22,12 +23,7 @@ class LinearDecoration private constructor(private val type: Int, private val co
          * @param spacePxUnit   space的单位 true px false dp
          */
         fun beginEnd(context: Context, space: Int = 1, spacePxUnit: Boolean = true): LinearDecoration {
-            return LinearDecoration(
-                BEGIN or END,
-                context,
-                space,
-                spacePxUnit
-            )
+            return LinearDecoration(BEGIN or END, context, space, spacePxUnit)
         }
 
         /**
@@ -36,12 +32,7 @@ class LinearDecoration private constructor(private val type: Int, private val co
          * @param spacePxUnit   space的单位 true px false dp
          */
         fun middleEnd(context: Context, space: Int = 1, spacePxUnit: Boolean = true): LinearDecoration {
-            return LinearDecoration(
-                MIDDLE or END,
-                context,
-                space,
-                spacePxUnit
-            )
+            return LinearDecoration(MIDDLE or END, context, space, spacePxUnit)
         }
 
         /**
@@ -50,12 +41,7 @@ class LinearDecoration private constructor(private val type: Int, private val co
          * @param spacePxUnit   space的单位 true px false dp
          */
         fun beginMiddle(context: Context, space: Int = 1, spacePxUnit: Boolean = true): LinearDecoration {
-            return LinearDecoration(
-                BEGIN or MIDDLE,
-                context,
-                space,
-                spacePxUnit
-            )
+            return LinearDecoration(BEGIN or MIDDLE, context, space, spacePxUnit)
         }
 
         /**
@@ -64,12 +50,7 @@ class LinearDecoration private constructor(private val type: Int, private val co
          * @param spacePxUnit   space的单位 true px false dp
          */
         fun beginMiddleEnd(context: Context, space: Int = 1, spacePxUnit: Boolean = true): LinearDecoration {
-            return LinearDecoration(
-                BEGIN or MIDDLE or END,
-                context,
-                space,
-                spacePxUnit
-            )
+            return LinearDecoration(BEGIN or MIDDLE or END, context, space, spacePxUnit)
         }
 
         /**
@@ -78,12 +59,7 @@ class LinearDecoration private constructor(private val type: Int, private val co
          * @param spacePxUnit   space的单位 true px false dp
          */
         fun begin(context: Context, space: Int = 1, spacePxUnit: Boolean = true): LinearDecoration {
-            return LinearDecoration(
-                BEGIN,
-                context,
-                space,
-                spacePxUnit
-            )
+            return LinearDecoration(BEGIN, context, space, spacePxUnit)
         }
 
         /**
@@ -92,12 +68,7 @@ class LinearDecoration private constructor(private val type: Int, private val co
          * @param spacePxUnit   space的单位 true px false dp
          */
         fun middle(context: Context, space: Int = 1, spacePxUnit: Boolean = true): LinearDecoration {
-            return LinearDecoration(
-                MIDDLE,
-                context,
-                space,
-                spacePxUnit
-            )
+            return LinearDecoration(MIDDLE, context, space, spacePxUnit)
         }
 
         /**
@@ -106,12 +77,7 @@ class LinearDecoration private constructor(private val type: Int, private val co
          * @param spacePxUnit   space的单位 true px false dp
          */
         fun end(context: Context, space: Int = 1, spacePxUnit: Boolean = true): LinearDecoration {
-            return LinearDecoration(
-                END,
-                context,
-                space,
-                spacePxUnit
-            )
+            return LinearDecoration(END, context, space, spacePxUnit)
         }
     }
 

@@ -10,11 +10,11 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 inline fun <reified T : AndroidViewModel> FragmentActivity.getPresenter(): T =
     ViewModelProviders.of(this).get(T::class.java)
 
-fun RecyclerView.setupLinear(adapter: AbsListAdapter, vertical: Boolean = true) {
+fun RecyclerView.setupLinear(adapter: AbsListAdapter, vertical: Boolean = true, decoration: RecyclerView.ItemDecoration = LinearDecoration.middle(context)) {
     this.layoutManager =
         LinearLayoutManager(context, if (vertical) RecyclerView.VERTICAL else RecyclerView.HORIZONTAL, false)
     this.adapter = adapter
-    this.addItemDecoration(LinearDecoration.middle(context))
+    this.addItemDecoration(decoration)
 }
 
 fun SwipeRefreshLayout.setup(presenter: AbsListPresenter) {

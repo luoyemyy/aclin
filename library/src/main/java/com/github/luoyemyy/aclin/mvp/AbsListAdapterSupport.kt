@@ -43,6 +43,7 @@ interface AbsListAdapterSupport {
      */
     fun getItemClickViews(binding: ViewDataBinding): List<View> = listOf()
 
+
     fun getItemSortView(binding: ViewDataBinding): View? = null
 
     /**
