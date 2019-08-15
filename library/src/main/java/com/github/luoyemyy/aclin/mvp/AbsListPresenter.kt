@@ -38,6 +38,8 @@ abstract class AbsListPresenter(app: Application) : AndroidViewModel(app) {
             refreshState.value = true
             mDataSet.paging.reset()
             loadDataAsync()
+        } else {
+            refreshState.value = false
         }
     }
 
