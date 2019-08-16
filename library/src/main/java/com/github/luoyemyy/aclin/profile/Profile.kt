@@ -60,7 +60,7 @@ object Profile {
     }
 
     fun <T : Any> add(key: String, dev: T, pro: T = dev, test: T = dev, demo: T = dev) {
-        mItemMap[key] = Item(dev, test, demo, pro)
+        mItemMap.put(key, Item(dev, test, demo, pro))
     }
 
     inline fun <reified T> get(key: String): T {

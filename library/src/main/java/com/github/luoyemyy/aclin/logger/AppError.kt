@@ -12,15 +12,17 @@ import java.text.SimpleDateFormat
 import java.util.*
 
 
-class AppError private constructor(private val mApp: Application, private val mDefaultHandler: Thread.UncaughtExceptionHandler) :
-    Thread.UncaughtExceptionHandler {
+class AppError private constructor(
+    private val mApp: Application,
+    private val mDefaultHandler: Thread.UncaughtExceptionHandler?
+) : Thread.UncaughtExceptionHandler {
 
     //用来存储设备信息
     private var deviceInfo: String? = null
 
-    override fun uncaughtException(thread: Thread?, ex: Throwable?) {
+    override fun uncaughtException(thread: Thread, ex: Throwable) {
         if (handleException(ex) == null) {
-            mDefaultHandler.uncaughtException(thread, ex)
+            mDefaultHandler?.uncaughtException(thread, ex)
         } else {
             //            val launcher = mApp.packageManager.getLaunchIntentForPackage(mApp.packageName)
             //            if (launcher != null) {
@@ -31,10 +33,7 @@ class AppError private constructor(private val mApp: Application, private val mD
         }
     }
 
-    private fun handleException(ex: Throwable?): String? {
-        if (ex == null) {
-            return null
-        }
+    private fun handleException(ex: Throwable): String? {
         if (deviceInfo == null) {
             //收集设备参数信息
             collectDeviceInfo(mApp)

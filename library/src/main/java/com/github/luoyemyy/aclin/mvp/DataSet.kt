@@ -132,7 +132,9 @@ class DataSet(
         return getDataList()
     }
 
-    private fun getDataList(): List<DataItem> {
+    fun getContentList() = mData
+
+    fun getDataList(): List<DataItem> {
         val list = mutableListOf<DataItem>()
         when (mInitState) {
             INIT_LOADING -> list.add(mInitLoadingData)
