@@ -1,6 +1,7 @@
 package com.github.luoyemyy.aclin.api
 
 import okhttp3.OkHttpClient
+import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.CallAdapter
 import retrofit2.Converter
 import retrofit2.Retrofit
@@ -27,7 +28,9 @@ abstract class AbsApiManager {
 
     abstract fun baseUrl(): String
 
-    open fun client(): OkHttpClient.Builder = OkHttpClient.Builder().addInterceptor(LogInterceptor())
+    open fun client(): OkHttpClient.Builder = OkHttpClient.Builder().addInterceptor(HttpLoggingInterceptor().apply {
+        level = HttpLoggingInterceptor.Level.BODY
+    })
 
     open fun converter(): Converter.Factory? = GsonConverterFactory.create()
 
