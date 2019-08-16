@@ -4,12 +4,10 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import androidx.annotation.MainThread
-import androidx.lifecycle.Lifecycle
 
 /**
  *
  */
-
 object Bus {
 
     private val mCallbacks = mutableListOf<Callback>()
@@ -26,7 +24,7 @@ object Bus {
      */
     @MainThread
     fun register(callback: Callback) {
-        if (mCallbacks.none { it == callback && it.interceptEvent() == callback.interceptEvent() }) {
+        if (mCallbacks.none { it == callback }) {
             mCallbacks.add(callback)
             //debug
             debugOnRegister(callback)
@@ -64,34 +62,11 @@ object Bus {
         mHandler.post {
             val msg = BusMsg(event, intValue, longValue, boolValue, stringValue, extra)
             mCallbacks.filter { it.interceptEvent() == event }.apply { debugOnPost(event, this) }
-                .forEach { it.busResult(msg.event, msg) }
+                .forEach { it.busResult(msg) }
         }
     }
 
-    /**
-     * 添加观察者，同一事件可以被多个观察者监听
-     * lifecycle#destroy时会注销此观察者
-     */
-    fun addCallback(lifecycle: Lifecycle, result: BusResult, vararg events: String) {
-        addCallback(false, lifecycle, result, *events)
-    }
-
-    /**
-     * 添加观察者，同一事件只能被一个观察者监听，后设置的会覆盖之前的
-     * lifecycle#destroy时会注销此观察者
-     */
-    fun setCallback(lifecycle: Lifecycle, result: BusResult, vararg events: String) {
-        addCallback(true, lifecycle, result, *events)
-    }
-
-    private fun addCallback(replace: Boolean, lifecycle: Lifecycle, result: BusResult, vararg events: String) {
-        events.forEach {
-            BusObserver(lifecycle, result, it).register(replace)
-        }
-    }
-
-    //debug
-    fun addDebugListener(debugListener: BusDebugListener) {
+    fun addDebug(debugListener: BusDebugListener) {
         mDebugListeners.add(debugListener)
     }
 

@@ -7,6 +7,18 @@ import retrofit2.Retrofit
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
 import retrofit2.converter.gson.GsonConverterFactory
 
+/**
+ * demo code
+ *
+//class Api : AbsApiManager() {
+//    override fun baseUrl(): String {
+//        return getApiUrl()
+//    }
+//}
+//
+//fun getUserApi(): UserApi = Api().getApi()
+ *
+ */
 abstract class AbsApiManager {
 
     companion object {

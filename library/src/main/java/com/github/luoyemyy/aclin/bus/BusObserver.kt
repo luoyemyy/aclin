@@ -14,7 +14,7 @@ import androidx.lifecycle.OnLifecycleEvent
 internal class BusObserver constructor(private val lifecycle: Lifecycle, private val mResult: BusResult, private var mEvent: String) :
     Bus.Callback, DefaultLifecycleObserver {
 
-    private val pendingEvents: MutableList<EventInfo> = mutableListOf()
+    private val pendingEvents: MutableList<BusMsg> = mutableListOf()
 
     init {
         lifecycle.addObserver(this)
@@ -37,26 +37,24 @@ internal class BusObserver constructor(private val lifecycle: Lifecycle, private
     @OnLifecycleEvent(Lifecycle.Event.ON_RESUME)
     override fun onResume(source: LifecycleOwner) {
         pendingEvents.forEach {
-            mResult.busResult(it.event, it.msg)
+            mResult.busResult(it)
         }
         pendingEvents.clear()
     }
 
     override fun interceptEvent(): String = mEvent
 
-    override fun busResult(event: String, msg: BusMsg) {
+    override fun busResult(msg: BusMsg) {
         if (lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED)) {
-            mResult.busResult(event, msg)
+            mResult.busResult(msg)
         } else {
-            if (event.endsWith("@REPLACE")) {
+            if (mEvent.endsWith("@REPLACE")) {
                 //如果 event 包含替换后缀，则会删除之前相同的事件，只保留最新的一个
-                pendingEvents.removeAll { it.event == event }
+                pendingEvents.removeAll { it.event == mEvent }
             }
-            pendingEvents.add(EventInfo(event, msg))
+            pendingEvents.add(msg)
         }
     }
-
-    data class EventInfo(val event: String, val msg: BusMsg)
 
     override fun hashCode(): Int {
         return super.hashCode()

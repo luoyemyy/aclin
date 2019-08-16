@@ -11,6 +11,9 @@ import com.github.luoyemyy.aclin.app.databinding.ActivityMvpBinding
 import com.github.luoyemyy.aclin.app.mvp.BaseAdapter
 import com.github.luoyemyy.aclin.app.mvp.MvpActivity
 import com.github.luoyemyy.aclin.app.mvp.TextItem
+import com.github.luoyemyy.aclin.bus.Bus
+import com.github.luoyemyy.aclin.bus.BusResult
+import com.github.luoyemyy.aclin.bus.addBus
 import com.github.luoyemyy.aclin.mvp.*
 
 class MainActivity : AppCompatActivity() {
@@ -29,6 +32,10 @@ class MainActivity : AppCompatActivity() {
             recyclerView.setupLinear(mAdapter)
         }
         mPresenter.loadInit(intent.extras)
+
+        addBus(this, "ssss", BusResult {
+
+        })
     }
 
     inner class Adapter : BaseAdapter(this, mPresenter) {

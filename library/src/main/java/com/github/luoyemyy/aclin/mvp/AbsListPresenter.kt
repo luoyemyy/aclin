@@ -11,7 +11,7 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
 
-abstract class AbsListPresenter(app: Application) : AndroidViewModel(app) {
+abstract class AbsListPresenter(var mApp: Application) : AndroidViewModel(mApp) {
 
     val itemList = MutableLiveData<List<DataItem>>()
     val refreshState = MutableLiveData<Boolean>()
