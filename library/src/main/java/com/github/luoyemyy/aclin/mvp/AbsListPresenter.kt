@@ -28,7 +28,7 @@ abstract class AbsListPresenter(var mApp: Application) : AndroidViewModel(mApp) 
                 it.setDataLoading()
             }
             mDataSet.paging.reset()
-            loadDataAsync(bundle)
+            loadDataBase(bundle)
         }
     }
 
@@ -37,7 +37,7 @@ abstract class AbsListPresenter(var mApp: Application) : AndroidViewModel(mApp) 
         if (mLoadType.refresh()) {
             refreshState.value = true
             mDataSet.paging.reset()
-            loadDataAsync()
+            loadDataBase()
         } else {
             refreshState.value = false
         }
@@ -50,7 +50,7 @@ abstract class AbsListPresenter(var mApp: Application) : AndroidViewModel(mApp) 
                 it.setDataLoading()
             }
             mDataSet.paging.reset()
-            loadDataAsync(search = search)
+            loadDataBase(search = search)
         }
     }
 
@@ -58,22 +58,30 @@ abstract class AbsListPresenter(var mApp: Application) : AndroidViewModel(mApp) 
     fun loadMore() {
         if (mDataSet.canLoadMore() && mLoadType.more()) {
             mDataSet.paging.next()
-            loadDataAsync()
+            loadDataBase()
         }
     }
 
-    private fun loadDataAsync(bundle: Bundle? = null, search: String? = null) {
-        mDisposable = Single.create<List<DataItem>> {
-            it.onSuccess(loadData(bundle, search, mDataSet.paging, mLoadType) ?: listOf())
-        }.subscribeOn(Schedulers.newThread()).observeOn(AndroidSchedulers.mainThread()).subscribe { items, error ->
-            loadDataAfter(error == null, items)
+    private fun loadDataBase(bundle: Bundle? = null, search: String? = null) {
+        if (!loadData(bundle, search, mDataSet.paging, mLoadType) { ok, items -> loadDataAfter(ok, items) }) {
+            mDisposable = Single.create<List<DataItem>> {
+                it.onSuccess(loadData(bundle, search, mDataSet.paging, mLoadType) ?: listOf())
+            }.subscribeOn(Schedulers.newThread()).observeOn(AndroidSchedulers.mainThread()).subscribe { items, error ->
+                loadDataAfter(error == null, items)
+            }
         }
+
     }
+
+    @MainThread
+    open fun loadData(bundle: Bundle? = null, search: String? = null, paging: Paging, loadType: LoadType,
+                      loadDataAfter: (ok: Boolean, items: List<DataItem>) -> Unit): Boolean = false
 
     @WorkerThread
-    abstract fun loadData(bundle: Bundle? = null, search: String? = null, paging: Paging = mDataSet.paging, loadType: LoadType = mLoadType): List<DataItem>?
+    open fun loadData(bundle: Bundle? = null, search: String? = null, paging: Paging,
+                      loadType: LoadType): List<DataItem>? = null
 
-    private fun loadDataAfter(ok: Boolean, items: List<DataItem>) {
+    open fun loadDataAfter(ok: Boolean, items: List<DataItem>) {
         update {
             when {
                 mLoadType.isMore() -> {

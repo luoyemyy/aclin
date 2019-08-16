@@ -44,6 +44,10 @@ abstract class AbsApiManager {
         }.build()
     }
 
+    fun refresh() {
+        mRetrofit = mRetrofit?.newBuilder()?.build() ?: getRetrofit()
+    }
+
     inline fun <reified T> getApi(): T {
         return (mRetrofit ?: getRetrofit().apply { mRetrofit = this }).create(T::class.java)
     }
