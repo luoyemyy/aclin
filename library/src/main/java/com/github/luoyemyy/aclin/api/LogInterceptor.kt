@@ -2,6 +2,7 @@ package com.github.luoyemyy.aclin.api
 
 import com.github.luoyemyy.aclin.logger.Logger
 import okhttp3.*
+import okhttp3.ResponseBody.Companion.toResponseBody
 import okio.Buffer
 import java.net.URLDecoder
 
@@ -15,18 +16,18 @@ class LogInterceptor : Interceptor {
     }
 
     private fun afterLog(response: Response): Response {
-        val mediaType = response.body()?.contentType()
-        val content = response.body()?.string() ?: ""
+        val mediaType = response.body?.contentType()
+        val content = response.body?.string() ?: ""
         Logger.i("LogInterceptor", "<<<<<<:$content")
-        return response.newBuilder().body(okhttp3.ResponseBody.create(mediaType, content)).build()
+        return response.newBuilder().body(content.toResponseBody(mediaType)).build()
     }
 
     private fun preLog(request: Request): Request {
-        val method = request.method().toUpperCase()
-        val url = URLDecoder.decode(request.url().toString(), "utf-8")
+        val method = request.method.toUpperCase()
+        val url = URLDecoder.decode(request.url.toString(), "utf-8")
         val logBuilder = StringBuilder().append(">>>>>>:$method,$url")
         if (method.equals("POST", true)) {
-            URLDecoder.decode(postBodyParam(request.body()), "utf-8").apply {
+            URLDecoder.decode(postBodyParam(request.body), "utf-8").apply {
                 if (isNotEmpty()) {
                     logBuilder.append(",$this")
                 }
@@ -48,11 +49,12 @@ class LogInterceptor : Interceptor {
 
     private fun logOtherBody(body: RequestBody) = Buffer().run { body.writeTo(this);readUtf8() }
 
-    private fun logFormBody(body: FormBody) = logOtherBody(body)//(0 until body.size()).joinToString("&") { "${body.name(it)}=${body.value(it)}" }
+    private fun logFormBody(body: FormBody) =
+        logOtherBody(body)//(0 until body.size()).joinToString("&") { "${body.name(it)}=${body.value(it)}" }
 
     private fun logMultipartBody(body: MultipartBody): String {
-        return body.parts().joinToString("&") {
-            val disposition = it.headers()?.get("Content-Disposition")
+        return body.parts.joinToString("&") {
+            val disposition = it.headers?.get("Content-Disposition")
             var name: String? = null
             var value: String? = null
             if (disposition != null) {
@@ -63,7 +65,7 @@ class LogInterceptor : Interceptor {
                     value = if (arrays.size >= 4 && disposition.contains("filename")) {
                         arrays[3]
                     } else {
-                        logOtherBody(it.body())
+                        logOtherBody(it.body)
                     }
                 }
             }
