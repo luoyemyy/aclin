@@ -47,6 +47,12 @@ abstract class AbsApiManager {
         }.build()
     }
 
+    /**
+     *  Profile.changeType(ProfileType.DEV){
+     *      //clear cache
+     *      Api().refresh()
+     *  }
+     */
     fun refresh() {
         mRetrofit = mRetrofit?.newBuilder()?.build() ?: getRetrofit()
     }
