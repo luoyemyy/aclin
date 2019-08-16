@@ -11,7 +11,7 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
 
-abstract class AbsListPresenter(var mApp: Application) : AndroidViewModel(mApp) {
+abstract class AbsListPresenter(app: Application) : AndroidViewModel(app) {
 
     val itemList = MutableLiveData<List<DataItem>>()
     val refreshState = MutableLiveData<Boolean>()
@@ -80,10 +80,7 @@ abstract class AbsListPresenter(var mApp: Application) : AndroidViewModel(mApp) 
     ): Boolean = false
 
     @WorkerThread
-    open fun loadData(
-        bundle: Bundle? = null, search: String? = null, paging: Paging,
-        loadType: LoadType
-    ): List<DataItem>? = null
+    open fun loadData(bundle: Bundle? = null, search: String? = null, paging: Paging, loadType: LoadType): List<DataItem>? = null
 
     open fun loadInitBefore(bundle: Bundle?) {
         update { it.setDataLoading() }

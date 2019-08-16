@@ -131,11 +131,7 @@ abstract class AbsListAdapter(
         }
     }
 
-    private fun createExtraDefaultBinding(
-        inflater: LayoutInflater,
-        parent: ViewGroup,
-        viewType: Int
-    ): ViewDataBinding? {
+    private fun createExtraDefaultBinding(inflater: LayoutInflater, parent: ViewGroup, viewType: Int): ViewDataBinding? {
         return when (viewType) {
             DataSet.INIT_LOADING -> AclinInitLoadingBinding.inflate(inflater, parent, false)
             DataSet.INIT_FAILURE -> AclinInitFailureBinding.inflate(inflater, parent, false).apply {

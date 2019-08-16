@@ -48,7 +48,6 @@ dependencies {
     implementation "io.reactivex.rxjava2:rxjava:$rxjava_version"
     implementation "io.reactivex.rxjava2:rxandroid:$rxandroid_version"
     implementation "com.google.code.gson:gson:$gson_version"
-    implementation 'pub.devrel:easypermissions:3.0.0'
 
     kapt "androidx.lifecycle:lifecycle-compiler:$lifecycle_version"
 }
