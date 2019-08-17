@@ -16,25 +16,31 @@ import pub.devrel.easypermissions.AppSettingsDialog
 import pub.devrel.easypermissions.EasyPermissions
 import pub.devrel.easypermissions.PermissionRequest
 import kotlin.random.Random
+import android.widget.Toast
+import android.content.Intent
 
-class MvpActivity : AppCompatActivity(), EasyPermissions.PermissionCallbacks, EasyPermissions.RationaleCallbacks {
+
+class MvpActivity : AppCompatActivity(), EasyPermissions.PermissionCallbacks{
 
     override fun onPermissionsDenied(requestCode: Int, perms: MutableList<String>) {
-        if (EasyPermissions.somePermissionPermanentlyDenied(this,perms)){
-            AppSettingsDialog()
+        if (EasyPermissions.somePermissionPermanentlyDenied(this, perms)) {
+            AppSettingsDialog.Builder(this)
+                .setTitle("权限已经被您拒绝")
+                .setRationale("如果不打开权限则无法使用该功能,点击确定去打开权限")
+                .setRequestCode(10001)//用于onActivityResult回调做其它对应相关的操作
+                .build()
+                .show()
         }
     }
 
     override fun onPermissionsGranted(requestCode: Int, perms: MutableList<String>) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
-    override fun onRationaleDenied(requestCode: Int) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
-
-    override fun onRationaleAccepted(requestCode: Int) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    public override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == 10001) {
+            Toast.makeText(this, " 从开启权限的页面转跳回来 ", Toast.LENGTH_SHORT).show()
+        }
     }
 
     private lateinit var mBinding: ActivityMvpBinding
@@ -53,12 +59,12 @@ class MvpActivity : AppCompatActivity(), EasyPermissions.PermissionCallbacks, Ea
         }
         mPresenter.loadInit(intent.extras)
 
-        EasyPermissions.requestPermissions(PermissionRequest.Builder(this, 1, Manifest.permission.CAMERA).build())
+        EasyPermissions.requestPermissions(PermissionRequest.Builder(this, 1, Manifest.permission.CAMERA).setRationale("需要相机").build())
     }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        EasyPermissions.onRequestPermissionsResult(requestCode, permissions, grantResults, this, this)
+        EasyPermissions.onRequestPermissionsResult(requestCode, permissions, grantResults, this)
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
@@ -91,8 +97,8 @@ class MvpActivity : AppCompatActivity(), EasyPermissions.PermissionCallbacks, Ea
 
     class Presenter(app: Application) : AbsListPresenter(app) {
         override fun loadData(bundle: Bundle?, search: String?, paging: Paging, loadType: LoadType): List<DataItem>? {
-            //            return (0..Random.nextInt(9)).map { TextItem(Random.nextInt(9).toString()) }
-            return (0..9).map { TextItem(Random.nextInt(9).toString()) }
+            return (0..Random.nextInt(9)).map { TextItem(Random.nextInt(9).toString()) }
+//            return (0..9).map { TextItem(Random.nextInt(9).toString()) }
         }
 
     }
