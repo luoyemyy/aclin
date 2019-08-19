@@ -11,19 +11,37 @@ import retrofit2.converter.gson.GsonConverterFactory
 /**
  * demo code
  *
-//class Api : AbsApiManager() {
-//    override fun baseUrl(): String {
-//        return getApiUrl()
+class Api : AbsApiManager() {
+//
+//    companion object {
+//        private val api = Api().apply { initApi() }
+//
+//        fun getInstance() = api
 //    }
+//
+//    override fun baseUrl(): String = getApiUrl()
+//
 //}
 //
-//fun getUserApi(): UserApi = Api().getApi()
+//fun refreshApi() = Api.getInstance().initApi()
+//
+//fun getUserApi(): UserApi = Api.getInstance().getApi()
  *
  */
 abstract class AbsApiManager {
 
-    companion object {
-        var mRetrofit: Retrofit? = null
+    private lateinit var mRetrofit: Retrofit
+
+    fun initApi() {
+        mRetrofit = createRetrofit()
+    }
+
+    fun getRetrofit(): Retrofit {
+        return mRetrofit
+    }
+
+    inline fun <reified T> getApi(): T {
+        return getRetrofit().create(T::class.java)
     }
 
     abstract fun baseUrl(): String
@@ -36,7 +54,7 @@ abstract class AbsApiManager {
 
     open fun adapter(): CallAdapter.Factory? = RxJava2CallAdapterFactory.create()
 
-    open fun getRetrofit(): Retrofit {
+    open fun createRetrofit(): Retrofit {
         return Retrofit.Builder().baseUrl(baseUrl()).client(client().build()).apply {
             converter()?.also {
                 addConverterFactory(it)
@@ -45,19 +63,5 @@ abstract class AbsApiManager {
                 addCallAdapterFactory(it)
             }
         }.build()
-    }
-
-    /**
-     *  Profile.changeType(ProfileType.DEV){
-     *      //clear cache
-     *      Api().refresh()
-     *  }
-     */
-    fun refresh() {
-        mRetrofit = getRetrofit()
-    }
-
-    inline fun <reified T> getApi(): T {
-        return (mRetrofit ?: getRetrofit().apply { mRetrofit = this }).create(T::class.java)
     }
 }

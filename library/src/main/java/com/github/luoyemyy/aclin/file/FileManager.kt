@@ -173,9 +173,8 @@ class FileManager(val app: Application) {
          * /storage/emulated/0/Android/data/${packageName}/files/${type.dir}
          */
         fun privateDir(type: Type): File? =
-                if (isMounted())
-                    app.getExternalFilesDir(type.dir).takeIf { it != null && (it.exists() || it.mkdirs()) }
-                else null
+            if (isMounted()) app.getExternalFilesDir(type.dir).takeIf { it != null && (it.exists() || it.mkdirs()) }
+            else null
 
         /**
          * 私有目录的文件
@@ -187,18 +186,17 @@ class FileManager(val app: Application) {
          * 私有缓存目录
          * /storage/emulated/0/Android/data/${packageName}/cache/${type.dir}
          */
-        fun privateCacheDir(type: Type): File? =
-                if (isMounted())
-                    app.externalCacheDir.let { baseDir ->
-                        File(baseDir, type.dir).takeIf { it.exists() || it.mkdirs() }
-                    }
-                else null
+        fun privateCacheDir(type: Type): File? = if (isMounted()) app.externalCacheDir.let { baseDir ->
+            File(baseDir, type.dir).takeIf { it.exists() || it.mkdirs() }
+        }
+        else null
 
         /**
          * 私有缓存目录的文件
          * /storage/emulated/0/Android/data/${packageName}/cache/${type.dir}/${name}${type.suffix}
          */
-        fun privateCacheFile(type: Type, name: String): File? = privateCacheDir(type)?.let { File(it, "$name${type.suffix}") }
+        fun privateCacheFile(type: Type, name: String): File? =
+            privateCacheDir(type)?.let { File(it, "$name${type.suffix}") }
 
         /**
          * 公共目录，包名（packageName）下的目录
@@ -206,11 +204,10 @@ class FileManager(val app: Application) {
          * /storage/emulated/0/${packageName}/${type.dir}
          */
         fun publicDir(type: Type): File? =
-                if (isMounted() && hasPermission())
-                    Environment.getExternalStorageDirectory().let { baseDir ->
-                        File(baseDir, "${app.packageName}${File.separator}${type.dir}").takeIf { it.exists() || it.mkdirs() }
-                    }
-                else null
+            if (isMounted() && hasPermission()) Environment.getExternalStorageDirectory().let { baseDir ->
+                File(baseDir, "${app.packageName}${File.separator}${type.dir}").takeIf { it.exists() || it.mkdirs() }
+            }
+            else null
 
         /**
          * 公共目录，包名（packageName）下的目录的文件
@@ -225,18 +222,18 @@ class FileManager(val app: Application) {
          * /storage/emulated/0/${type.dir}
          */
         fun publicCustomDir(type: Type): File? =
-                if (isMounted() && hasPermission())
-                    Environment.getExternalStorageDirectory().let { baseDir ->
-                        File(baseDir, type.dir).takeIf { it.exists() || it.mkdirs() }
-                    }
-                else null
+            if (isMounted() && hasPermission()) Environment.getExternalStorageDirectory().let { baseDir ->
+                File(baseDir, type.dir).takeIf { it.exists() || it.mkdirs() }
+            }
+            else null
 
         /**
          * 公共目录，自定义的目录的文件
          * 需要权限 Manifest.permission.WRITE_EXTERNAL_STORAGE
          * /storage/emulated/0/${type.dir}/${name}${type.suffix}
          */
-        fun publicCustomFile(type: Type, name: String): File? = publicCustomDir(type)?.let { File(it, "$name${type.suffix}") }
+        fun publicCustomFile(type: Type, name: String): File? =
+            publicCustomDir(type)?.let { File(it, "$name${type.suffix}") }
 
         /**
          * 公共目录，android定义的标准目录
@@ -244,10 +241,9 @@ class FileManager(val app: Application) {
          * @param dir      Environment.PUBLIC_DIRECTORY_*
          * /storage/emulated/0/${type}
          */
-        fun publicStandardDir(dir: String): File? =
-                if (isMounted() && hasPermission()) {
-                    Environment.getExternalStoragePublicDirectory(dir).takeIf { it.exists() || it.mkdirs() }
-                } else null
+        fun publicStandardDir(dir: String): File? = if (isMounted() && hasPermission()) {
+            Environment.getExternalStoragePublicDirectory(dir).takeIf { it.exists() || it.mkdirs() }
+        } else null
 
         /**
          * 公共目录，android定义的标准目录下的文件
@@ -257,11 +253,14 @@ class FileManager(val app: Application) {
          * @param suffix    文件类型
          * /storage/emulated/0/${type}/${name}${suffix}
          */
-        fun publicStandardFile(dir: String, name: String, suffix: String): File? = publicStandardDir(dir)?.let { File(it, "$name$suffix") }
+        fun publicStandardFile(dir: String, name: String, suffix: String): File? =
+            publicStandardDir(dir)?.let { File(it, "$name$suffix") }
 
         private fun isMounted(): Boolean = Environment.getExternalStorageState() == Environment.MEDIA_MOUNTED
 
-        private fun hasPermission(): Boolean = app.checkPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE, android.os.Process.myPid(), android.os.Process.myUid()) == PackageManager.PERMISSION_GRANTED
+        private fun hasPermission(): Boolean =
+            app.checkPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE, android.os.Process.myPid(),
+                    android.os.Process.myUid()) == PackageManager.PERMISSION_GRANTED
     }
 
     companion object {
@@ -298,26 +297,23 @@ class FileManager(val app: Application) {
         val DB = Type(DIRECTORY_DATABASE, SUFFIX_DB)
         val APK = Type(DIRECTORY_APK, SUFFIX_APK)
 
-        @Volatile
-        private var single: FileManager? = null
+        private lateinit var instance: FileManager
 
         @JvmStatic
         fun init(app: Application) {
-            if (single == null) {
-                synchronized(FileManager::class) {
-                    if (single == null) {
-                        single = FileManager(app)
-                    }
-                }
-            }
+            instance = FileManager(app)
         }
 
+        /**
+        //class App : Application() {
+        //    override fun onCreate() {
+        //        super.onCreate()
+        //        AppInfo.init(this) // 或者 FileManager.init(this)
+        //    }
+        //}
+         */
         @JvmStatic
-        fun getInstance(): FileManager {
-            return single ?: let {
-                throw NullPointerException("call after FileManager.init(app)")
-            }
-        }
+        fun getInstance(): FileManager = instance
     }
 
     data class Type(val dir: String, val suffix: String)

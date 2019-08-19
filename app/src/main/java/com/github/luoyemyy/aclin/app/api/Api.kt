@@ -4,11 +4,17 @@ import com.github.luoyemyy.aclin.api.AbsApiManager
 import com.github.luoyemyy.aclin.app.profile.getApiUrl
 
 class Api : AbsApiManager() {
-    override fun baseUrl(): String {
-        return getApiUrl()
+
+    companion object {
+        private val api = Api().apply { initApi() }
+
+        fun getInstance() = api
     }
+
+    override fun baseUrl(): String = getApiUrl()
+
 }
 
-fun refreshApi() = Api().refresh()
+fun refreshApi() = Api.getInstance().initApi()
 
-fun getUserApi(): UserApi = Api().getApi()
+fun getUserApi(): UserApi = Api.getInstance().getApi()
