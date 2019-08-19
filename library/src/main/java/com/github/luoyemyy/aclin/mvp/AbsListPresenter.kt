@@ -27,18 +27,20 @@ abstract class AbsListPresenter(app: Application) : AndroidViewModel(app) {
         mDataSet.enableMoreGone = moreGone
     }
 
+    fun getDataSet() = mDataSet
+
     @MainThread
     fun loadInit(bundle: Bundle?) {
-        if (mLoadType.init()) {
+        if (mDataSet.canLoadInit() && mLoadType.init()) {
             loadInitBefore(bundle)
             loadDataBase(bundle)
         }
     }
 
     @MainThread
-    fun loadRefresh() {
+    fun loadRefresh(refreshStyle: Boolean = true) {
         if (mLoadType.refresh()) {
-            loadRefreshBefore()
+            loadRefreshBefore(refreshStyle)
             loadDataBase()
         } else {
             refreshState.value = false
@@ -74,21 +76,20 @@ abstract class AbsListPresenter(app: Application) : AndroidViewModel(app) {
     }
 
     @MainThread
-    open fun loadData(
-        bundle: Bundle? = null, search: String? = null, paging: Paging, loadType: LoadType,
-        loadDataAfter: (ok: Boolean, items: List<DataItem>) -> Unit
-    ): Boolean = false
+    open fun loadData(bundle: Bundle? = null, search: String? = null, paging: Paging, loadType: LoadType,
+                      loadDataAfter: (ok: Boolean, items: List<DataItem>) -> Unit): Boolean = false
 
     @WorkerThread
-    open fun loadData(bundle: Bundle? = null, search: String? = null, paging: Paging, loadType: LoadType): List<DataItem>? = null
+    open fun loadData(bundle: Bundle? = null, search: String? = null, paging: Paging,
+                      loadType: LoadType): List<DataItem>? = null
 
     open fun loadInitBefore(bundle: Bundle?) {
         update { it.setDataLoading() }
         mDataSet.paging.reset()
     }
 
-    open fun loadRefreshBefore() {
-        refreshState.value = true
+    open fun loadRefreshBefore(refreshStyle: Boolean) {
+        refreshState.value = refreshStyle
         mDataSet.paging.reset()
     }
 
@@ -163,8 +164,18 @@ abstract class AbsListPresenter(app: Application) : AndroidViewModel(app) {
     fun change(dataItem: DataItem) {
         (itemList.value?.indexOf(dataItem) ?: -1).also {
             if (it >= 0) {
+                change(dataItem)
                 changePosition.postValue(it)
             }
+        }
+    }
+
+    fun change(predicate: (DataItem) -> Boolean, change: (DataItem) -> Unit) {
+        itemList.value?.forEachIndexed { index, dataItem ->
+            if (predicate(dataItem)) {
+                change(dataItem)
+            }
+            changePosition.postValue(index)
         }
     }
 

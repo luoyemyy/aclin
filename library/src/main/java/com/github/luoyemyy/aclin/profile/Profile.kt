@@ -2,6 +2,9 @@
 
 package com.github.luoyemyy.aclin.profile
 
+import android.content.Context
+import com.github.luoyemyy.aclin.ext.spfInt
+
 
 /**
  * demo code
@@ -31,24 +34,44 @@ object Profile {
         }
     }
 
+    private const val ACTIVE_PROFILE = "active_profile"
+
     private val mItemMap = mutableMapOf<String, Item<Any>>()
 
-    fun initType(buildType: String) {
-        when (buildType) {
-            "debug" -> ProfileType.DEV.active()
-            "test" -> ProfileType.TEST.active()
-            "demo" -> ProfileType.DEMO.active()
-            "release" -> ProfileType.PRO.active()
-            else -> ProfileType.DEV.active()
+    fun initType(context: Context, buildType: String) {
+        val activeProfile = context.spfInt(ACTIVE_PROFILE)
+        if (activeProfile == 0) {
+            when (buildType) {
+                "debug" -> ProfileType.DEV.active()
+                "test" -> ProfileType.TEST.active()
+                "demo" -> ProfileType.DEMO.active()
+                "release" -> ProfileType.PRO.active()
+                else -> ProfileType.DEV.active()
+            }
+            context.spfInt(ACTIVE_PROFILE, currentType().type)
+        } else {
+            when (activeProfile) {
+                ProfileType.PRO.type -> ProfileType.PRO
+                ProfileType.TEST.type -> ProfileType.TEST
+                ProfileType.DEMO.type -> ProfileType.DEMO
+                else -> ProfileType.DEV
+            }.active()
         }
     }
 
-    fun changeType(type: ProfileType, clear: () -> Unit) {
+    fun changeType(context: Context, index: Int, clear: () -> Unit) {
+        changeType(context, allTypes()[index], clear)
+    }
+
+    fun changeType(context: Context, type: ProfileType, clear: () -> Unit) {
+        context.spfInt(ACTIVE_PROFILE, type.type)
         type.active()
         clear()
     }
 
     fun allTypes() = arrayOf(ProfileType.DEV, ProfileType.TEST, ProfileType.DEMO, ProfileType.PRO)
+
+    fun allTypeDescs() = allTypes().map { it.desc }.toTypedArray()
 
     fun currentType(): ProfileType {
         return when {

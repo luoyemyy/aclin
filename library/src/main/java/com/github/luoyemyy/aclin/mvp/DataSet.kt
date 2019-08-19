@@ -2,12 +2,8 @@ package com.github.luoyemyy.aclin.mvp
 
 import java.util.*
 
-class DataSet(
-    var paging: Paging = Paging.Page(),
-    var enableEmpty: Boolean = true,
-    var enableMore: Boolean = true,
-    var enableMoreGone: Boolean = false
-) {
+class DataSet(var paging: Paging = Paging.Page(), var enableEmpty: Boolean = true, var enableMore: Boolean = true,
+              var enableMoreGone: Boolean = false) {
 
     companion object {
         const val INIT_LOADING = -1
@@ -34,13 +30,13 @@ class DataSet(
     private var mInitState = INIT_LOADING
     private var mMoreState = MORE_LOADING
 
+    fun canLoadInit() = mInitState != INIT_END
+
     /**
      * 判断是否可以加载更多
      */
     fun canLoadMore(): Boolean {
-        return enableMore
-                && mInitState == INIT_END
-                && mMoreState in arrayOf(MORE_LOADING, MORE_FAILURE)
+        return enableMore && mInitState == INIT_END && mMoreState in arrayOf(MORE_LOADING, MORE_FAILURE)
     }
 
     private fun setLoadMoreState(list: List<DataItem>?) {

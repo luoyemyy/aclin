@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+            xmlns:app="http://schemas.android.com/apk/res-auto"
+            android:id="@+id/main" app:startDestination="@id/mainFragment">
+
+    <fragment android:id="@+id/mainFragment" android:name="com.github.luoyemyy.aclin.app.main.MainFragment"
+              android:label="MainFragment">
+        <action android:id="@+id/action_mainFragment_to_mvpFragment" app:destination="@id/mvpFragment"/>
+        <action
+            android:id="@+id/action_mainFragment_to_profileFragment"
+            app:destination="@id/profileFragment"/>
+    </fragment>
+    <fragment android:id="@+id/mvpFragment" android:name="com.github.luoyemyy.aclin.app.mvp.MvpFragment"
+              android:label="MvpFragment"/>
+    <fragment
+        android:id="@+id/profileFragment"
+        android:name="com.github.luoyemyy.aclin.app.profile.ProfileFragment"
+        android:label="ProfileFragment"/>
+</navigation>

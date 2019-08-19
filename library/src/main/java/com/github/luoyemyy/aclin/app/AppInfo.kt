@@ -13,7 +13,7 @@ import com.github.luoyemyy.aclin.logger.Logger
 //    override fun onCreate() {
 //        super.onCreate()
 //        AppInfo.init(this)
-//        Profile.initType(BuildConfig.BUILD_TYPE)
+//        Profile.initType(this,BuildConfig.BUILD_TYPE)
 //        ProfileProperties.initProperties()
 //    }
 //}

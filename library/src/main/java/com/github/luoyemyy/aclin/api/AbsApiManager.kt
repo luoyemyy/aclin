@@ -54,7 +54,7 @@ abstract class AbsApiManager {
      *  }
      */
     fun refresh() {
-        mRetrofit = mRetrofit?.newBuilder()?.build() ?: getRetrofit()
+        mRetrofit = getRetrofit()
     }
 
     inline fun <reified T> getApi(): T {
