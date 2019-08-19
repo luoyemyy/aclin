@@ -14,6 +14,7 @@ import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.github.luoyemyy.aclin.databinding.*
+import com.github.luoyemyy.aclin.ext.runDelay
 
 abstract class AbsListAdapter(
     owner: LifecycleOwner,
@@ -79,11 +80,21 @@ abstract class AbsListAdapter(
         }
     }
 
+    override fun onBindViewHolder(holder: VH<ViewDataBinding>, position: Int, payloads: MutableList<Any>) {
+        triggerLoadMore(position)
+        val viewType = getItemViewType(position)
+        if (viewType < 0) {
+            bindExtra(holder.binding, getItem(position), viewType, position)
+        } else {
+            bindContent(holder.binding, getItem(position), viewType, position, payloads)
+        }
+    }
+
     private fun triggerLoadMore(position: Int) {
         if (position + 1 == itemCount) {
-            Handler().postDelayed({
+            runDelay(300) {
                 mPresenter.loadMore()
-            }, 300)
+            }
         }
     }
 
