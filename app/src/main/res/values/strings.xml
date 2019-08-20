@@ -1,4 +1,5 @@
 <resources>
     <string name="app_name">aclin</string>
     <string name="refresh">refresh</string>
+    <string name="permission">permission</string>
 </resources>

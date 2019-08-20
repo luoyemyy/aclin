@@ -74,9 +74,9 @@ class MainFragment : Fragment(), BusResult {
         ) {
             val bundle = payloads[0] as Bundle
             when {
-                bundle.getString("type") == "profile" && item is TextItem -> {
-                    item.value = bundle.getString("value", "")
-                    binding.setVariable(1, item)
+                bundle.getString("type") == "profile" && item is TextItem -> item.also {
+                    it.value = bundle.getString("value", "")
+                    binding.setVariable(1, it)
                 }
             }
             binding.executePendingBindings()
@@ -87,13 +87,18 @@ class MainFragment : Fragment(), BusResult {
             when (item.key) {
                 "mvp" -> findNavController().navigate(R.id.action_mainFragment_to_mvpFragment)
                 "profile" -> findNavController().navigate(R.id.action_mainFragment_to_profileFragment)
+                "permission" -> findNavController().navigate(R.id.action_mainFragment_to_permissionFragment)
             }
         }
     }
 
     class Presenter(private var mApp: Application) : AbsListPresenter(mApp) {
         override fun loadData(bundle: Bundle?, search: String?, paging: Paging, loadType: LoadType): List<DataItem>? {
-            return listOf(TextItem("mvp"), TextItem("profile", Profile.active().desc))
+            return listOf(
+                TextItem("mvp"),
+                TextItem("profile", Profile.active().desc),
+                TextItem("permission")
+            )
         }
 
         fun updateProfile() {

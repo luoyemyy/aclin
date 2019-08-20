@@ -9,6 +9,7 @@
         <action
             android:id="@+id/action_mainFragment_to_profileFragment"
             app:destination="@id/profileFragment"/>
+        <action android:id="@+id/action_mainFragment_to_permissionFragment" app:destination="@id/permissionFragment"/>
     </fragment>
     <fragment android:id="@+id/mvpFragment" android:name="com.github.luoyemyy.aclin.app.mvp.MvpFragment"
               android:label="MvpFragment"/>
@@ -16,4 +17,7 @@
         android:id="@+id/profileFragment"
         android:name="com.github.luoyemyy.aclin.app.profile.ProfileFragment"
         android:label="ProfileFragment"/>
+    <fragment android:id="@+id/permissionFragment"
+              android:name="com.github.luoyemyy.aclin.app.permission.PermissionFragment"
+              android:label="PermissionFragment"/>
 </navigation>
