@@ -1,7 +1,7 @@
-package com.github.luoyemyy.aclin.app.db.entity
+package com.github.luoyemyy.aclin.app.common.db.entity
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 
-@Entity
+@Entity(tableName = "user")
 data class DbUser(@PrimaryKey(autoGenerate = true) var id: Long, var name: String)

@@ -3,6 +3,7 @@ package com.github.luoyemyy.aclin.app.main
 import android.app.Application
 import android.content.Context
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -10,8 +11,8 @@ import androidx.databinding.ViewDataBinding
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import com.github.luoyemyy.aclin.app.R
+import com.github.luoyemyy.aclin.app.common.util.BusEvent
 import com.github.luoyemyy.aclin.app.databinding.FragmentListBinding
-import com.github.luoyemyy.aclin.app.ext.BusEvent
 import com.github.luoyemyy.aclin.app.mvp.BaseAdapter
 import com.github.luoyemyy.aclin.app.mvp.TextItem
 import com.github.luoyemyy.aclin.bus.BusMsg
@@ -24,6 +25,7 @@ class MainFragment : Fragment(), BusResult {
 
     private lateinit var mBinding: FragmentListBinding
     private lateinit var mPresenter: Presenter
+    private lateinit var mAdapter: Adapter
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return FragmentListBinding.inflate(inflater, container, false).also { mBinding = it }.root
@@ -31,8 +33,9 @@ class MainFragment : Fragment(), BusResult {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         mPresenter = getPresenter()
+        mAdapter = Adapter(requireContext())
         mBinding.apply {
-            recyclerView.setupLinear(Adapter(requireContext()), true, LinearDecoration.middle(requireContext()))
+            recyclerView.setupLinear(mAdapter)
             swipeRefreshLayout.setup(mPresenter)
         }
         addBus(this, BusEvent.PROFILE_CHANGE, this)
@@ -62,6 +65,23 @@ class MainFragment : Fragment(), BusResult {
             return listOf(binding.root)
         }
 
+        override fun bindContent(
+            binding: ViewDataBinding,
+            item: DataItem,
+            viewType: Int,
+            position: Int,
+            payloads: MutableList<Any>
+        ) {
+            val bundle = payloads[0] as Bundle
+            when {
+                bundle.getString("type") == "profile" && item is TextItem -> {
+                    item.value = bundle.getString("value", "")
+                    binding.setVariable(1, item)
+                }
+            }
+            binding.executePendingBindings()
+        }
+
         override fun onItemViewClick(vh: VH<ViewDataBinding>, view: View) {
             val item = getItem(vh.adapterPosition) as? TextItem ?: return
             when (item.key) {
@@ -73,12 +93,20 @@ class MainFragment : Fragment(), BusResult {
 
     class Presenter(private var mApp: Application) : AbsListPresenter(mApp) {
         override fun loadData(bundle: Bundle?, search: String?, paging: Paging, loadType: LoadType): List<DataItem>? {
-            return listOf(TextItem("mvp"), TextItem("profile", Profile.currentType().desc))
+            return listOf(TextItem("mvp"), TextItem("profile", Profile.active().desc))
         }
 
         fun updateProfile() {
-            change({ it is TextItem && it.key == "profile" }) {
-                (it as? TextItem)?.value = Profile.currentType().desc
+            change { bundle, dataItem ->
+                if (dataItem is TextItem && dataItem.key == "profile") {
+                    Log.e("Presenter", "updateProfile:  ${Profile.active().desc}")
+                    bundle.payloadEnable()
+                    bundle.payloadType("profile")
+                    bundle.putString("value", Profile.active().desc)
+                    true
+                } else {
+                    false
+                }
             }
         }
     }

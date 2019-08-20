@@ -1,4 +1,4 @@
-package com.github.luoyemyy.aclin.app.api
+package com.github.luoyemyy.aclin.app.common.api
 
 import com.github.luoyemyy.aclin.api.AbsApiManager
 import com.github.luoyemyy.aclin.app.profile.getApiUrl

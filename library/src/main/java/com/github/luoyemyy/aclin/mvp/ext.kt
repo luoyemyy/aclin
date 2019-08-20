@@ -1,5 +1,6 @@
 package com.github.luoyemyy.aclin.mvp
 
+import android.os.Bundle
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.AndroidViewModel
@@ -22,4 +23,12 @@ fun SwipeRefreshLayout.setup(presenter: AbsListPresenter) {
     this.setOnRefreshListener {
         presenter.loadRefresh()
     }
+}
+
+fun Bundle.payloadEnable() {
+    putBoolean("payload", true)
+}
+
+fun Bundle.payloadType(type: String) {
+    putString("type", type)
 }

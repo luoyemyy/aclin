@@ -4,6 +4,7 @@ import android.app.Application
 import android.os.Bundle
 import androidx.annotation.MainThread
 import androidx.annotation.WorkerThread
+import androidx.core.os.bundleOf
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
 import io.reactivex.Single
@@ -15,7 +16,7 @@ abstract class AbsListPresenter(app: Application) : AndroidViewModel(app) {
 
     val itemList = MutableLiveData<List<DataItem>>()
     val refreshState = MutableLiveData<Boolean>()
-    val changePosition = MutableLiveData<Int>()
+    val changePosition = MutableLiveData<Bundle>() // position & payload
 
     private val mDataSet by lazy { DataSet() }
     private val mLoadType = LoadType()
@@ -26,8 +27,6 @@ abstract class AbsListPresenter(app: Application) : AndroidViewModel(app) {
         mDataSet.enableMore = more
         mDataSet.enableMoreGone = moreGone
     }
-
-    fun getDataSet() = mDataSet
 
     @MainThread
     fun loadInit(bundle: Bundle?) {
@@ -76,12 +75,21 @@ abstract class AbsListPresenter(app: Application) : AndroidViewModel(app) {
     }
 
     @MainThread
-    open fun loadData(bundle: Bundle? = null, search: String? = null, paging: Paging, loadType: LoadType,
-                      loadDataAfter: (ok: Boolean, items: List<DataItem>) -> Unit): Boolean = false
+    open fun loadData(
+        bundle: Bundle? = null,
+        search: String? = null,
+        paging: Paging,
+        loadType: LoadType,
+        loadDataAfter: (ok: Boolean, items: List<DataItem>) -> Unit
+    ): Boolean = false
 
     @WorkerThread
-    open fun loadData(bundle: Bundle? = null, search: String? = null, paging: Paging,
-                      loadType: LoadType): List<DataItem>? = null
+    open fun loadData(
+        bundle: Bundle? = null,
+        search: String? = null,
+        paging: Paging,
+        loadType: LoadType
+    ): List<DataItem>? = null
 
     open fun loadInitBefore(bundle: Bundle?) {
         update { it.setDataLoading() }
@@ -161,21 +169,22 @@ abstract class AbsListPresenter(app: Application) : AndroidViewModel(app) {
         } ?: false
     }
 
-    fun change(dataItem: DataItem) {
-        (itemList.value?.indexOf(dataItem) ?: -1).also {
-            if (it >= 0) {
-                change(dataItem)
-                changePosition.postValue(it)
+    fun change(position: Int, change: (Bundle, DataItem) -> Unit) {
+        itemList.value?.apply {
+            if (position in 0 until size) {
+                val bundle = bundleOf("position" to position, "payload" to false)
+                change(bundle, this[position])
+                changePosition.postValue(bundle)
             }
         }
     }
 
-    fun change(predicate: (DataItem) -> Boolean, change: (DataItem) -> Unit) {
+    fun change(change: (Bundle, DataItem) -> Boolean) {
         itemList.value?.forEachIndexed { index, dataItem ->
-            if (predicate(dataItem)) {
-                change(dataItem)
+            val bundle = bundleOf("position" to index, "payload" to false)
+            if (change(bundle, dataItem)) {
+                changePosition.postValue(bundle)
             }
-            changePosition.postValue(index)
         }
     }
 

@@ -6,12 +6,13 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.os.bundleOf
 import androidx.databinding.ViewDataBinding
 import androidx.fragment.app.Fragment
 import com.github.luoyemyy.aclin.app.R
-import com.github.luoyemyy.aclin.app.api.refreshApi
+import com.github.luoyemyy.aclin.app.common.api.refreshApi
+import com.github.luoyemyy.aclin.app.common.util.BusEvent
 import com.github.luoyemyy.aclin.app.databinding.FragmentListBinding
-import com.github.luoyemyy.aclin.app.ext.BusEvent
 import com.github.luoyemyy.aclin.app.mvp.BaseAdapter
 import com.github.luoyemyy.aclin.bus.postBus
 import com.github.luoyemyy.aclin.mvp.*
@@ -45,17 +46,30 @@ class ProfileFragment : Fragment() {
         }
 
         override fun onItemViewClick(vh: VH<ViewDataBinding>, view: View) {
-            val profile = Profile.allTypes()[vh.adapterPosition]
-            if (!profile.isActive()) {
-                Profile.changeType(context, profile) {
+            val selectPosition = vh.adapterPosition
+            val activePosition = Profile.activePosition()
+            if (activePosition != selectPosition) {
+                Profile.changeType(context, selectPosition) {
                     refreshApi()
-                    mPresenter.loadRefresh(false)
                     postBus(BusEvent.PROFILE_CHANGE)
+                    notifyItemChanged(activePosition, bundleOf("active" to false, "type" to "profile"))
+                    notifyItemChanged(selectPosition, bundleOf("active" to true, "type" to "profile"))
                 }
             }
         }
 
-        override fun enableMoreGone(): Boolean {
+        override fun bindContent(binding: ViewDataBinding, item: DataItem, viewType: Int, position: Int, payloads: MutableList<Any>) {
+            val bundle = payloads[0] as Bundle
+            when {
+                bundle.getString("type") == "profile" && item is ProfileItem -> {
+                    item.active = bundle.getBoolean("active")
+                    binding.setVariable(1, item)
+                }
+            }
+            binding.executePendingBindings()
+        }
+
+        override fun enableLoadMore(): Boolean {
             return false
         }
 
@@ -65,6 +79,7 @@ class ProfileFragment : Fragment() {
     }
 
     class Presenter(private var mApp: Application) : AbsListPresenter(mApp) {
+
         override fun loadData(bundle: Bundle?, search: String?, paging: Paging, loadType: LoadType): List<DataItem>? {
             return Profile.allTypes().map { ProfileItem(it.desc, it.isActive()) }
         }

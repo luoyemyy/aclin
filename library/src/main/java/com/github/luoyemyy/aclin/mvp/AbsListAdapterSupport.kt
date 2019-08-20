@@ -28,14 +28,16 @@ interface AbsListAdapterSupport {
      */
     fun bindContent(binding: ViewDataBinding, item: DataItem, viewType: Int, position: Int)
 
-    fun bindContent(binding: ViewDataBinding, item: DataItem, viewType: Int, position: Int, payloads: MutableList<Any>) {
-        bindContent(binding, item, viewType, position)
+    fun bindContent(binding: ViewDataBinding, item: DataItem, viewType: Int, position: Int,
+                    payloads: MutableList<Any>) {
     }
 
     /**
      *
      */
     fun bindExtra(binding: ViewDataBinding, item: DataItem, viewType: Int, position: Int) {}
+
+    fun bindExtra(binding: ViewDataBinding, item: DataItem, viewType: Int, position: Int, payloads: MutableList<Any>) {}
 
     /**
      * 内容类型

@@ -1,6 +1,6 @@
 package com.github.luoyemyy.aclin.mvp
 
-import android.os.Handler
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
@@ -16,19 +16,15 @@ import androidx.recyclerview.widget.RecyclerView
 import com.github.luoyemyy.aclin.databinding.*
 import com.github.luoyemyy.aclin.ext.runDelay
 
-abstract class AbsListAdapter(
-    owner: LifecycleOwner,
-    val mPresenter: AbsListPresenter,
-    diffCallback: DiffUtil.ItemCallback<DataItem> = object : DiffUtil.ItemCallback<DataItem>() {
-        override fun areItemsTheSame(oldItem: DataItem, newItem: DataItem): Boolean {
-            return oldItem == newItem
-        }
-
-        override fun areContentsTheSame(oldItem: DataItem, newItem: DataItem): Boolean {
-            return mPresenter.areContentsTheSame(oldItem, newItem)
-        }
+abstract class AbsListAdapter(owner: LifecycleOwner, private val mPresenter: AbsListPresenter, diffCallback: DiffUtil.ItemCallback<DataItem> = object : DiffUtil.ItemCallback<DataItem>() {
+    override fun areItemsTheSame(oldItem: DataItem, newItem: DataItem): Boolean {
+        return oldItem == newItem
     }
-) : ListAdapter<DataItem, VH<ViewDataBinding>>(diffCallback), AbsListAdapterSupport {
+
+    override fun areContentsTheSame(oldItem: DataItem, newItem: DataItem): Boolean {
+        return mPresenter.areContentsTheSame(oldItem, newItem)
+    }
+}) : ListAdapter<DataItem, VH<ViewDataBinding>>(diffCallback), AbsListAdapterSupport {
 
 
     private var mEnableSort = false
@@ -39,14 +35,22 @@ abstract class AbsListAdapter(
     init {
         mPresenter.apply {
             configDataSet(enableEmpty(), enableLoadMore(), enableMoreGone())
+            refreshState.removeObservers(owner)
+            itemList.removeObservers(owner)
+            changePosition.removeObservers(owner)
             refreshState.observe(owner, Observer {
                 setRefreshState(it)
             })
             itemList.observe(owner, Observer {
+                Log.e("AbsListAdapter", ":  itemList")
                 submitList(it)
             })
             changePosition.observe(owner, Observer {
-                notifyItemChanged(it)
+                if (it.getBoolean("payload")) {
+                    notifyItemChanged(it.getInt("position"), it)
+                } else {
+                    notifyItemChanged(it.getInt("position"))
+                }
             })
         }
     }
@@ -80,13 +84,18 @@ abstract class AbsListAdapter(
         }
     }
 
+
     override fun onBindViewHolder(holder: VH<ViewDataBinding>, position: Int, payloads: MutableList<Any>) {
-        triggerLoadMore(position)
-        val viewType = getItemViewType(position)
-        if (viewType < 0) {
-            bindExtra(holder.binding, getItem(position), viewType, position)
+        if (payloads.size == 0) {
+            onBindViewHolder(holder, position)
         } else {
-            bindContent(holder.binding, getItem(position), viewType, position, payloads)
+            triggerLoadMore(position)
+            val viewType = getItemViewType(position)
+            if (viewType < 0) {
+                bindExtra(holder.binding, getItem(position), viewType, holder.adapterPosition, payloads)
+            } else {
+                bindContent(holder.binding, getItem(position), viewType, holder.adapterPosition, payloads)
+            }
         }
     }
 
@@ -167,6 +176,4 @@ abstract class AbsListAdapter(
             }
         }
     }
-
-
 }

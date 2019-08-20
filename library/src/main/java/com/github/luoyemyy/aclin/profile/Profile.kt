@@ -25,7 +25,7 @@ object Profile {
 
     data class Item<T>(private val dev: T, private val test: T, private val demo: T, private val pro: T) {
         fun get(): T {
-            return when (currentType()) {
+            return when (active()) {
                 ProfileType.DEV -> dev
                 ProfileType.TEST -> test
                 ProfileType.DEMO -> demo
@@ -48,7 +48,7 @@ object Profile {
                 "release" -> ProfileType.PRO.active()
                 else -> ProfileType.DEV.active()
             }
-            context.spfInt(ACTIVE_PROFILE, currentType().type)
+            context.spfInt(ACTIVE_PROFILE, active().type)
         } else {
             when (activeProfile) {
                 ProfileType.PRO.type -> ProfileType.PRO
@@ -71,15 +71,14 @@ object Profile {
 
     fun allTypes() = arrayOf(ProfileType.DEV, ProfileType.TEST, ProfileType.DEMO, ProfileType.PRO)
 
-    fun allTypeDescs() = allTypes().map { it.desc }.toTypedArray()
+    fun allTypeDesc() = allTypes().map { it.desc }.toTypedArray()
 
-    fun currentType(): ProfileType {
-        return when {
-            ProfileType.TEST.isActive() -> ProfileType.TEST
-            ProfileType.DEMO.isActive() -> ProfileType.DEMO
-            ProfileType.PRO.isActive() -> ProfileType.PRO
-            else -> ProfileType.DEV
-        }
+    fun active(): ProfileType {
+        return allTypes().first { it.isActive() }
+    }
+
+    fun activePosition(): Int {
+        return allTypes().indexOf(active())
     }
 
     fun <T : Any> add(key: String, dev: T, pro: T = dev, test: T = dev, demo: T = dev) {

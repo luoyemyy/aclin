@@ -1,4 +1,4 @@
-package com.github.luoyemyy.aclin.app.ext
+package com.github.luoyemyy.aclin.app.common.util
 
 import android.view.View
 import androidx.databinding.BindingAdapter

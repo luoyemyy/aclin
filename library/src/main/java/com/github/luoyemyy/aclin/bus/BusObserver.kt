@@ -2,7 +2,11 @@
 
 package com.github.luoyemyy.aclin.bus
 
-import androidx.lifecycle.*
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleObserver
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.OnLifecycleEvent
+import com.github.luoyemyy.aclin.ext.runImmediate
 
 /**
  * bus 管理注册器
@@ -28,24 +32,33 @@ internal class BusObserver constructor(
         }
     }
 
+    private fun isResume(): Boolean {
+        return lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED)
+    }
+
     @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
     fun onDestroy(source: LifecycleOwner) {
+        pendingEvents.clear()
+        lifecycle.removeObserver(this)
         Bus.unRegister(this)
-        source.lifecycle.removeObserver(this)
     }
 
     @OnLifecycleEvent(Lifecycle.Event.ON_RESUME)
     fun onResume(source: LifecycleOwner) {
-        pendingEvents.forEach {
-            mResult.busResult(it)
+        runImmediate {
+            if (isResume()) {
+                pendingEvents.forEach {
+                    mResult.busResult(it)
+                }
+                pendingEvents.clear()
+            }
         }
-        pendingEvents.clear()
     }
 
     override fun interceptEvent(): String = mEvent
 
     override fun busResult(msg: BusMsg) {
-        if (lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED)) {
+        if (isResume()) {
             mResult.busResult(msg)
         } else {
             if (mEvent.endsWith("@REPLACE")) {
