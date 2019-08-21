@@ -9,6 +9,7 @@ import androidx.fragment.app.Fragment
 import com.github.luoyemyy.aclin.app.databinding.FragmentPermissionBinding
 import com.github.luoyemyy.aclin.ext.toast
 import com.github.luoyemyy.aclin.permission.PermissionManager
+import com.github.luoyemyy.aclin.permission.requestPermission
 
 class PermissionFragment : Fragment(), View.OnClickListener {
 
@@ -24,7 +25,8 @@ class PermissionFragment : Fragment(), View.OnClickListener {
     }
 
     override fun onClick(p0: View?) {
-        PermissionManager.Builder(this)
+        requestPermission(this).granted { }.denied { }.buildAndRequest()
+        requestPermission(this,"使用拍照功能需要相机权限")
             .granted {
                 requireContext().toast("已取得权限")
             }

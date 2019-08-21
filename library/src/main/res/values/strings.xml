@@ -5,4 +5,7 @@
     <string name="aclin_more_end">没有更多</string>
     <string name="aclin_more_failure">加载失败，点击重试</string>
     <string name="aclin_more_loading">加载中&#8230;</string>
+    <string name="aclin_permission_to_setting">去设置</string>
+    <string name="aclin_permission_request_title">请求权限</string>
+    <string name="aclin_permission_failure_title">请求权限失败</string>
 </resources>

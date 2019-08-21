@@ -1,6 +1,5 @@
 package com.github.luoyemyy.aclin.permission
 
-import android.app.Application
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -9,38 +8,41 @@ import android.os.Build
 import android.provider.Settings
 import androidx.annotation.Size
 import androidx.appcompat.app.AlertDialog
+import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
-import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LifecycleOwner
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.Observer
+import com.github.luoyemyy.aclin.R
 import com.github.luoyemyy.aclin.mvp.getPresenter
 
-typealias PermissionCallback = (Array<String>) -> Unit
 
 object PermissionManager {
 
     fun toSetting(fragment: Fragment, msg: String) {
-        AlertDialog.Builder(fragment.requireContext()).setCancelable(false)
-            .setMessage(msg)
-            .setPositiveButton(android.R.string.ok) { _, i ->
-                val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
-                    .setData(Uri.fromParts("package", fragment.requireContext().packageName, null))
-                fragment.startActivityForResult(intent, 1)
-            }
-            .setNegativeButton(android.R.string.cancel, null)
-            .show()
+        showDialog(fragment.requireContext(), R.string.aclin_permission_failure_title, msg, R.string.aclin_permission_to_setting) {
+            toSetting(fragment.requireActivity())
+        }
     }
 
     fun toSetting(activity: FragmentActivity, msg: String) {
-        AlertDialog.Builder(activity).setCancelable(false)
+        showDialog(activity, R.string.aclin_permission_failure_title, msg, R.string.aclin_permission_to_setting) {
+            toSetting(activity)
+        }
+    }
+
+    private fun toSetting(activity: FragmentActivity) {
+        val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
+            .setData(Uri.fromParts("package", activity.packageName, null))
+        activity.startActivityForResult(intent, 1)
+    }
+
+    private fun showDialog(context: Context, title: Int, msg: String, okText: Int = android.R.string.ok, okCallback: () -> Unit) {
+        AlertDialog.Builder(context).setCancelable(false)
+            .setTitle(title)
             .setMessage(msg)
-            .setPositiveButton(android.R.string.ok) { _, i ->
-                val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
-                    .setData(Uri.fromParts("package", activity.packageName, null))
-                activity.startActivityForResult(intent, 1)
+            .setPositiveButton(okText) { _, _ ->
+                okCallback()
             }
             .setNegativeButton(android.R.string.cancel, null)
             .show()
@@ -72,17 +74,20 @@ object PermissionManager {
         private lateinit var mContext: Context
         private lateinit var mOwner: LifecycleOwner
         private lateinit var mAct: FragmentActivity
+        private var mRationale: String? = null
 
-        constructor(fragment: Fragment) : this() {
+        constructor(fragment: Fragment, rationale: String? = null) : this() {
             mContext = fragment.requireContext()
             mOwner = fragment
             mAct = fragment.requireActivity()
+            mRationale = rationale
         }
 
-        constructor(activity: FragmentActivity) : this() {
+        constructor(activity: FragmentActivity, rationale: String? = null) : this() {
             mContext = activity
             mOwner = activity
             mAct = activity
+            mRationale = rationale
         }
 
         /**
@@ -102,70 +107,40 @@ object PermissionManager {
         }
 
         fun buildAndRequest(vararg perms: String) {
-            val perms2 = perms.toList().toTypedArray()
+            val allPerms = perms.toList().toTypedArray()
             val notGrantedPerms = filterNotGrantedPermissions(mContext, *perms)
             if (notGrantedPerms.isNullOrEmpty()) {
-                mGranted?.invoke(perms2)
+                mGranted?.invoke(allPerms)
             } else {
-                PermissionFragment.injectIfNeededIn(mAct)
-                mAct.getPresenter<PermissionPresenter>().also {
-                    it.callback(mOwner, mGranted ?: {}, mDenied ?: {})
-                    it.request(perms2, notGrantedPerms)
+                if (!mRationale.isNullOrEmpty() && !hasNeverAsk(notGrantedPerms)) {
+                    confirmRequest(allPerms, notGrantedPerms)
+                } else {
+                    request(allPerms, notGrantedPerms)
                 }
             }
         }
-    }
-}
 
-class PermissionPresenter(app: Application) : AndroidViewModel(app) {
-
-    private val mGranted = MutableLiveData<Array<String>>()
-    private val mDenied = MutableLiveData<Array<String>>()
-    private lateinit var mAllPerms: Array<String>
-
-    internal val request = MutableLiveData<Array<String>>()
-
-    /**
-     * @param owner 发起授权的页面
-     */
-    internal fun callback(owner: LifecycleOwner, granted: PermissionCallback, denied: PermissionCallback) {
-        //重复点击授权时，首先清除可能在上一次注册过的
-        mGranted.removeObservers(owner)
-        mDenied.removeObservers(owner)
-        mGranted.observe(owner, Observer {
-            if (!it.isNullOrEmpty()) {
-                clear()
-                granted(it)
+        private fun hasNeverAsk(notGrantedPerms: Array<String>): Boolean {
+            return notGrantedPerms.any {
+                !ActivityCompat.shouldShowRequestPermissionRationale(mAct, it)
             }
-        })
-        mDenied.observe(owner, Observer {
-            if (!it.isNullOrEmpty()) {
-                clear()
-                denied(it)
+        }
+
+        private fun confirmRequest(allPerms: Array<String>, notGrantedPerms: Array<String>) {
+            mRationale?.apply {
+                showDialog(mContext, R.string.aclin_permission_request_title, this) {
+                    request(allPerms, notGrantedPerms)
+                }
             }
-        })
-    }
+        }
 
-    internal fun granted() {
-        mGranted.postValue(mAllPerms)
-    }
-
-    internal fun denied(perms: Array<String>) {
-        mDenied.postValue(perms)
-    }
-
-    internal fun request(allPerms: Array<String>, notGrantedPerms: Array<String>) {
-        mAllPerms = allPerms
-        request.postValue(notGrantedPerms)
-    }
-
-    /**
-     * 清除liveData中的最后一个值，防止下次 observe 时，会发送最后一个值
-     */
-    private fun clear() {
-        mDenied.postValue(null)
-        mGranted.postValue(null)
-        request.postValue(null)
+        private fun request(allPerms: Array<String>, notGrantedPerms: Array<String>) {
+            PermissionFragment.injectIfNeededIn(mAct)
+            mAct.getPresenter<PermissionPresenter>().also {
+                it.callback(mOwner, mGranted ?: {}, mDenied ?: {})
+                it.request(allPerms, notGrantedPerms)
+            }
+        }
     }
 }
 
