@@ -56,21 +56,13 @@ object Bus {
     /**
      * 派发消息
      */
-    fun post(
-        event: String,
-        intValue: Int = 0,
-        longValue: Long = 0L,
-        boolValue: Boolean = false,
-        stringValue: String? = null,
-        extra: Bundle? = null
-    ) {
+    fun post(event: String, intValue: Int = 0, longValue: Long = 0L, boolValue: Boolean = false, stringValue: String? = null, extra: Bundle? = null) {
         mHandler.post {
             BusMsg(event, intValue, longValue, boolValue, stringValue, extra).apply {
                 mCallbacks.filter { it.interceptEvent() == event }
                     .apply { debugOnPost(event, this) }
                     .forEach { it.busResult(this) }
             }
-
         }
     }
 

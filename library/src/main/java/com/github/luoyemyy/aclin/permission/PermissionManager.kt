@@ -41,9 +41,7 @@ object PermissionManager {
         AlertDialog.Builder(context).setCancelable(false)
             .setTitle(title)
             .setMessage(msg)
-            .setPositiveButton(okText) { _, _ ->
-                okCallback()
-            }
+            .setPositiveButton(okText) { _, _ -> okCallback() }
             .setNegativeButton(android.R.string.cancel, null)
             .show()
     }

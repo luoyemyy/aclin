@@ -11,7 +11,7 @@ import retrofit2.converter.gson.GsonConverterFactory
 /**
  * demo code
  *
-class Api : AbsApiManager() {
+//class Api : AbsApiManager() {
 //
 //    companion object {
 //        private val api = Api().apply { initApi() }
