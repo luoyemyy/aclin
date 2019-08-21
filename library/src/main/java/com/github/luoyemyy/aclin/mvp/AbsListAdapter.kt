@@ -42,7 +42,6 @@ abstract class AbsListAdapter(owner: LifecycleOwner, private val mPresenter: Abs
                 setRefreshState(it)
             })
             itemList.observe(owner, Observer {
-                Log.e("AbsListAdapter", ":  itemList")
                 submitList(it)
             })
             changePosition.observe(owner, Observer {
