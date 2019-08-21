@@ -9,11 +9,7 @@ class SortCallback(private val mPresenter: AbsListPresenter, private val mAdapte
         0
     ) {
 
-    override fun onMove(
-        recyclerView: RecyclerView,
-        viewHolder: RecyclerView.ViewHolder,
-        target: RecyclerView.ViewHolder
-    ): Boolean {
+    override fun onMove(recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder, target: RecyclerView.ViewHolder): Boolean {
         return mPresenter.move(mAdapter.getItem(viewHolder.adapterPosition), mAdapter.getItem(target.adapterPosition))
     }
 

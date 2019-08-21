@@ -46,9 +46,11 @@ abstract class AbsApiManager {
 
     abstract fun baseUrl(): String
 
-    open fun client(): OkHttpClient.Builder = OkHttpClient.Builder().addInterceptor(HttpLoggingInterceptor().apply {
-        level = HttpLoggingInterceptor.Level.BODY
-    })
+    open fun client(): OkHttpClient.Builder {
+        return OkHttpClient.Builder().addInterceptor(HttpLoggingInterceptor().apply {
+            level = HttpLoggingInterceptor.Level.BODY
+        })
+    }
 
     open fun converter(): Converter.Factory? = GsonConverterFactory.create()
 

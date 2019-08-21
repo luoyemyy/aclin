@@ -134,8 +134,8 @@ class PermissionPresenter(app: Application) : AndroidViewModel(app) {
         mDenied.removeObservers(owner)
         mGranted.observe(owner, Observer {
             if (!it.isNullOrEmpty()) {
-                granted(it)
                 clear()
+                granted(it)
             }
         })
         mDenied.observe(owner, Observer {

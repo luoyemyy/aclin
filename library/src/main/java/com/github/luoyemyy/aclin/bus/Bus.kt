@@ -45,8 +45,6 @@ object Bus {
 
     /**
      * 注销观察者
-     *
-     * @param callback
      */
     @MainThread
     fun unRegister(callback: Callback) {
@@ -58,11 +56,21 @@ object Bus {
     /**
      * 派发消息
      */
-    fun post(event: String, intValue: Int = 0, longValue: Long = 0L, boolValue: Boolean = false, stringValue: String? = null, extra: Bundle? = null) {
+    fun post(
+        event: String,
+        intValue: Int = 0,
+        longValue: Long = 0L,
+        boolValue: Boolean = false,
+        stringValue: String? = null,
+        extra: Bundle? = null
+    ) {
         mHandler.post {
-            val msg = BusMsg(event, intValue, longValue, boolValue, stringValue, extra)
-            mCallbacks.filter { it.interceptEvent() == event }.apply { debugOnPost(event, this) }
-                .forEach { it.busResult(msg) }
+            BusMsg(event, intValue, longValue, boolValue, stringValue, extra).apply {
+                mCallbacks.filter { it.interceptEvent() == event }
+                    .apply { debugOnPost(event, this) }
+                    .forEach { it.busResult(this) }
+            }
+
         }
     }
 

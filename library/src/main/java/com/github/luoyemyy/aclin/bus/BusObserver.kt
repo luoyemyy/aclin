@@ -62,8 +62,8 @@ internal class BusObserver constructor(
             mResult.busResult(msg)
         } else {
             if (mEvent.endsWith("@REPLACE")) {
-                //如果 event 包含替换后缀，则会删除之前相同的事件，只保留最新的一个
-                pendingEvents.removeAll { it.event == mEvent }
+                //如果 event 包含替换后缀，则只保留最新的一个
+                pendingEvents.clear()
             }
             pendingEvents.add(msg)
         }

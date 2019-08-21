@@ -85,8 +85,15 @@ fun View.show() {
  */
 fun Context.dp2px(dp: Int) = (resources.displayMetrics.density * dp).roundToInt()
 
-fun Context.hasPermission(vararg permissions: String): Boolean =
-    if (permissions.isEmpty()) false else permissions.none { ContextCompat.checkSelfPermission(this, it) == PackageManager.PERMISSION_DENIED }
+fun Context.hasPermission(vararg permissions: String): Boolean {
+    return if (permissions.isEmpty()) {
+        false
+    } else {
+        permissions.all {
+            ContextCompat.checkSelfPermission(this, it) == PackageManager.PERMISSION_GRANTED
+        }
+    }
+}
 
 fun Context.toast(@StringRes messageId: Int = 0) = Toast.makeText(this, messageId, Toast.LENGTH_SHORT).show()
 
