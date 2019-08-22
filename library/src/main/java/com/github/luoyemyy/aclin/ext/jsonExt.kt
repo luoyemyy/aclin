@@ -27,19 +27,13 @@ inline fun <reified T> String?.toObject(): T? {
 }
 
 inline fun <reified T> String?.toList(): List<T>? {
-    return if (this.isNullOrEmpty()) {
-        null
-    } else {
-        JsonExt.json.fromJson<List<T>>(JsonExt.jsonParser.parse(this), JsonExt.ArrayListType(T::class.java))
-    }
+    return if (this.isNullOrEmpty()) null
+    else JsonExt.json.fromJson<List<T>>(JsonExt.jsonParser.parse(this), JsonExt.ArrayListType(T::class.java))
 }
 
 inline fun <reified T> String?.toLinkedList(): List<T>? {
-    return if (this.isNullOrEmpty()) {
-        null
-    } else {
-        JsonExt.json.fromJson<List<T>>(JsonExt.jsonParser.parse(this), JsonExt.LinkedListType(T::class.java))
-    }
+    return if (this.isNullOrEmpty()) null
+    else JsonExt.json.fromJson<List<T>>(JsonExt.jsonParser.parse(this), JsonExt.LinkedListType(T::class.java))
 }
 
 //*************************************************************************************/
@@ -66,8 +60,7 @@ inline fun <reified T> JsonArray?.toLinkedList(): List<T>? =
 //********************************** JsonObject ***************************************/
 //*************************************************************************************/
 
-inline fun <reified T> JsonObject?.toObject(): T? =
-    if (this == null) null else JsonExt.json.fromJson(this, T::class.java)
+inline fun <reified T> JsonObject?.toObject(): T? = if (this == null) null else JsonExt.json.fromJson(this, T::class.java)
 
 fun <T> JsonObject.addObject(key: String, obj: T): JsonObject {
     this.add(key, obj.toJsonObject())

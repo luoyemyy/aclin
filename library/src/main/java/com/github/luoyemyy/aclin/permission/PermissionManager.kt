@@ -32,18 +32,13 @@ object PermissionManager {
     }
 
     private fun toSetting(activity: FragmentActivity) {
-        val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
-            .setData(Uri.fromParts("package", activity.packageName, null))
+        val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).setData(Uri.fromParts("package", activity.packageName, null))
         activity.startActivityForResult(intent, 1)
     }
 
     private fun showDialog(context: Context, title: Int, msg: String, okText: Int = android.R.string.ok, okCallback: () -> Unit) {
-        AlertDialog.Builder(context).setCancelable(false)
-            .setTitle(title)
-            .setMessage(msg)
-            .setPositiveButton(okText) { _, _ -> okCallback() }
-            .setNegativeButton(android.R.string.cancel, null)
-            .show()
+        AlertDialog.Builder(context).setCancelable(false).setTitle(title).setMessage(msg).setPositiveButton(okText) { _, _ -> okCallback() }
+            .setNegativeButton(android.R.string.cancel, null).show()
     }
 
     /**

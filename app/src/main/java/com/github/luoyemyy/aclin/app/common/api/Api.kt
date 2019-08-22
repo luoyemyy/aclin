@@ -7,7 +7,6 @@ class Api : AbsApiManager() {
 
     companion object {
         private val api = Api().apply { initApi() }
-
         fun getInstance() = api
     }
 

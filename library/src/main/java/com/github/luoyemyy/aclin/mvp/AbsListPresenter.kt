@@ -75,16 +75,11 @@ abstract class AbsListPresenter(app: Application) : AndroidViewModel(app) {
     }
 
     @MainThread
-    open fun loadData(
-        bundle: Bundle? = null, search: String? = null, paging: Paging,
-        loadType: LoadType, loadDataAfter: (ok: Boolean, items: List<DataItem>) -> Unit
-    ): Boolean = false
+    open fun loadData(bundle: Bundle? = null, search: String? = null, paging: Paging, loadType: LoadType,
+        loadDataAfter: (ok: Boolean, items: List<DataItem>) -> Unit): Boolean = false
 
     @WorkerThread
-    open fun loadData(
-        bundle: Bundle? = null, search: String? = null, paging: Paging,
-        loadType: LoadType
-    ): List<DataItem>? = null
+    open fun loadData(bundle: Bundle? = null, search: String? = null, paging: Paging, loadType: LoadType): List<DataItem>? = null
 
     open fun loadInitBefore(bundle: Bundle?) {
         update { it.setDataLoading() }

@@ -13,21 +13,26 @@ class App : Application(), BusDebugListener {
     override fun onCreate() {
         super.onCreate()
         Db.initDb(this)
-        AppInfo.init(this)
-        Profile.initType(this, BuildConfig.BUILD_TYPE)
+        AppInfo.init(this, BuildConfig.BUILD_TYPE)
         ProfileProperties.initProperties()
 
-//        debugBus(this)
+        //        debugBus(this)
     }
 
     override fun onRegister(current: Bus.Callback, all: List<Bus.Callback>) {
-        Log.e("App", "debugBus.onRegister: current=[${current.interceptEvent()}],all=[${all.joinToString(
-                ",") { it.interceptEvent() }}]")
+        Log.e(
+            "App", "debugBus.onRegister: current=[${current.interceptEvent()}],all=[${all.joinToString(
+                ","
+            ) { it.interceptEvent() }}]"
+        )
     }
 
     override fun onUnRegister(current: Bus.Callback, all: List<Bus.Callback>) {
-        Log.e("App", "debugBus.onUnRegister: current=[${current.interceptEvent()}],all=[${all.joinToString(
-                ",") { it.interceptEvent() }}]")
+        Log.e(
+            "App", "debugBus.onUnRegister: current=[${current.interceptEvent()}],all=[${all.joinToString(
+                ","
+            ) { it.interceptEvent() }}]"
+        )
     }
 
     override fun onPost(event: String, match: List<Bus.Callback>) {

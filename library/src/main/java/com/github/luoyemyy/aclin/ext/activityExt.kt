@@ -85,6 +85,10 @@ fun View.show() {
  */
 fun Context.dp2px(dp: Int) = (resources.displayMetrics.density * dp).roundToInt()
 
+fun Context.toast(@StringRes messageId: Int = 0) = Toast.makeText(this, messageId, Toast.LENGTH_SHORT).show()
+
+fun Context.toast(message: String = "toast message") = Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
+
 fun Context.hasPermission(vararg permissions: String): Boolean {
     return if (permissions.isEmpty()) {
         false
@@ -94,7 +98,3 @@ fun Context.hasPermission(vararg permissions: String): Boolean {
         }
     }
 }
-
-fun Context.toast(@StringRes messageId: Int = 0) = Toast.makeText(this, messageId, Toast.LENGTH_SHORT).show()
-
-fun Context.toast(message: String = "toast message") = Toast.makeText(this, message, Toast.LENGTH_SHORT).show()

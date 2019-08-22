@@ -10,13 +10,10 @@ import com.github.luoyemyy.aclin.app.common.db.entity.DbUser
 abstract class Db : RoomDatabase() {
 
     companion object {
-
         private lateinit var db: Db
-
         fun initDb(app: App) {
             db = Room.databaseBuilder(app, Db::class.java, "db").build()
         }
-
         fun getInstance(): Db = db
     }
 

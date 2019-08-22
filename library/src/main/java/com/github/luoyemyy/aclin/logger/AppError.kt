@@ -12,10 +12,8 @@ import java.text.SimpleDateFormat
 import java.util.*
 
 
-class AppError private constructor(
-    private val mApp: Application,
-    private val mDefaultHandler: Thread.UncaughtExceptionHandler?
-) : Thread.UncaughtExceptionHandler {
+class AppError private constructor(private val mApp: Application, private val mDefaultHandler: Thread.UncaughtExceptionHandler?) :
+        Thread.UncaughtExceptionHandler {
 
     //用来存储设备信息
     private var deviceInfo: String? = null

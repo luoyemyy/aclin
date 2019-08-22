@@ -3,7 +3,7 @@ package com.github.luoyemyy.aclin.mvp
 import java.util.*
 
 class DataSet(var paging: Paging = Paging.Page(), var enableEmpty: Boolean = true, var enableMore: Boolean = true,
-              var enableMoreGone: Boolean = false) {
+    var enableMoreGone: Boolean = false) {
 
     companion object {
         const val INIT_LOADING = -1

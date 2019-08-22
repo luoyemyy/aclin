@@ -15,9 +15,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.github.luoyemyy.aclin.databinding.*
 import com.github.luoyemyy.aclin.ext.runDelay
 
-abstract class AbsListAdapter(
-    owner: LifecycleOwner,
-    private val mPresenter: AbsListPresenter,
+abstract class AbsListAdapter(owner: LifecycleOwner, private val mPresenter: AbsListPresenter,
     diffCallback: DiffUtil.ItemCallback<DataItem> = object : DiffUtil.ItemCallback<DataItem>() {
         override fun areItemsTheSame(oldItem: DataItem, newItem: DataItem): Boolean {
             return oldItem == newItem
@@ -26,8 +24,7 @@ abstract class AbsListAdapter(
         override fun areContentsTheSame(oldItem: DataItem, newItem: DataItem): Boolean {
             return mPresenter.areContentsTheSame(oldItem, newItem)
         }
-    }
-) : ListAdapter<DataItem, VH<ViewDataBinding>>(diffCallback), AbsListAdapterSupport {
+    }) : ListAdapter<DataItem, VH<ViewDataBinding>>(diffCallback), AbsListAdapterSupport {
 
 
     private var mEnableSort = false
@@ -153,11 +150,7 @@ abstract class AbsListAdapter(
         }
     }
 
-    private fun createExtraDefaultBinding(
-        inflater: LayoutInflater,
-        parent: ViewGroup,
-        viewType: Int
-    ): ViewDataBinding? {
+    private fun createExtraDefaultBinding(inflater: LayoutInflater, parent: ViewGroup, viewType: Int): ViewDataBinding? {
         return when (viewType) {
             DataSet.INIT_LOADING -> AclinInitLoadingBinding.inflate(inflater, parent, false)
             DataSet.INIT_FAILURE -> AclinInitFailureBinding.inflate(inflater, parent, false).apply {

@@ -12,11 +12,8 @@ import com.github.luoyemyy.aclin.ext.runImmediate
  * bus 管理注册器
  * 注册后，此事件监听会绑定生命周期，不用手动去释放
  */
-internal class BusObserver constructor(
-    private val lifecycle: Lifecycle,
-    private val mResult: BusResult,
-    private var mEvent: String
-) : Bus.Callback, LifecycleObserver {
+internal class BusObserver constructor(private val lifecycle: Lifecycle, private val mResult: BusResult, private var mEvent: String) :
+        Bus.Callback, LifecycleObserver {
 
     private val pendingEvents: MutableList<BusMsg> = mutableListOf()
 

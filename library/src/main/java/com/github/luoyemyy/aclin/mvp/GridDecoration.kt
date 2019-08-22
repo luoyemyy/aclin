@@ -7,7 +7,8 @@ import androidx.recyclerview.widget.RecyclerView
 import kotlin.math.ceil
 import kotlin.math.roundToInt
 
-class GridDecoration private constructor(val context: Context, private val mColumn: Int, space: Int, spacePxUnit: Boolean) : RecyclerView.ItemDecoration() {
+class GridDecoration private constructor(val context: Context, private val mColumn: Int, space: Int, spacePxUnit: Boolean) :
+        RecyclerView.ItemDecoration() {
 
     companion object {
         fun create(context: Context, column: Int = 3, space: Int = 8, spacePxUnit: Boolean = false): GridDecoration {

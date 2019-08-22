@@ -195,19 +195,17 @@ class FileManager(val app: Application) {
          * 私有缓存目录的文件
          * /storage/emulated/0/Android/data/${packageName}/cache/${type.dir}/${name}${type.suffix}
          */
-        fun privateCacheFile(type: Type, name: String): File? =
-            privateCacheDir(type)?.let { File(it, "$name${type.suffix}") }
+        fun privateCacheFile(type: Type, name: String): File? = privateCacheDir(type)?.let { File(it, "$name${type.suffix}") }
 
         /**
          * 公共目录，包名（packageName）下的目录
          * 需要权限 Manifest.permission.WRITE_EXTERNAL_STORAGE
          * /storage/emulated/0/${packageName}/${type.dir}
          */
-        fun publicDir(type: Type): File? =
-            if (isMounted() && hasPermission()) Environment.getExternalStorageDirectory().let { baseDir ->
-                File(baseDir, "${app.packageName}${File.separator}${type.dir}").takeIf { it.exists() || it.mkdirs() }
-            }
-            else null
+        fun publicDir(type: Type): File? = if (isMounted() && hasPermission()) Environment.getExternalStorageDirectory().let { baseDir ->
+            File(baseDir, "${app.packageName}${File.separator}${type.dir}").takeIf { it.exists() || it.mkdirs() }
+        }
+        else null
 
         /**
          * 公共目录，包名（packageName）下的目录的文件
@@ -232,8 +230,7 @@ class FileManager(val app: Application) {
          * 需要权限 Manifest.permission.WRITE_EXTERNAL_STORAGE
          * /storage/emulated/0/${type.dir}/${name}${type.suffix}
          */
-        fun publicCustomFile(type: Type, name: String): File? =
-            publicCustomDir(type)?.let { File(it, "$name${type.suffix}") }
+        fun publicCustomFile(type: Type, name: String): File? = publicCustomDir(type)?.let { File(it, "$name${type.suffix}") }
 
         /**
          * 公共目录，android定义的标准目录
@@ -253,14 +250,13 @@ class FileManager(val app: Application) {
          * @param suffix    文件类型
          * /storage/emulated/0/${type}/${name}${suffix}
          */
-        fun publicStandardFile(dir: String, name: String, suffix: String): File? =
-            publicStandardDir(dir)?.let { File(it, "$name$suffix") }
+        fun publicStandardFile(dir: String, name: String, suffix: String): File? = publicStandardDir(dir)?.let { File(it, "$name$suffix") }
 
         private fun isMounted(): Boolean = Environment.getExternalStorageState() == Environment.MEDIA_MOUNTED
 
-        private fun hasPermission(): Boolean =
-            app.checkPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE, android.os.Process.myPid(),
-                    android.os.Process.myUid()) == PackageManager.PERMISSION_GRANTED
+        private fun hasPermission(): Boolean = app.checkPermission(
+            Manifest.permission.WRITE_EXTERNAL_STORAGE, android.os.Process.myPid(), android.os.Process.myUid()
+        ) == PackageManager.PERMISSION_GRANTED
     }
 
     companion object {

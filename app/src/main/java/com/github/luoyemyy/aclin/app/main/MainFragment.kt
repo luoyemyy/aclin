@@ -65,13 +65,7 @@ class MainFragment : Fragment(), BusResult {
             return listOf(binding.root)
         }
 
-        override fun bindContent(
-            binding: ViewDataBinding,
-            item: DataItem,
-            viewType: Int,
-            position: Int,
-            payloads: MutableList<Any>
-        ) {
+        override fun bindContent(binding: ViewDataBinding, item: DataItem, viewType: Int, position: Int, payloads: MutableList<Any>) {
             val bundle = payloads[0] as Bundle
             when {
                 bundle.getString("type") == "profile" && item is TextItem -> item.also {
@@ -95,16 +89,13 @@ class MainFragment : Fragment(), BusResult {
     class Presenter(private var mApp: Application) : AbsListPresenter(mApp) {
         override fun loadData(bundle: Bundle?, search: String?, paging: Paging, loadType: LoadType): List<DataItem>? {
             return listOf(
-                TextItem("mvp"),
-                TextItem("profile", Profile.active().desc),
-                TextItem("permission")
+                TextItem("mvp"), TextItem("profile", Profile.active().desc), TextItem("permission")
             )
         }
 
         fun updateProfile() {
             change { bundle, dataItem ->
                 if (dataItem is TextItem && dataItem.key == "profile") {
-                    Log.e("Presenter", "updateProfile:  ${Profile.active().desc}")
                     bundle.payloadEnable()
                     bundle.payloadType("profile")
                     bundle.putString("value", Profile.active().desc)
