@@ -2,8 +2,8 @@ package com.github.luoyemyy.aclin.mvp
 
 import java.util.*
 
-class DataSet(var paging: Paging = Paging.Page(), var enableEmpty: Boolean = true, var enableMore: Boolean = true,
-    var enableMoreGone: Boolean = false) {
+class DataSet(var paging: Paging = Paging.Page(), var enableEmptyItem: Boolean = true, var enableMoreItem: Boolean = true,
+    var enableMoreGone: Boolean = false, var enableInitItem: Boolean = true) {
 
     companion object {
         const val INIT_LOADING = -1
@@ -36,11 +36,11 @@ class DataSet(var paging: Paging = Paging.Page(), var enableEmpty: Boolean = tru
      * 判断是否可以加载更多
      */
     fun canLoadMore(): Boolean {
-        return enableMore && mInitState == INIT_END && mMoreState in arrayOf(MORE_LOADING, MORE_FAILURE)
+        return enableMoreItem && mInitState == INIT_END && mMoreState in arrayOf(MORE_LOADING, MORE_FAILURE)
     }
 
     private fun setLoadMoreState(list: List<DataItem>?) {
-        if (enableMore) {
+        if (enableMoreItem) {
             mMoreState = if (list.isNullOrEmpty() || list.size < paging.size()) {
                 MORE_END
             } else {
@@ -133,15 +133,15 @@ class DataSet(var paging: Paging = Paging.Page(), var enableEmpty: Boolean = tru
     fun getDataList(): List<DataItem> {
         val list = mutableListOf<DataItem>()
         when (mInitState) {
-            INIT_LOADING -> list.add(mInitLoadingData)
-            INIT_FAILURE -> list.add(mInitFailureData)
+            INIT_LOADING -> if (enableInitItem) list.add(mInitLoadingData)
+            INIT_FAILURE -> if (enableInitItem) list.add(mInitFailureData)
             INIT_END -> {
                 mData.size.also {
                     if (it == 0) {
-                        if (enableEmpty) list.add(mEmptyData)
+                        if (enableEmptyItem) list.add(mEmptyData)
                     } else {
                         list.addAll(mData)
-                        if (enableMore) {
+                        if (enableMoreItem) {
                             when (mMoreState) {
                                 MORE_LOADING -> list.add(mMoreLoadingData)
                                 MORE_FAILURE -> list.add(mMoreFailureData)

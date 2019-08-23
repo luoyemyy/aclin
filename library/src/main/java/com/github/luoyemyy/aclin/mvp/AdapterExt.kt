@@ -72,6 +72,11 @@ interface AdapterExt {
     fun enableEmpty(): Boolean = true
 
     /**
+     * 是否需要初始化数据样式
+     */
+    fun enableInit(): Boolean = true
+
+    /**
      * 加载完全部数据后，是否隐藏该项目
      */
     fun enableMoreGone(): Boolean = false

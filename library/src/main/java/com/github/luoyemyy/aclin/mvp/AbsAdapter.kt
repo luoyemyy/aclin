@@ -34,7 +34,7 @@ abstract class AbsAdapter(owner: LifecycleOwner, private val mListLiveData: List
 
     init {
         mListLiveData.apply {
-            configDataSet(enableEmpty(), enableLoadMore(), enableMoreGone())
+            configDataSet(enableEmpty(), enableLoadMore(), enableInit(), enableMoreGone())
             removeObservers(owner)
             refreshLiveData.removeObservers(owner)
             changeLiveData.removeObservers(owner)
@@ -140,7 +140,7 @@ abstract class AbsAdapter(owner: LifecycleOwner, private val mListLiveData: List
         }
     }
 
-    private fun createExtraBinding(inflater: LayoutInflater, parent: ViewGroup, viewType: Int): ViewDataBinding? {
+    open fun createExtraBinding(inflater: LayoutInflater, parent: ViewGroup, viewType: Int): ViewDataBinding? {
         return getExtraLayoutId(viewType).let {
             if (it > 0) {
                 DataBindingUtil.inflate(inflater, it, parent, false)
@@ -166,7 +166,7 @@ abstract class AbsAdapter(owner: LifecycleOwner, private val mListLiveData: List
         }
     }
 
-    private fun createContentBinding(inflater: LayoutInflater, parent: ViewGroup, viewType: Int): ViewDataBinding? {
+    open fun createContentBinding(inflater: LayoutInflater, parent: ViewGroup, viewType: Int): ViewDataBinding? {
         return getContentLayoutId(viewType).let {
             if (it > 0) {
                 DataBindingUtil.inflate(inflater, it, parent, false)

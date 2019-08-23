@@ -20,9 +20,10 @@ open class ListLiveData : LiveData<List<DataItem>>() {
     private val mLoadType = LoadType()
     private var mDisposable: Disposable? = null
 
-    fun configDataSet(empty: Boolean, more: Boolean, moreGone: Boolean) {
-        mDataSet.enableEmpty = empty
-        mDataSet.enableMore = more
+    fun configDataSet(empty: Boolean, more: Boolean, init: Boolean, moreGone: Boolean) {
+        mDataSet.enableEmptyItem = empty
+        mDataSet.enableMoreItem = more
+        mDataSet.enableInitItem = init
         mDataSet.enableMoreGone = moreGone
     }
 
