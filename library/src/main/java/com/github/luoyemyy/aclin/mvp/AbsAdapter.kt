@@ -39,7 +39,10 @@ abstract class AbsAdapter(owner: LifecycleOwner, private val mListLiveData: List
             refreshLiveData.removeObservers(owner)
             changeLiveData.removeObservers(owner)
             observe(owner, Observer {
-                submitList(it)
+                if (it.changeAll) {
+                    submitList(null)
+                }
+                submitList(it.data)
             })
             refreshLiveData.observe(owner, Observer {
                 setRefreshState(it)

@@ -11,7 +11,7 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
 
-open class ListLiveData : LiveData<List<DataItem>>() {
+open class ListLiveData : LiveData<DataItemGroup>() {
 
     val refreshLiveData = MutableLiveData<Boolean>()
     val changeLiveData = MutableLiveData<Bundle>() // position & payload
@@ -81,7 +81,7 @@ open class ListLiveData : LiveData<List<DataItem>>() {
     open fun loadData(bundle: Bundle? = null, search: String? = null, paging: Paging, loadType: LoadType): List<DataItem>? = null
 
     open fun loadInitBefore(bundle: Bundle?) {
-        update { it.setDataLoading() }
+        update { DataItemGroup(true, it.setDataLoading()) }
         mDataSet.paging.reset()
     }
 
@@ -91,7 +91,7 @@ open class ListLiveData : LiveData<List<DataItem>>() {
     }
 
     open fun loadSearchBefore(search: String?) {
-        update { it.setDataLoading() }
+        update { DataItemGroup(true, it.setDataLoading()) }
         mDataSet.paging.reset()
     }
 
@@ -134,24 +134,24 @@ open class ListLiveData : LiveData<List<DataItem>>() {
 
     open fun loadDataAfter(ok: Boolean, items: List<DataItem>) {
         when {
-            mLoadType.isMore() -> loadMoreAfter(ok, items)
-            mLoadType.isInit() -> loadInitAfter(ok, items)
-            mLoadType.isSearch() -> loadSearchAfter(ok, items)
-            mLoadType.isRefresh() -> loadRefreshAfter(ok, items)
+            mLoadType.isMore() -> DataItemGroup(false, loadMoreAfter(ok, items))
+            mLoadType.isInit() -> DataItemGroup(true, loadInitAfter(ok, items))
+            mLoadType.isSearch() -> DataItemGroup(true, loadSearchAfter(ok, items))
+            mLoadType.isRefresh() -> DataItemGroup(true, loadRefreshAfter(ok, items))
             else -> null
-        }?.also { list -> update { list } }
+        }?.also { group -> update { group } }
         mLoadType.complete()
     }
 
     fun move(start: DataItem?, end: DataItem?): Boolean {
-        return update { it.move(start, end) }
+        return update { DataItemGroup(false, it.move(start, end)) }
     }
 
     /**
      * DataSet#addDataAnchor
      * DataSet#delete
      */
-    fun update(callback: (DataSet) -> List<DataItem>?): Boolean {
+    fun update(callback: (DataSet) -> DataItemGroup?): Boolean {
         return callback(mDataSet)?.let {
             postValue(it)
             true
@@ -159,7 +159,7 @@ open class ListLiveData : LiveData<List<DataItem>>() {
     }
 
     fun change(position: Int, change: (Bundle, DataItem) -> Unit) {
-        value?.apply {
+        value?.data?.apply {
             if (position in 0 until size) {
                 val bundle = bundleOf("position" to position, "payload" to false)
                 change(bundle, this[position])
@@ -169,7 +169,7 @@ open class ListLiveData : LiveData<List<DataItem>>() {
     }
 
     fun change(change: (Bundle, DataItem) -> Boolean) {
-        value?.forEachIndexed { index, dataItem ->
+        value?.data?.forEachIndexed { index, dataItem ->
             val bundle = bundleOf("position" to index, "payload" to false)
             if (change(bundle, dataItem)) {
                 changeLiveData.postValue(bundle)
