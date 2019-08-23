@@ -15,36 +15,36 @@ import androidx.recyclerview.widget.RecyclerView
 import com.github.luoyemyy.aclin.databinding.*
 import com.github.luoyemyy.aclin.ext.runDelay
 
-abstract class AbsListAdapter(owner: LifecycleOwner, private val mPresenter: AbsListPresenter,
+abstract class AbsAdapter(owner: LifecycleOwner, private val mListLiveData: ListLiveData,
     diffCallback: DiffUtil.ItemCallback<DataItem> = object : DiffUtil.ItemCallback<DataItem>() {
         override fun areItemsTheSame(oldItem: DataItem, newItem: DataItem): Boolean {
             return oldItem == newItem
         }
 
         override fun areContentsTheSame(oldItem: DataItem, newItem: DataItem): Boolean {
-            return mPresenter.areContentsTheSame(oldItem, newItem)
+            return mListLiveData.areContentsTheSame(oldItem, newItem)
         }
-    }) : ListAdapter<DataItem, VH<ViewDataBinding>>(diffCallback), AbsListAdapterSupport {
+    }) : ListAdapter<DataItem, VH<ViewDataBinding>>(diffCallback), AdapterExt {
 
 
     private var mEnableSort = false
     private val mItemTouchHelper by lazy {
-        ItemTouchHelper(SortCallback(mPresenter, this))
+        ItemTouchHelper(SortCallback(mListLiveData, this))
     }
 
     init {
-        mPresenter.apply {
+        mListLiveData.apply {
             configDataSet(enableEmpty(), enableLoadMore(), enableMoreGone())
-            refreshState.removeObservers(owner)
-            itemList.removeObservers(owner)
-            changePosition.removeObservers(owner)
-            refreshState.observe(owner, Observer {
-                setRefreshState(it)
-            })
-            itemList.observe(owner, Observer {
+            removeObservers(owner)
+            refreshLiveData.removeObservers(owner)
+            changeLiveData.removeObservers(owner)
+            observe(owner, Observer {
                 submitList(it)
             })
-            changePosition.observe(owner, Observer {
+            refreshLiveData.observe(owner, Observer {
+                setRefreshState(it)
+            })
+            changeLiveData.observe(owner, Observer {
                 if (it.getBoolean("payload")) {
                     notifyItemChanged(it.getInt("position"), it)
                 } else {
@@ -101,7 +101,7 @@ abstract class AbsListAdapter(owner: LifecycleOwner, private val mPresenter: Abs
     private fun triggerLoadMore(position: Int) {
         if (position + 1 == itemCount) {
             runDelay(300) {
-                mPresenter.loadMore()
+                mListLiveData.loadMore()
             }
         }
     }
@@ -154,12 +154,12 @@ abstract class AbsListAdapter(owner: LifecycleOwner, private val mPresenter: Abs
         return when (viewType) {
             DataSet.INIT_LOADING -> AclinInitLoadingBinding.inflate(inflater, parent, false)
             DataSet.INIT_FAILURE -> AclinInitFailureBinding.inflate(inflater, parent, false).apply {
-                root.setOnClickListener { mPresenter.loadRefresh() }
+                root.setOnClickListener { mListLiveData.loadRefresh() }
             }
             DataSet.EMPTY -> AclinEmptyBinding.inflate(inflater, parent, false)
             DataSet.MORE_LOADING -> AclinMoreLoadingBinding.inflate(inflater, parent, false)
             DataSet.MORE_FAILURE -> AclinMoreFailureBinding.inflate(inflater, parent, false).apply {
-                root.setOnClickListener { mPresenter.loadMore() }
+                root.setOnClickListener { mListLiveData.loadMore() }
             }
             DataSet.MORE_END -> AclinMoreEndBinding.inflate(inflater, parent, false)
             else -> null

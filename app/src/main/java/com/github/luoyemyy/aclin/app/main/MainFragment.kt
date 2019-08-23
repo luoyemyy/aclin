@@ -1,9 +1,9 @@
 package com.github.luoyemyy.aclin.app.main
 
 import android.app.Application
-import android.content.Context
+import android.content.Intent
 import android.os.Bundle
-import android.util.Log
+import android.provider.MediaStore
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -33,13 +33,13 @@ class MainFragment : Fragment(), BusResult {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         mPresenter = getPresenter()
-        mAdapter = Adapter(requireContext())
+        mAdapter = Adapter()
         mBinding.apply {
             recyclerView.setupLinear(mAdapter)
-            swipeRefreshLayout.setup(mPresenter)
+            swipeRefreshLayout.setup(mPresenter.listLiveData)
         }
         addBus(this, BusEvent.PROFILE_CHANGE, this)
-        mPresenter.loadInit(arguments)
+        mPresenter.listLiveData.loadInit(arguments)
     }
 
     override fun busResult(msg: BusMsg) {
@@ -48,7 +48,7 @@ class MainFragment : Fragment(), BusResult {
         }
     }
 
-    inner class Adapter(private var context: Context) : BaseAdapter(this, mPresenter) {
+    inner class Adapter : BaseAdapter(this, mPresenter.listLiveData) {
         override fun getContentLayoutId(viewType: Int): Int {
             return R.layout.fragment_list_item
         }
@@ -82,19 +82,25 @@ class MainFragment : Fragment(), BusResult {
                 "mvp" -> findNavController().navigate(R.id.action_mainFragment_to_mvpFragment)
                 "profile" -> findNavController().navigate(R.id.action_mainFragment_to_profileFragment)
                 "permission" -> findNavController().navigate(R.id.action_mainFragment_to_permissionFragment)
+                "image" -> {
+                    startActivityForResult(Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI), 1)
+                }
             }
         }
     }
 
-    class Presenter(private var mApp: Application) : AbsListPresenter(mApp) {
-        override fun loadData(bundle: Bundle?, search: String?, paging: Paging, loadType: LoadType): List<DataItem>? {
-            return listOf(
-                TextItem("mvp"), TextItem("profile", Profile.active().desc), TextItem("permission")
-            )
+    class Presenter(private var mApp: Application) : AbsPresenter(mApp) {
+
+        val listLiveData = object : ListLiveData() {
+            override fun loadData(bundle: Bundle?, search: String?, paging: Paging, loadType: LoadType): List<DataItem>? {
+                return listOf(
+                    TextItem("mvp"), TextItem("profile", Profile.active().desc), TextItem("permission"), TextItem("image")
+                )
+            }
         }
 
         fun updateProfile() {
-            change { bundle, dataItem ->
+            listLiveData.change { bundle, dataItem ->
                 if (dataItem is TextItem && dataItem.key == "profile") {
                     bundle.payloadEnable()
                     bundle.payloadType("profile")

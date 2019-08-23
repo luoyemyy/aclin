@@ -20,7 +20,6 @@ buildscript {
         glide_version = "4.9.0"
         nav_version = "2.1.0-rc01"
         room_version = '2.2.0-alpha02'
-        permission_version = '3.0.0'
     }
 
     repositories {

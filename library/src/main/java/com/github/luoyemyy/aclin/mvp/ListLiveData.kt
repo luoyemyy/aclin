@@ -1,22 +1,20 @@
 package com.github.luoyemyy.aclin.mvp
 
-import android.app.Application
 import android.os.Bundle
 import androidx.annotation.MainThread
 import androidx.annotation.WorkerThread
 import androidx.core.os.bundleOf
-import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
 
-abstract class AbsListPresenter(app: Application) : AndroidViewModel(app) {
+open class ListLiveData : LiveData<List<DataItem>>() {
 
-    val itemList = MutableLiveData<List<DataItem>>()
-    val refreshState = MutableLiveData<Boolean>()
-    val changePosition = MutableLiveData<Bundle>() // position & payload
+    val refreshLiveData = MutableLiveData<Boolean>()
+    val changeLiveData = MutableLiveData<Bundle>() // position & payload
 
     private val mDataSet by lazy { DataSet() }
     private val mLoadType = LoadType()
@@ -42,7 +40,7 @@ abstract class AbsListPresenter(app: Application) : AndroidViewModel(app) {
             loadRefreshBefore(refreshStyle)
             loadDataBase()
         } else {
-            refreshState.value = false
+            refreshLiveData.value = false
         }
     }
 
@@ -87,7 +85,7 @@ abstract class AbsListPresenter(app: Application) : AndroidViewModel(app) {
     }
 
     open fun loadRefreshBefore(refreshStyle: Boolean) {
-        refreshState.value = refreshStyle
+        refreshLiveData.value = refreshStyle
         mDataSet.paging.reset()
     }
 
@@ -117,7 +115,7 @@ abstract class AbsListPresenter(app: Application) : AndroidViewModel(app) {
     }
 
     open fun loadRefreshAfter(ok: Boolean, items: List<DataItem>): List<DataItem> {
-        refreshState.value = false
+        refreshLiveData.value = false
         return if (ok) {
             mDataSet.setDataSuccess(items)
         } else {
@@ -154,26 +152,26 @@ abstract class AbsListPresenter(app: Application) : AndroidViewModel(app) {
      */
     fun update(callback: (DataSet) -> List<DataItem>?): Boolean {
         return callback(mDataSet)?.let {
-            itemList.postValue(it)
+            postValue(it)
             true
         } ?: false
     }
 
     fun change(position: Int, change: (Bundle, DataItem) -> Unit) {
-        itemList.value?.apply {
+        value?.apply {
             if (position in 0 until size) {
                 val bundle = bundleOf("position" to position, "payload" to false)
                 change(bundle, this[position])
-                changePosition.postValue(bundle)
+                changeLiveData.postValue(bundle)
             }
         }
     }
 
     fun change(change: (Bundle, DataItem) -> Boolean) {
-        itemList.value?.forEachIndexed { index, dataItem ->
+        value?.forEachIndexed { index, dataItem ->
             val bundle = bundleOf("position" to index, "payload" to false)
             if (change(bundle, dataItem)) {
-                changePosition.postValue(bundle)
+                changeLiveData.postValue(bundle)
             }
         }
     }

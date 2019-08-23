@@ -4,7 +4,7 @@ import android.view.View
 import androidx.annotation.LayoutRes
 import androidx.databinding.ViewDataBinding
 
-interface AbsListAdapterSupport {
+interface AdapterExt {
 
     /**
      * 设置刷新控件样式

@@ -23,9 +23,9 @@ class MvpFragment : Fragment() {
         mPresenter = getPresenter()
         mBinding.apply {
             recyclerView.setupLinear(Adapter(requireContext()), true, LinearDecoration.middle(requireContext()))
-            swipeRefreshLayout.setup(mPresenter)
+            swipeRefreshLayout.setup(mPresenter.listLiveData)
         }
-        mPresenter.loadInit(arguments)
+        mPresenter.listLiveData.loadInit(arguments)
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
@@ -33,11 +33,11 @@ class MvpFragment : Fragment() {
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        mPresenter.loadSearch(null)
+        mPresenter.listLiveData.loadSearch(null)
         return super.onOptionsItemSelected(item)
     }
 
-    inner class Adapter(private var context: Context) : BaseAdapter(this, mPresenter) {
+    inner class Adapter(private var context: Context) : BaseAdapter(this, mPresenter.listLiveData) {
         override fun getContentLayoutId(viewType: Int): Int {
             return R.layout.fragment_list_item
         }
@@ -47,13 +47,17 @@ class MvpFragment : Fragment() {
         }
     }
 
-    class Presenter(private var mApp: Application) : AbsListPresenter(mApp) {
-        override fun loadData(bundle: Bundle?, search: String?, paging: Paging, loadType: LoadType): List<DataItem>? {
-            var random = Random.nextInt(9)
-            if (random > 6) {
-                random = 9
+    class Presenter(private var mApp: Application) : AbsPresenter(mApp) {
+
+        val listLiveData = object : ListLiveData() {
+
+            override fun loadData(bundle: Bundle?, search: String?, paging: Paging, loadType: LoadType): List<DataItem>? {
+                var random = Random.nextInt(9)
+                if (random > 6) {
+                    random = 9
+                }
+                return (0..random).map { TextItem(Random.nextInt(9).toString()) }
             }
-            return (0..random).map { TextItem(Random.nextInt(9).toString()) }
         }
     }
 }

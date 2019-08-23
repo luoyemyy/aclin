@@ -13,15 +13,16 @@ inline fun <reified T : AndroidViewModel> FragmentActivity.getPresenter(): T = V
 
 inline fun <reified T : AndroidViewModel> Fragment.getPresenter(): T = ViewModelProviders.of(this).get(T::class.java)
 
-fun RecyclerView.setupLinear(adapter: AbsListAdapter, vertical: Boolean = true, decoration: RecyclerView.ItemDecoration = LinearDecoration.middle(context)) {
+fun RecyclerView.setupLinear(adapter: AbsAdapter, vertical: Boolean = true,
+    decoration: RecyclerView.ItemDecoration = LinearDecoration.middle(context)) {
     this.layoutManager = LinearLayoutManager(context, if (vertical) RecyclerView.VERTICAL else RecyclerView.HORIZONTAL, false)
     this.adapter = adapter
     this.addItemDecoration(decoration)
 }
 
-fun SwipeRefreshLayout.setup(presenter: AbsListPresenter) {
+fun SwipeRefreshLayout.setup(listLiveData: ListLiveData) {
     this.setOnRefreshListener {
-        presenter.loadRefresh()
+        listLiveData.loadRefresh()
     }
 }
 

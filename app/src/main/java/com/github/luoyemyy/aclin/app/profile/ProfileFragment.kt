@@ -31,12 +31,12 @@ class ProfileFragment : Fragment() {
         mPresenter = getPresenter()
         mBinding.apply {
             recyclerView.setupLinear(Adapter(requireContext()), true, LinearDecoration.middle(requireContext()))
-            swipeRefreshLayout.setup(mPresenter)
+            swipeRefreshLayout.setup(mPresenter.listLiveData)
         }
-        mPresenter.loadInit(arguments)
+        mPresenter.listLiveData.loadInit(arguments)
     }
 
-    inner class Adapter(private var context: Context) : BaseAdapter(this, mPresenter) {
+    inner class Adapter(private var context: Context) : BaseAdapter(this, mPresenter.listLiveData) {
         override fun getContentLayoutId(viewType: Int): Int {
             return R.layout.fragment_profile_item
         }
@@ -78,10 +78,12 @@ class ProfileFragment : Fragment() {
         }
     }
 
-    class Presenter(private var mApp: Application) : AbsListPresenter(mApp) {
+    class Presenter(private var mApp: Application) : AbsPresenter(mApp) {
 
-        override fun loadData(bundle: Bundle?, search: String?, paging: Paging, loadType: LoadType): List<DataItem>? {
-            return Profile.allTypes().map { ProfileItem(it.desc, it.isActive()) }
+        val listLiveData = object : ListLiveData() {
+            override fun loadData(bundle: Bundle?, search: String?, paging: Paging, loadType: LoadType): List<DataItem>? {
+                return Profile.allTypes().map { ProfileItem(it.desc, it.isActive()) }
+            }
         }
     }
 }
