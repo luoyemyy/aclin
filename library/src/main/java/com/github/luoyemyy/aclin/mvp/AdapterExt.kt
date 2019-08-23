@@ -3,6 +3,7 @@ package com.github.luoyemyy.aclin.mvp
 import android.view.View
 import androidx.annotation.LayoutRes
 import androidx.databinding.ViewDataBinding
+import androidx.recyclerview.widget.RecyclerView
 
 interface AdapterExt {
 

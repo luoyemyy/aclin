@@ -27,6 +27,7 @@ abstract class AbsAdapter(owner: LifecycleOwner, private val mListLiveData: List
     }) : ListAdapter<DataItem, VH<ViewDataBinding>>(diffCallback), AdapterExt {
 
 
+    private var mRecyclerView: RecyclerView? = null
     private var mEnableSort = false
     private val mItemTouchHelper by lazy {
         ItemTouchHelper(SortCallback(mListLiveData, this))
@@ -40,7 +41,9 @@ abstract class AbsAdapter(owner: LifecycleOwner, private val mListLiveData: List
             changeLiveData.removeObservers(owner)
             observe(owner, Observer {
                 if (it.changeAll) {
-                    submitList(null)
+                    submitList(null) {
+                        mRecyclerView?.scrollToPosition(0)
+                    }
                 }
                 submitList(it.data)
             })
@@ -60,6 +63,14 @@ abstract class AbsAdapter(owner: LifecycleOwner, private val mListLiveData: List
     fun enableSort(recyclerView: RecyclerView) {
         mEnableSort = true
         mItemTouchHelper.attachToRecyclerView(recyclerView)
+    }
+
+    override fun onAttachedToRecyclerView(recyclerView: RecyclerView) {
+        mRecyclerView = recyclerView
+    }
+
+    override fun onDetachedFromRecyclerView(recyclerView: RecyclerView) {
+        mRecyclerView = null
     }
 
     public override fun getItem(position: Int): DataItem {
