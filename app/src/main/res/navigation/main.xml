@@ -5,11 +5,16 @@
 
     <fragment android:id="@+id/mainFragment" android:name="com.github.luoyemyy.aclin.app.main.MainFragment"
               android:label="MainFragment">
-        <action android:id="@+id/action_mainFragment_to_mvpFragment" app:destination="@id/mvpFragment"/>
+        <action
+                android:id="@+id/action_mainFragment_to_mvpFragment"
+                app:destination="@id/mvpFragment" />
         <action
             android:id="@+id/action_mainFragment_to_profileFragment"
             app:destination="@id/profileFragment"/>
         <action android:id="@+id/action_mainFragment_to_permissionFragment" app:destination="@id/permissionFragment"/>
+        <action
+                android:id="@+id/action_mainFragment_to_galleryFragment"
+                app:destination="@id/galleryFragment" />
     </fragment>
     <fragment android:id="@+id/mvpFragment" android:name="com.github.luoyemyy.aclin.app.mvp.MvpFragment"
               android:label="MvpFragment"/>
@@ -20,4 +25,8 @@
     <fragment android:id="@+id/permissionFragment"
               android:name="com.github.luoyemyy.aclin.app.permission.PermissionFragment"
               android:label="PermissionFragment"/>
+    <fragment
+            android:id="@+id/galleryFragment"
+            android:name="com.github.luoyemyy.aclin.image.picker.gallery.GalleryFragment"
+            android:label="GalleryFragment" />
 </navigation>

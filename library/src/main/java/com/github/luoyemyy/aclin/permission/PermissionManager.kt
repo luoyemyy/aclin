@@ -105,12 +105,16 @@ object PermissionManager {
             if (notGrantedPerms.isNullOrEmpty()) {
                 mGranted?.invoke(allPerms)
             } else {
-                if (!mRationale.isNullOrEmpty() && !hasNeverAsk(notGrantedPerms)) {
+                if (hasRationale() && !hasNeverAsk(notGrantedPerms)) {
                     confirmRequest(allPerms, notGrantedPerms)
                 } else {
                     request(allPerms, notGrantedPerms)
                 }
             }
+        }
+
+        private fun hasRationale(): Boolean {
+            return !mRationale.isNullOrEmpty()
         }
 
         private fun hasNeverAsk(notGrantedPerms: Array<String>): Boolean {
