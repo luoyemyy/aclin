@@ -18,8 +18,8 @@ class BucketLiveData(private val mApp: Application) : ListLiveData() {
         private const val BUCKET_ALL = "bucketAll"
     }
 
-    private val mBuckets: MutableList<Bucket> = mutableListOf()
-    private val mBucketMap: MutableMap<String, Bucket> = mutableMapOf()
+    private var mBuckets: MutableList<Bucket> = mutableListOf()
+    private var mBucketMap: MutableMap<String, Bucket> = mutableMapOf()
     private var mGalleryArgs = ImagePicker.parseGalleryArgs(null)
 
     val selectBucketLiveData = MutableLiveData<Bucket>()
@@ -165,9 +165,7 @@ class BucketLiveData(private val mApp: Application) : ListLiveData() {
             selectBucketLiveData.postValue(this)
         }
 
-        mBuckets.clear()
-        mBuckets.addAll(buckets)
-        mBucketMap.clear()
-        mBucketMap.putAll(bucketMap)
+        mBuckets = buckets
+        mBucketMap = bucketMap
     }
 }

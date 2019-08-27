@@ -122,14 +122,12 @@ class LoggerListFragment : Fragment() {
         fun selectAll() {
             val selectAll = countSelect() == 0
             listLiveData.update { dataSet ->
-                dataSet.getDataList().let {
-                    DataItemGroup(true, it.map { data ->
-                        if (data is LoggerItem) {
-                            data.select = selectAll
-                        }
-                        data
-                    })
-                }
+                DataItemGroup(true, dataSet.getDataList().map { data ->
+                    if (data is LoggerItem) {
+                        data.select = selectAll
+                    }
+                    data
+                })
             }
         }
 
@@ -141,7 +139,7 @@ class LoggerListFragment : Fragment() {
         }
 
         fun countSelect(): Int {
-            return listLiveData.value?.data?.count { it is LoggerItem && it.select } ?: 0
+            return listLiveData.getDataSet().getDataList().count { it is LoggerItem && it.select }
         }
 
         fun deleteSelect() {
