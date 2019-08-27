@@ -18,11 +18,11 @@
             android:id="@+id/action_mainFragment_to_permissionFragment"
             app:destination="@id/permissionFragment" />
         <action
-            android:id="@+id/action_mainFragment_to_galleryFragment"
-            app:destination="@id/galleryFragment" />
-        <action
             android:id="@+id/action_mainFragment_to_aclin_logger"
             app:destination="@id/aclin_logger" />
+        <action
+            android:id="@+id/action_mainFragment_to_aclin_image"
+            app:destination="@id/aclin_image" />
 
     </fragment>
     <fragment
@@ -37,11 +37,9 @@
         android:id="@+id/permissionFragment"
         android:name="com.github.luoyemyy.aclin.app.permission.PermissionFragment"
         android:label="PermissionFragment" />
-    <fragment
-        android:id="@+id/galleryFragment"
-        android:name="com.github.luoyemyy.aclin.image.picker.gallery.GalleryFragment"
-        android:label="GalleryFragment" />
 
     <include app:graph="@navigation/aclin_logger" />
+
+    <include app:graph="@navigation/aclin_image" />
 
 </navigation>

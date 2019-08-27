@@ -82,7 +82,7 @@ class MainFragment : Fragment(), BusResult {
                 "mvp" -> findNavController().navigate(R.id.action_mainFragment_to_mvpFragment)
                 "profile" -> findNavController().navigate(R.id.action_mainFragment_to_profileFragment)
                 "permission" -> findNavController().navigate(R.id.action_mainFragment_to_permissionFragment)
-                "image" -> findNavController().navigate(R.id.action_mainFragment_to_galleryFragment)
+                "image" -> findNavController().navigate(R.id.action_mainFragment_to_aclin_image)
                 "logger" -> findNavController().navigate(R.id.action_mainFragment_to_aclin_logger)
             }
         }

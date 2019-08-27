@@ -43,6 +43,7 @@ abstract class AbsAdapter(owner: LifecycleOwner, private val mListLiveData: List
                 if (it.changeAll) {
                     submitList(null) {
                         mRecyclerView?.scrollToPosition(0)
+                        afterChangeAll()
                     }
                 }
                 submitList(it.data)

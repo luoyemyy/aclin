@@ -19,7 +19,7 @@ class BucketLiveData(private val mApp: Application) : ListLiveData() {
     }
 
     private val mBuckets: MutableList<Bucket> = mutableListOf()
-    private var mBucketMap: MutableMap<String, Bucket> = mutableMapOf()
+    private val mBucketMap: MutableMap<String, Bucket> = mutableMapOf()
     private var mGalleryArgs = ImagePicker.parseGalleryArgs(null)
 
     val selectBucketLiveData = MutableLiveData<Bucket>()
@@ -63,6 +63,13 @@ class BucketLiveData(private val mApp: Application) : ListLiveData() {
 
     fun submitImageText(): String {
         return mApp.getString(R.string.aclin_image_picker_gallery_menu_sure, countSelectImage(), mGalleryArgs.maxSelect)
+    }
+
+    fun selectImages(): ArrayList<String>? {
+        return mBucketMap[BUCKET_ALL]?.images?.filter { it.select }?.mapTo(arrayListOf()) { it.path } ?: let {
+            //            mApp.toast()
+            null
+        }
     }
 
     fun changeBucket(position: Int) {
@@ -127,12 +134,12 @@ class BucketLiveData(private val mApp: Application) : ListLiveData() {
             "date_added DESC"
         )
 
-        mBuckets.clear()
-        mBucketMap.clear()
+        val buckets = mutableListOf<Bucket>()
+        val bucketMap = mutableMapOf<String, Bucket>()
 
         val bucketAll = Bucket(BUCKET_ALL, mApp.getString(R.string.aclin_image_picker_gallery_bucket_all))
-        mBuckets.add(bucketAll)
-        mBucketMap[bucketAll.id] = bucketAll
+        buckets.add(bucketAll)
+        bucketMap[bucketAll.id] = bucketAll
 
         if (data != null) {
             while (data.moveToNext()) {
@@ -142,9 +149,9 @@ class BucketLiveData(private val mApp: Application) : ListLiveData() {
                 if (!path.isNullOrEmpty() && File(path).exists()) {
                     val image = Image(path)
                     if (!bucketId.isNullOrEmpty() && !bucketName.isNullOrEmpty()) {
-                        (mBucketMap[bucketId] ?: Bucket(bucketId, bucketName).apply {
-                            mBucketMap[bucketId] = this
-                            mBuckets.add(this)
+                        (bucketMap[bucketId] ?: Bucket(bucketId, bucketName).apply {
+                            bucketMap[bucketId] = this
+                            buckets.add(this)
                         }).images.add(image)
                     }
                     bucketAll.images.add(image)
@@ -153,9 +160,14 @@ class BucketLiveData(private val mApp: Application) : ListLiveData() {
         }
         data?.close()
 
-        (selectBucketLiveData.value?.apply { mBuckets.first { it.id == id } } ?: bucketAll).apply {
+        (selectBucketLiveData.value?.apply { buckets.first { it.id == id } } ?: bucketAll).apply {
             select = true
             selectBucketLiveData.postValue(this)
         }
+
+        mBuckets.clear()
+        mBuckets.addAll(buckets)
+        mBucketMap.clear()
+        mBucketMap.putAll(bucketMap)
     }
 }

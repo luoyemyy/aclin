@@ -12,6 +12,8 @@ interface AdapterExt {
      */
     fun setRefreshState(refreshing: Boolean) {}
 
+    fun afterChangeAll(){}
+
     /**
      * 创建内容view
      */

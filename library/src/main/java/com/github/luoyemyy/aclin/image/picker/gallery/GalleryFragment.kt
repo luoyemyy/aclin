@@ -4,9 +4,11 @@ import android.Manifest
 import android.app.Application
 import android.os.Bundle
 import android.view.*
+import androidx.core.os.bundleOf
 import androidx.databinding.ViewDataBinding
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
+import androidx.navigation.fragment.findNavController
 import com.github.luoyemyy.aclin.R
 import com.github.luoyemyy.aclin.databinding.AclinImagePickerGalleryBinding
 import com.github.luoyemyy.aclin.databinding.AclinImagePickerGalleryImageBinding
@@ -37,9 +39,16 @@ class GalleryFragment : Fragment() {
         }
     }
 
-    //    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-    //        return super.onOptionsItemSelected(item)
-    //    }
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when (item.itemId) {
+            R.id.sure -> {
+                mPresenter.bucketLiveData.selectImages()?.apply {
+                    findNavController().navigate(R.id.action_galleryFragment_to_previewFragment, bundleOf("paths" to this))
+                }
+            }
+        }
+        return super.onOptionsItemSelected(item)
+    }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return AclinImagePickerGalleryBinding.inflate(inflater, container, false).apply { mBinding = this }.root
@@ -64,6 +73,12 @@ class GalleryFragment : Fragment() {
 
             txtSelectBucket.setOnClickListener {
                 bottomSheetToggle()
+            }
+
+            txtPreview.setOnClickListener {
+                mPresenter.bucketLiveData.selectImages()?.apply {
+                    findNavController().navigate(R.id.action_galleryFragment_to_previewFragment, bundleOf("paths" to this))
+                }
             }
         }
         requestPermission(this, requireContext().getString(R.string.aclin_image_picker_gallery_permission_request)).granted {
