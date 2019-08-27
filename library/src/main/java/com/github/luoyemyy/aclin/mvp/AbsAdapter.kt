@@ -51,10 +51,10 @@ abstract class AbsAdapter(owner: LifecycleOwner, private val mListLiveData: List
                 setRefreshState(it)
             })
             changeLiveData.observe(owner, Observer {
-                if (it.getBoolean("payload")) {
-                    notifyItemChanged(it.getInt("position"), it)
+                if (it.payload) {
+                    notifyItemChanged(it.position, it.data)
                 } else {
-                    notifyItemChanged(it.getInt("position"))
+                    notifyItemChanged(it.position)
                 }
             })
         }
@@ -105,9 +105,9 @@ abstract class AbsAdapter(owner: LifecycleOwner, private val mListLiveData: List
             triggerLoadMore(position)
             val viewType = getItemViewType(position)
             if (viewType < 0) {
-                bindExtra(holder.binding, getItem(position), viewType, holder.adapterPosition, payloads)
+                bindExtraPayload(holder.binding, getItem(position), viewType, holder.adapterPosition, payloads)
             } else {
-                bindContent(holder.binding, getItem(position), viewType, holder.adapterPosition, payloads)
+                bindContentPayload(holder.binding, getItem(position), viewType, holder.adapterPosition, payloads)
             }
         }
     }
@@ -132,7 +132,7 @@ abstract class AbsAdapter(owner: LifecycleOwner, private val mListLiveData: List
                     bindContentEvents(this)
                 }
             }
-        }) ?: VH(AclinNoneBinding.inflate(inflater, parent, false) as ViewDataBinding)
+        }) ?: VH(AclinListNoneBinding.inflate(inflater, parent, false) as ViewDataBinding)
     }
 
     private fun bindContentEvents(vh: VH<ViewDataBinding>) {
@@ -166,16 +166,16 @@ abstract class AbsAdapter(owner: LifecycleOwner, private val mListLiveData: List
 
     private fun createExtraDefaultBinding(inflater: LayoutInflater, parent: ViewGroup, viewType: Int): ViewDataBinding? {
         return when (viewType) {
-            DataSet.INIT_LOADING -> AclinInitLoadingBinding.inflate(inflater, parent, false)
-            DataSet.INIT_FAILURE -> AclinInitFailureBinding.inflate(inflater, parent, false).apply {
+            DataSet.INIT_LOADING -> AclinListInitLoadingBinding.inflate(inflater, parent, false)
+            DataSet.INIT_FAILURE -> AclinListInitFailureBinding.inflate(inflater, parent, false).apply {
                 root.setOnClickListener { mListLiveData.loadRefresh() }
             }
-            DataSet.EMPTY -> AclinEmptyBinding.inflate(inflater, parent, false)
-            DataSet.MORE_LOADING -> AclinMoreLoadingBinding.inflate(inflater, parent, false)
-            DataSet.MORE_FAILURE -> AclinMoreFailureBinding.inflate(inflater, parent, false).apply {
+            DataSet.EMPTY -> AclinListEmptyBinding.inflate(inflater, parent, false)
+            DataSet.MORE_LOADING -> AclinListMoreLoadingBinding.inflate(inflater, parent, false)
+            DataSet.MORE_FAILURE -> AclinListMoreFailureBinding.inflate(inflater, parent, false).apply {
                 root.setOnClickListener { mListLiveData.loadMore() }
             }
-            DataSet.MORE_END -> AclinMoreEndBinding.inflate(inflater, parent, false)
+            DataSet.MORE_END -> AclinListMoreEndBinding.inflate(inflater, parent, false)
             else -> null
         }
     }

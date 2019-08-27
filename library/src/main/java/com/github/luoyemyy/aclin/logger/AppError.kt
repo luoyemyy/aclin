@@ -42,8 +42,8 @@ class AppError private constructor(private val mApp: Application, private val mD
 
     private fun logFile(): File? {
         val path = Logger.logPath ?: return null
-        val logFileName = SimpleDateFormat("yyyy-MM-dd-HH-mm-ss", Locale.getDefault()).format(Date())
-        return File.createTempFile(logFileName, ".log.txt", File(path))
+        val logFileName = SimpleDateFormat("yyyy-MM-dd__HH-mm-ss__S", Locale.getDefault()).format(Date())
+        return File(path, "$logFileName.log.txt")
     }
 
     @Suppress("DEPRECATION")

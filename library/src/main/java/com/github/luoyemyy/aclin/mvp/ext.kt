@@ -33,11 +33,3 @@ fun SwipeRefreshLayout.setup(listLiveData: ListLiveData) {
         listLiveData.loadRefresh()
     }
 }
-
-fun Bundle.payloadEnable() {
-    putBoolean("payload", true)
-}
-
-fun Bundle.payloadType(type: String) {
-    putString("type", type)
-}

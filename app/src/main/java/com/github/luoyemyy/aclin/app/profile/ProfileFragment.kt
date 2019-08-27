@@ -58,7 +58,7 @@ class ProfileFragment : Fragment() {
             }
         }
 
-        override fun bindContent(binding: ViewDataBinding, item: DataItem, viewType: Int, position: Int, payloads: MutableList<Any>) {
+        override fun bindContentPayload(binding: ViewDataBinding, item: DataItem, viewType: Int, position: Int, payloads: MutableList<Any>) {
             val bundle = payloads[0] as Bundle
             when {
                 bundle.getString("type") == "profile" && item is ProfileItem -> {

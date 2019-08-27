@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto" android:id="@+id/aclin_logger"
+    app:startDestination="@id/loggerListFragment">
+
+    <fragment
+        android:id="@+id/loggerListFragment"
+        android:name="com.github.luoyemyy.aclin.logger.LoggerListFragment"
+        android:label="日志列表" >
+        <action
+            android:id="@+id/action_loggerListFragment_to_loggerPreviewFragment"
+            app:destination="@id/loggerPreviewFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/loggerPreviewFragment"
+        android:name="com.github.luoyemyy.aclin.logger.LoggerInfoFragment"
+        android:label="查看日志" />
+</navigation>

@@ -1,32 +1,47 @@
 <?xml version="1.0" encoding="utf-8"?>
 <navigation xmlns:android="http://schemas.android.com/apk/res/android"
-            xmlns:app="http://schemas.android.com/apk/res-auto"
-            android:id="@+id/main" app:startDestination="@id/mainFragment">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/main"
+    app:startDestination="@id/mainFragment">
 
-    <fragment android:id="@+id/mainFragment" android:name="com.github.luoyemyy.aclin.app.main.MainFragment"
-              android:label="MainFragment">
+    <fragment
+        android:id="@+id/mainFragment"
+        android:name="com.github.luoyemyy.aclin.app.main.MainFragment"
+        android:label="MainFragment">
         <action
-                android:id="@+id/action_mainFragment_to_mvpFragment"
-                app:destination="@id/mvpFragment" />
+            android:id="@+id/action_mainFragment_to_mvpFragment"
+            app:destination="@id/mvpFragment" />
         <action
             android:id="@+id/action_mainFragment_to_profileFragment"
-            app:destination="@id/profileFragment"/>
-        <action android:id="@+id/action_mainFragment_to_permissionFragment" app:destination="@id/permissionFragment"/>
+            app:destination="@id/profileFragment" />
         <action
-                android:id="@+id/action_mainFragment_to_galleryFragment"
-                app:destination="@id/galleryFragment" />
+            android:id="@+id/action_mainFragment_to_permissionFragment"
+            app:destination="@id/permissionFragment" />
+        <action
+            android:id="@+id/action_mainFragment_to_galleryFragment"
+            app:destination="@id/galleryFragment" />
+        <action
+            android:id="@+id/action_mainFragment_to_aclin_logger"
+            app:destination="@id/aclin_logger" />
+
     </fragment>
-    <fragment android:id="@+id/mvpFragment" android:name="com.github.luoyemyy.aclin.app.mvp.MvpFragment"
-              android:label="MvpFragment"/>
+    <fragment
+        android:id="@+id/mvpFragment"
+        android:name="com.github.luoyemyy.aclin.app.mvp.MvpFragment"
+        android:label="MvpFragment" />
     <fragment
         android:id="@+id/profileFragment"
         android:name="com.github.luoyemyy.aclin.app.profile.ProfileFragment"
-        android:label="ProfileFragment"/>
-    <fragment android:id="@+id/permissionFragment"
-              android:name="com.github.luoyemyy.aclin.app.permission.PermissionFragment"
-              android:label="PermissionFragment"/>
+        android:label="ProfileFragment" />
     <fragment
-            android:id="@+id/galleryFragment"
-            android:name="com.github.luoyemyy.aclin.image.picker.gallery.GalleryFragment"
-            android:label="GalleryFragment" />
+        android:id="@+id/permissionFragment"
+        android:name="com.github.luoyemyy.aclin.app.permission.PermissionFragment"
+        android:label="PermissionFragment" />
+    <fragment
+        android:id="@+id/galleryFragment"
+        android:name="com.github.luoyemyy.aclin.image.picker.gallery.GalleryFragment"
+        android:label="GalleryFragment" />
+
+    <include app:graph="@navigation/aclin_logger" />
+
 </navigation>

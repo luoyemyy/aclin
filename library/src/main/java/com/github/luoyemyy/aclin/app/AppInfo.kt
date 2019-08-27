@@ -22,9 +22,11 @@ import com.github.luoyemyy.aclin.profile.Profile
 object AppInfo {
 
     lateinit var appInfo: String
+    lateinit var fileProvider: String
 
     fun init(app: Application, buildType: String) {
         appInfo = "app_info"
+        fileProvider = "${app.packageName}.FileProvider"
         AppError.init(app)
         Profile.initType(app, buildType)
         FileManager.init(app)

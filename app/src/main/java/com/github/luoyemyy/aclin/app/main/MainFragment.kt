@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.os.bundleOf
 import androidx.databinding.ViewDataBinding
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
@@ -63,7 +64,8 @@ class MainFragment : Fragment(), BusResult {
             return listOf(binding.root)
         }
 
-        override fun bindContent(binding: ViewDataBinding, item: DataItem, viewType: Int, position: Int, payloads: MutableList<Any>) {
+        override fun bindContentPayload(binding: ViewDataBinding, item: DataItem, viewType: Int, position: Int,
+            payloads: MutableList<Any>) {
             val bundle = payloads[0] as Bundle
             when {
                 bundle.getString("type") == "profile" && item is TextItem -> item.also {
@@ -81,6 +83,7 @@ class MainFragment : Fragment(), BusResult {
                 "profile" -> findNavController().navigate(R.id.action_mainFragment_to_profileFragment)
                 "permission" -> findNavController().navigate(R.id.action_mainFragment_to_permissionFragment)
                 "image" -> findNavController().navigate(R.id.action_mainFragment_to_galleryFragment)
+                "logger" -> findNavController().navigate(R.id.action_mainFragment_to_aclin_logger)
             }
         }
     }
@@ -90,17 +93,20 @@ class MainFragment : Fragment(), BusResult {
         val listLiveData = object : ListLiveData() {
             override fun loadData(bundle: Bundle?, search: String?, paging: Paging, loadType: LoadType): List<DataItem>? {
                 return listOf(
-                    TextItem("mvp"), TextItem("profile", Profile.active().desc), TextItem("permission"), TextItem("image")
+                    TextItem("mvp"),
+                    TextItem("profile", Profile.active().desc),
+                    TextItem("permission"),
+                    TextItem("image"),
+                    TextItem("logger")
                 )
             }
         }
 
         fun updateProfile() {
-            listLiveData.change { bundle, dataItem ->
+            listLiveData.change { change, dataItem ->
                 if (dataItem is TextItem && dataItem.key == "profile") {
-                    bundle.payloadEnable()
-                    bundle.payloadType("profile")
-                    bundle.putString("value", Profile.active().desc)
+                    change.payload = true
+                    change.data = bundleOf("type" to "profile", "value" to Profile.active().desc)
                     true
                 } else {
                     false

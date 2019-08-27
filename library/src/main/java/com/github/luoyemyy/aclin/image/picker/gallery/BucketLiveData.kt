@@ -8,7 +8,7 @@ import android.provider.MediaStore
 import androidx.lifecycle.MutableLiveData
 import com.github.luoyemyy.aclin.R
 import com.github.luoyemyy.aclin.ext.toast
-import com.github.luoyemyy.aclin.image.picker.ImagePicker
+import com.github.luoyemyy.aclin.image.ImagePicker
 import com.github.luoyemyy.aclin.mvp.*
 import java.io.File
 

@@ -1,4 +1,4 @@
-package com.github.luoyemyy.aclin.image.picker
+package com.github.luoyemyy.aclin.image
 
 import android.os.Bundle
 import androidx.core.os.bundleOf
@@ -24,7 +24,8 @@ object ImagePicker {
     internal fun parseGalleryArgs(bundle: Bundle?): GalleryArgs {
         return bundle?.let {
             GalleryArgs(
-                it.getInt(MIN_SELECT, 1), it.getInt(MAX_SELECT, 9), it.getBoolean(CROP, false), it.getFloat(CROP_RATIO, 1f)
+                it.getInt(MIN_SELECT, 1), it.getInt(MAX_SELECT, 9), it.getBoolean(
+                    CROP, false), it.getFloat(CROP_RATIO, 1f)
             )
         } ?: GalleryArgs(1, 9, false, 1f)
     }

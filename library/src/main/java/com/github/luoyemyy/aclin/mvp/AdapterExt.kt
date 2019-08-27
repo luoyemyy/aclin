@@ -29,7 +29,7 @@ interface AdapterExt {
      */
     fun bindContent(binding: ViewDataBinding, item: DataItem, viewType: Int, position: Int)
 
-    fun bindContent(binding: ViewDataBinding, item: DataItem, viewType: Int, position: Int, payloads: MutableList<Any>) {
+    fun bindContentPayload(binding: ViewDataBinding, item: DataItem, viewType: Int, position: Int, payloads: MutableList<Any>) {
     }
 
     /**
@@ -37,7 +37,7 @@ interface AdapterExt {
      */
     fun bindExtra(binding: ViewDataBinding, item: DataItem, viewType: Int, position: Int) {}
 
-    fun bindExtra(binding: ViewDataBinding, item: DataItem, viewType: Int, position: Int, payloads: MutableList<Any>) {}
+    fun bindExtraPayload(binding: ViewDataBinding, item: DataItem, viewType: Int, position: Int, payloads: MutableList<Any>) {}
 
     /**
      * 内容类型

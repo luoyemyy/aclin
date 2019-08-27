@@ -15,4 +15,8 @@
     <string name="aclin_image_picker_gallery_bucket_count">共%d张</string>
     <string name="aclin_image_picker_gallery_menu_sure">确认(%d/%d)</string>
     <string name="aclin_image_picker_gallery_preview">预览</string>
+    <string name="aclin_logger_menu_select_all">全选</string>
+    <string name="aclin_logger_menu_select_tip">请选择需要删除的日志文件</string>
+    <string name="aclin_logger_menu_delete">删除</string>
+    <string name="aclin_logger_menu_delete_tip">确定要删除已选择的日志文件？</string>
 </resources>

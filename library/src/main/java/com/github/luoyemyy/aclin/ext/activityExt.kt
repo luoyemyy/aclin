@@ -6,6 +6,8 @@ import android.app.Activity
 import android.content.Context
 import android.content.pm.PackageManager
 import android.graphics.Rect
+import android.net.Uri
+import android.os.Build
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
@@ -14,6 +16,9 @@ import android.widget.EditText
 import android.widget.Toast
 import androidx.annotation.StringRes
 import androidx.core.content.ContextCompat
+import androidx.core.content.FileProvider
+import com.github.luoyemyy.aclin.app.AppInfo
+import java.io.File
 import kotlin.math.roundToInt
 
 /**
@@ -96,5 +101,13 @@ fun Context.hasPermission(vararg permissions: String): Boolean {
         permissions.all {
             ContextCompat.checkSelfPermission(this, it) == PackageManager.PERMISSION_GRANTED
         }
+    }
+}
+
+fun Context.uri(path: String): Uri {
+    return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+        FileProvider.getUriForFile(this, AppInfo.fileProvider, File(path))
+    } else {
+        Uri.parse(path)
     }
 }

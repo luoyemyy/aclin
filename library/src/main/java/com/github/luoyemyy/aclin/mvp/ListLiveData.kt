@@ -3,9 +3,9 @@ package com.github.luoyemyy.aclin.mvp
 import android.os.Bundle
 import androidx.annotation.MainThread
 import androidx.annotation.WorkerThread
-import androidx.core.os.bundleOf
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import com.github.luoyemyy.aclin.ext.runImmediate
 import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
@@ -14,7 +14,7 @@ import io.reactivex.schedulers.Schedulers
 open class ListLiveData : LiveData<DataItemGroup>() {
 
     val refreshLiveData = MutableLiveData<Boolean>()
-    val changeLiveData = MutableLiveData<Bundle>() // position & payload
+    val changeLiveData = MutableLiveData<DataItemChange>()
 
     private val mDataSet by lazy { DataSet() }
     private val mLoadType = LoadType()
@@ -25,6 +25,10 @@ open class ListLiveData : LiveData<DataItemGroup>() {
         mDataSet.enableMoreItem = more
         mDataSet.enableInitItem = init
         mDataSet.enableMoreGone = moreGone
+    }
+
+    fun getDataSet(): DataSet {
+        return mDataSet
     }
 
     @MainThread
@@ -158,21 +162,25 @@ open class ListLiveData : LiveData<DataItemGroup>() {
         } ?: false
     }
 
-    fun change(position: Int, change: (Bundle, DataItem) -> Unit) {
+    fun change(position: Int, change: (DataItemChange, DataItem) -> Unit) {
         value?.data?.apply {
             if (position in 0 until size) {
-                val bundle = bundleOf("position" to position, "payload" to false)
-                change(bundle, this[position])
-                changeLiveData.postValue(bundle)
+                DataItemChange(position).let {
+                    change(it, this[position])
+                    changeLiveData.postValue(it)
+                }
             }
         }
     }
 
-    fun change(change: (Bundle, DataItem) -> Boolean) {
+    fun change(change: (DataItemChange, DataItem) -> Boolean) {
         value?.data?.forEachIndexed { index, dataItem ->
-            val bundle = bundleOf("position" to index, "payload" to false)
-            if (change(bundle, dataItem)) {
-                changeLiveData.postValue(bundle)
+            DataItemChange(index).let {
+                if (change(it, dataItem)) {
+                    runImmediate {
+                        changeLiveData.postValue(it)
+                    }
+                }
             }
         }
     }
