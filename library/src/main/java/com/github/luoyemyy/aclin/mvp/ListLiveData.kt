@@ -19,17 +19,17 @@ open class ListLiveData : MutableLiveData<DataItemChange>() {
     private val mLoadType = LoadType()
     private var mDisposable: Disposable? = null
 
-    fun observeRefresh(owner: LifecycleOwner, observer: Observer<Boolean>) {
+    internal fun observeRefresh(owner: LifecycleOwner, observer: Observer<Boolean>) {
         refreshLiveData.removeObservers(owner)
         refreshLiveData.observe(owner, observer)
     }
 
-    fun observeChange(owner: LifecycleOwner, observer: Observer<DataItemChange>) {
+    internal fun observeChange(owner: LifecycleOwner, observer: Observer<DataItemChange>) {
         removeObservers(owner)
         observe(owner, observer)
     }
 
-    fun configDataSet(empty: Boolean, more: Boolean, init: Boolean, moreGone: Boolean) {
+    internal fun configDataSet(empty: Boolean, more: Boolean, init: Boolean, moreGone: Boolean) {
         mDataSet.enableEmptyItem = empty
         mDataSet.enableMoreItem = more
         mDataSet.enableInitItem = init
@@ -72,7 +72,6 @@ open class ListLiveData : MutableLiveData<DataItemChange>() {
             refreshLiveData.value = false
         }
     }
-
 
     @MainThread
     fun loadSearch(search: Bundle? = null) {
@@ -137,11 +136,15 @@ open class ListLiveData : MutableLiveData<DataItemChange>() {
         if (loadData(bundle, mDataSet.paging, mLoadType) { ok, items -> loadDataAfter(ok, items) }) {
             return
         }
-        mDisposable = Single.create<List<DataItem>> {
-            it.onSuccess(loadData(bundle, mDataSet.paging, mLoadType) ?: listOf())
-        }.subscribeOn(Schedulers.newThread()).observeOn(AndroidSchedulers.mainThread()).subscribe { items, error ->
-            loadDataAfter(error == null, items)
-        }
+        mDisposable = Single
+                .create<List<DataItem>> {
+                    it.onSuccess(loadData(bundle, mDataSet.paging, mLoadType) ?: listOf())
+                }
+                .subscribeOn(Schedulers.newThread())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe { items, error ->
+                    loadDataAfter(error == null, items)
+                }
     }
 
     @MainThread

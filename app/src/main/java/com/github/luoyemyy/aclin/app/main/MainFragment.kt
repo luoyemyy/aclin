@@ -68,12 +68,6 @@ class MainFragment : Fragment(), BusResult {
             binding.executePendingBindings()
         }
 
-//        override fun bindContentPayload(binding: FragmentListItemBinding, item: TextItem, viewType: Int, position: Int,
-//            payloads: MutableList<Any>) {
-//            binding.setVariable(1, item)
-//            binding.executePendingBindings()
-//        }
-
         override fun onItemViewClick(binding: FragmentListItemBinding, vh: VH<*>, view: View) {
             val item = getItem(vh.adapterPosition) as? TextItem ?: return
             when (item.key) {
@@ -105,7 +99,7 @@ class MainFragment : Fragment(), BusResult {
                 items?.forEach {
                     if (it is TextItem && it.key == "profile") {
                         it.value = Profile.active().desc
-                        it.usePayload()
+                        it.hasPayload()
                     }
                 }
                 true

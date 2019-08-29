@@ -45,10 +45,12 @@ class LoggerListFragment : Fragment() {
             R.id.delete -> if (mPresenter.countSelect() == 0) {
                 requireContext().toast(R.string.aclin_logger_menu_select_tip)
             } else {
-                AlertDialog.Builder(requireContext()).setMessage(R.string.aclin_logger_menu_delete_tip)
-                    .setNegativeButton(android.R.string.cancel, null).setPositiveButton(R.string.aclin_logger_menu_delete) { _, _ ->
-                        mPresenter.deleteSelect()
-                    }.show()
+                AlertDialog.Builder(requireContext())
+                        .setMessage(R.string.aclin_logger_menu_delete_tip)
+                        .setNegativeButton(android.R.string.cancel, null)
+                        .setPositiveButton(R.string.aclin_logger_menu_delete) { _, _ ->
+                            mPresenter.deleteSelect()
+                        }.show()
             }
         }
         return super.onOptionsItemSelected(item)
@@ -98,7 +100,7 @@ class LoggerListFragment : Fragment() {
                 items?.forEach {
                     (it as? LoggerItem)?.apply {
                         select = selectAll
-                        usePayload()
+                        hasPayload()
                     }
                 }
                 true

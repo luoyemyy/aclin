@@ -12,7 +12,6 @@ import com.github.luoyemyy.aclin.app.R
 import com.github.luoyemyy.aclin.app.common.api.refreshApi
 import com.github.luoyemyy.aclin.app.common.util.BusEvent
 import com.github.luoyemyy.aclin.app.databinding.FragmentListBinding
-import com.github.luoyemyy.aclin.app.mvp.BaseAdapter
 import com.github.luoyemyy.aclin.bus.postBus
 import com.github.luoyemyy.aclin.mvp.*
 import com.github.luoyemyy.aclin.profile.Profile
@@ -35,7 +34,7 @@ class ProfileFragment : Fragment() {
         mPresenter.listLiveData.loadInit(arguments)
     }
 
-    inner class Adapter(private var context: Context) : BaseAdapter(this, mPresenter.listLiveData) {
+    inner class Adapter(private var context: Context) : SimpleAdapter(this, mPresenter.listLiveData) {
         override fun getContentLayoutId(viewType: Int): Int {
             return R.layout.fragment_profile_item
         }
@@ -74,11 +73,11 @@ class ProfileFragment : Fragment() {
                     listLiveData.itemChange {
                         (it?.get(activePosition)as? ProfileItem)?.apply {
                             active = false
-                            usePayload()
+                            hasPayload()
                         }
                         (it?.get(selectPosition) as? ProfileItem)?.apply {
                             active = true
-                            usePayload()
+                            hasPayload()
                         }
                         true
                     }

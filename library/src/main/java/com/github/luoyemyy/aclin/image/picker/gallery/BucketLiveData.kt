@@ -104,7 +104,7 @@ class BucketLiveData(private val mApp: Application) : ListLiveData() {
     private fun updateSelectImages() {
         mBucketMap[BUCKET_SELECT]?.images = mBucketMap[BUCKET_ALL]?.images?.filterTo(mutableListOf()) { it.select } ?: mutableListOf()
         itemChange {
-            mBucketMap[BUCKET_SELECT]?.usePayload()
+            mBucketMap[BUCKET_SELECT]?.hasPayload()
             true
         }
     }
@@ -119,10 +119,10 @@ class BucketLiveData(private val mApp: Application) : ListLiveData() {
             mBuckets.forEach {
                 if (it.id == select.id && !it.select) {
                     it.select = true
-                    it.usePayload()
+                    it.hasPayload()
                 } else if (it.id != select.id && it.select) {
                     it.select = false
-                    it.usePayload()
+                    it.hasPayload()
                 }
             }
             updateBuckets

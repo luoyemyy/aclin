@@ -7,8 +7,12 @@ open class DataItem(val type: Int = DataSet.CONTENT) {
 
     private var mUsePayload: Boolean = false
 
-    fun usePayload() {
+    fun hasPayload() {
         mUsePayload = true
+    }
+
+    fun usePayload() {
+        mUsePayload = false
     }
 
     open fun areItemsTheSame(oldItem: DataItem): Boolean {
@@ -21,7 +25,7 @@ open class DataItem(val type: Int = DataSet.CONTENT) {
 
     @CallSuper
     open fun getChangePayload(oldItem: DataItem): Bundle? {
-        mUsePayload = false
+        usePayload()
         return null
     }
 }

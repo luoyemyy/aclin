@@ -37,7 +37,7 @@ class MvpFragment : Fragment() {
         return super.onOptionsItemSelected(item)
     }
 
-    inner class Adapter(private var context: Context) : BaseAdapter(this, mPresenter.listLiveData) {
+    inner class Adapter(private var context: Context) : SimpleAdapter(this, mPresenter.listLiveData) {
         override fun getContentLayoutId(viewType: Int): Int {
             return R.layout.fragment_list_item
         }

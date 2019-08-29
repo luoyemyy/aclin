@@ -28,21 +28,10 @@ interface AdapterExt<T : DataItem, B : ViewDataBinding> {
      */
     fun bindContent(binding: B, item: T, viewType: Int, position: Int)
 
-//    /**
-//     * 绑定主要内容
-//     */
-//    fun bindContentPayload(binding: B, item: T, viewType: Int, position: Int, payloads: MutableList<Any>) {
-//    }
-
     /**
      * 绑定额外内容
      */
     fun bindExtra(binding: ViewDataBinding, item: DataItem, viewType: Int, position: Int) {}
-
-//    /**
-//     * 绑定额外内容
-//     */
-//    fun bindExtraPayload(binding: ViewDataBinding, item: DataItem, viewType: Int, position: Int, payloads: MutableList<Any>) {}
 
     /**
      * 内容类型

@@ -15,7 +15,7 @@ object IoManager {
                 it == null -> return null
                 it.exists() -> return it
             }
-        }
+        } ?: return null
         return try {
             app.assets.open(source).use { input -> FileOutputStream(file).use { fos -> copy(input, fos) } }
             file

@@ -88,24 +88,6 @@ abstract class AbsAdapter<T : DataItem, B : ViewDataBinding>(owner: LifecycleOwn
         }
     }
 
-//    override fun onBindViewHolder(holder: VH<ViewDataBinding>, position: Int, payloads: MutableList<Any>) {
-//        if (payloads.size == 0) {
-//            onBindViewHolder(holder, position)
-//        } else {
-//            triggerLoadMore(position)
-//            val viewType = getItemViewType(position)
-//            if (viewType < 0) {
-//                bindExtraPayload(holder.binding, getExtraItem(position), viewType, holder.adapterPosition, payloads)
-//            } else {
-//                (holder.binding as? B)?.also { binding ->
-//                    getContentItem(position)?.also { item ->
-//                        bindContentPayload(binding, item, viewType, holder.adapterPosition, payloads)
-//                    }
-//                }
-//            }
-//        }
-//    }
-
     private fun triggerLoadMore(position: Int) {
         if (position + 1 == itemCount) {
             runDelay(300) {
