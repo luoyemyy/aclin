@@ -3,12 +3,12 @@ package com.github.luoyemyy.aclin.mvp
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
 
-class SortCallback(private val mListLiveData: ListLiveData, private val mAdapter: AbsAdapter) : ItemTouchHelper.SimpleCallback(
+class SortCallback(private val mLiveData: ListLiveData) : ItemTouchHelper.SimpleCallback(
     ItemTouchHelper.DOWN or ItemTouchHelper.UP or ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT, 0
 ) {
 
     override fun onMove(recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder, target: RecyclerView.ViewHolder): Boolean {
-        return mListLiveData.move(mAdapter.getItem(viewHolder.adapterPosition), mAdapter.getItem(target.adapterPosition))
+        return mLiveData.sortMove(viewHolder.adapterPosition, target.adapterPosition)
     }
 
     override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
@@ -17,7 +17,7 @@ class SortCallback(private val mListLiveData: ListLiveData, private val mAdapter
     override fun onSelectedChanged(viewHolder: RecyclerView.ViewHolder?, actionState: Int) {
         super.onSelectedChanged(viewHolder, actionState)
         if (actionState == ItemTouchHelper.ACTION_STATE_IDLE) {
-            mListLiveData.moveEnd()
+            mLiveData.sortEnd()
         }
     }
 

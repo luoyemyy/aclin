@@ -26,7 +26,7 @@ class DataSet(var paging: Paging = Paging.Page(), var enableEmptyItem: Boolean =
     /**
      * 内容列表
      */
-    private val mData: MutableList<DataItem> = mutableListOf()
+    private val contentList: MutableList<DataItem> = mutableListOf()
     private var mInitState = INIT_LOADING
     private var mMoreState = MORE_LOADING
 
@@ -60,9 +60,9 @@ class DataSet(var paging: Paging = Paging.Page(), var enableEmptyItem: Boolean =
     }
 
     fun setDataSuccess(list: List<DataItem>?): List<DataItem> {
-        mData.clear()
+        contentList.clear()
         if (!list.isNullOrEmpty()) {
-            mData.addAll(list)
+            contentList.addAll(list)
         }
         mInitState = INIT_END
         setLoadMoreState(list)
@@ -76,34 +76,9 @@ class DataSet(var paging: Paging = Paging.Page(), var enableEmptyItem: Boolean =
 
     fun addDataSuccess(list: List<DataItem>?): List<DataItem> {
         if (!list.isNullOrEmpty()) {
-            mData.addAll(list)
+            contentList.addAll(list)
         }
         setLoadMoreState(list)
-        return getDataList()
-    }
-
-    fun addDataAnchor(anchor: DataItem?, data: DataItem): List<DataItem> {
-        return addDataAnchor(anchor, listOf(data))
-    }
-
-    fun addDataAnchor(anchor: DataItem?, list: List<DataItem>?): List<DataItem> {
-        if (!list.isNullOrEmpty()) {
-            val index = anchor?.let {
-                mData.indexOf(anchor)
-            } ?: -1
-            mData.addAll(if (index == -1) 0 else index, list)
-        }
-        return getDataList()
-    }
-
-    fun delete(data: DataItem): List<DataItem> {
-        return delete(listOf(data))
-    }
-
-    fun delete(list: List<DataItem>?): List<DataItem> {
-        if (!list.isNullOrEmpty()) {
-            mData.removeAll(list)
-        }
         return getDataList()
     }
 
@@ -111,24 +86,27 @@ class DataSet(var paging: Paging = Paging.Page(), var enableEmptyItem: Boolean =
         if (start == null || end == null || start == end || start.type <= 0 || end.type <= 0) {
             return null
         }
-        val startPosition = mData.indexOf(start)
-        val endPosition = mData.indexOf(end)
+        val startPosition = contentList.indexOf(start)
+        val endPosition = contentList.indexOf(end)
         if (startPosition <= -1 || endPosition <= -1) {
             return null
         }
         if (startPosition < endPosition) {
             (startPosition until endPosition).forEach {
-                Collections.swap(mData, it, it + 1)
+                Collections.swap(contentList, it, it + 1)
             }
         } else if (startPosition > endPosition) {
             (startPosition downTo endPosition + 1).forEach {
-                Collections.swap(mData, it, it - 1)
+                Collections.swap(contentList, it, it - 1)
             }
         }
         return getDataList()
     }
 
-    fun getContentList() = mData
+
+    fun getContentList(): MutableList<DataItem> {
+        return contentList
+    }
 
     fun getDataList(): List<DataItem> {
         val list = mutableListOf<DataItem>()
@@ -136,11 +114,11 @@ class DataSet(var paging: Paging = Paging.Page(), var enableEmptyItem: Boolean =
             INIT_LOADING -> if (enableInitItem) list.add(mInitLoadingData)
             INIT_FAILURE -> if (enableInitItem) list.add(mInitFailureData)
             INIT_END -> {
-                mData.size.also {
+                contentList.size.also {
                     if (it == 0) {
                         if (enableEmptyItem) list.add(mEmptyData)
                     } else {
-                        list.addAll(mData)
+                        list.addAll(contentList)
                         if (enableMoreItem) {
                             when (mMoreState) {
                                 MORE_LOADING -> list.add(mMoreLoadingData)
@@ -154,5 +132,4 @@ class DataSet(var paging: Paging = Paging.Page(), var enableEmptyItem: Boolean =
         }
         return list
     }
-
 }

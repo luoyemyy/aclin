@@ -1,37 +1,30 @@
 package com.github.luoyemyy.aclin.mvp
 
-import android.view.LayoutInflater
-import android.view.ViewGroup
-import androidx.annotation.LayoutRes
-import androidx.databinding.DataBindingUtil
+import android.view.View
 import androidx.databinding.ViewDataBinding
-import androidx.recyclerview.widget.RecyclerView
+import androidx.lifecycle.LifecycleOwner
 
-abstract class FixedAdapter<B : ViewDataBinding>(private var mData: List<Any>?) : RecyclerView.Adapter<VH<B>>() {
+abstract class FixedAdapter<T : DataItem, B : ViewDataBinding>(owner: LifecycleOwner, listLiveData: ListLiveData) :
+        AbsAdapter<T, B>(owner, listLiveData) {
 
-    @LayoutRes
-    abstract fun getContentLayoutId(viewType: Int): Int
-
-    fun setData(data: List<Any>?) {
-        mData = data
-        notifyDataSetChanged()
+    override fun bindContent(binding: B, item: T, viewType: Int, position: Int) {
+        binding.setVariable(1, item)
+        binding.executePendingBindings()
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): VH<B> {
-        return VH(DataBindingUtil.inflate(LayoutInflater.from(parent.context), getContentLayoutId(viewType), parent, false))
+    override fun enableEmpty(): Boolean {
+        return false
     }
 
-    override fun getItemCount(): Int {
-        return mData?.size ?: 0
+    override fun enableInit(): Boolean {
+        return false
     }
 
-    override fun onBindViewHolder(holder: VH<B>, position: Int) {
-        holder.binding.apply {
-            mData?.get(position)?.apply {
-                setVariable(1, this)
-                executePendingBindings()
-            }
-        }
+    override fun enableLoadMore(): Boolean {
+        return false
     }
 
+    override fun getItemClickViews(binding: B): List<View> {
+        return listOf(binding.root)
+    }
 }

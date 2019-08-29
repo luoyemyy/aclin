@@ -5,14 +5,12 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.core.os.bundleOf
-import androidx.databinding.ViewDataBinding
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import com.github.luoyemyy.aclin.app.R
 import com.github.luoyemyy.aclin.app.common.util.BusEvent
 import com.github.luoyemyy.aclin.app.databinding.FragmentListBinding
-import com.github.luoyemyy.aclin.app.mvp.BaseAdapter
+import com.github.luoyemyy.aclin.app.databinding.FragmentListItemBinding
 import com.github.luoyemyy.aclin.app.mvp.TextItem
 import com.github.luoyemyy.aclin.bus.BusMsg
 import com.github.luoyemyy.aclin.bus.BusResult
@@ -47,7 +45,8 @@ class MainFragment : Fragment(), BusResult {
         }
     }
 
-    inner class Adapter : BaseAdapter(this, mPresenter.listLiveData) {
+    inner class Adapter : AbsAdapter<TextItem, FragmentListItemBinding>(this, mPresenter.listLiveData) {
+
         override fun getContentLayoutId(viewType: Int): Int {
             return R.layout.fragment_list_item
         }
@@ -60,23 +59,22 @@ class MainFragment : Fragment(), BusResult {
             mBinding.swipeRefreshLayout.isRefreshing = refreshing
         }
 
-        override fun getItemClickViews(binding: ViewDataBinding): List<View> {
+        override fun getItemClickViews(binding: FragmentListItemBinding): List<View> {
             return listOf(binding.root)
         }
 
-        override fun bindContentPayload(binding: ViewDataBinding, item: DataItem, viewType: Int, position: Int,
-            payloads: MutableList<Any>) {
-            val bundle = payloads[0] as Bundle
-            when {
-                bundle.getString("type") == "profile" && item is TextItem -> item.also {
-                    it.value = bundle.getString("value", "")
-                    binding.setVariable(1, it)
-                }
-            }
+        override fun bindContent(binding: FragmentListItemBinding, item: TextItem, viewType: Int, position: Int) {
+            binding.setVariable(1, item)
             binding.executePendingBindings()
         }
 
-        override fun onItemViewClick(vh: VH<ViewDataBinding>, view: View) {
+//        override fun bindContentPayload(binding: FragmentListItemBinding, item: TextItem, viewType: Int, position: Int,
+//            payloads: MutableList<Any>) {
+//            binding.setVariable(1, item)
+//            binding.executePendingBindings()
+//        }
+
+        override fun onItemViewClick(binding: FragmentListItemBinding, vh: VH<*>, view: View) {
             val item = getItem(vh.adapterPosition) as? TextItem ?: return
             when (item.key) {
                 "mvp" -> findNavController().navigate(R.id.action_mainFragment_to_mvpFragment)
@@ -91,7 +89,7 @@ class MainFragment : Fragment(), BusResult {
     class Presenter(private var mApp: Application) : AbsPresenter(mApp) {
 
         val listLiveData = object : ListLiveData() {
-            override fun loadData(bundle: Bundle?, search: String?, paging: Paging, loadType: LoadType): List<DataItem>? {
+            override fun loadData(bundle: Bundle?, paging: Paging, loadType: LoadType): List<DataItem>? {
                 return listOf(
                     TextItem("mvp"),
                     TextItem("profile", Profile.active().desc),
@@ -103,14 +101,14 @@ class MainFragment : Fragment(), BusResult {
         }
 
         fun updateProfile() {
-            listLiveData.change { change, dataItem ->
-                if (dataItem is TextItem && dataItem.key == "profile") {
-                    change.payload = true
-                    change.data = bundleOf("type" to "profile", "value" to Profile.active().desc)
-                    true
-                } else {
-                    false
+            listLiveData.itemChange { items ->
+                items?.forEach {
+                    if (it is TextItem && it.key == "profile") {
+                        it.value = Profile.active().desc
+                        it.usePayload()
+                    }
                 }
+                true
             }
         }
     }

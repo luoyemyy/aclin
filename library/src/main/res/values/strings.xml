@@ -11,6 +11,7 @@
     <string name="aclin_image_picker_gallery_permission_request">选择图片需要读写文件的权限</string>
     <string name="aclin_image_picker_gallery_permission_failure">未获得读写文件的权限，你可以从应用设置中选择授权后使用选择图片功能</string>
     <string name="aclin_image_picker_gallery_bucket_all">全部图片</string>
+    <string name="aclin_image_picker_gallery_bucket_select">已选择图片</string>
     <string name="aclin_image_picker_gallery_select_limit_max">选择的图片数量不能超过%d张</string>
     <string name="aclin_image_picker_gallery_bucket_count">共%d张</string>
     <string name="aclin_image_picker_gallery_menu_sure">确认(%d/%d)</string>

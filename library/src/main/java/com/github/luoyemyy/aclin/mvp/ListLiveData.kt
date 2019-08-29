@@ -3,22 +3,31 @@ package com.github.luoyemyy.aclin.mvp
 import android.os.Bundle
 import androidx.annotation.MainThread
 import androidx.annotation.WorkerThread
-import androidx.lifecycle.LiveData
+import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.MutableLiveData
-import com.github.luoyemyy.aclin.ext.runImmediate
+import androidx.lifecycle.Observer
 import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
 
-open class ListLiveData : LiveData<DataItemGroup>() {
+open class ListLiveData : MutableLiveData<DataItemChange>() {
 
-    val refreshLiveData = MutableLiveData<Boolean>()
-    val changeLiveData = MutableLiveData<DataItemChange>()
+    private val refreshLiveData = MutableLiveData<Boolean>()
 
     private val mDataSet by lazy { DataSet() }
     private val mLoadType = LoadType()
     private var mDisposable: Disposable? = null
+
+    fun observeRefresh(owner: LifecycleOwner, observer: Observer<Boolean>) {
+        refreshLiveData.removeObservers(owner)
+        refreshLiveData.observe(owner, observer)
+    }
+
+    fun observeChange(owner: LifecycleOwner, observer: Observer<DataItemChange>) {
+        removeObservers(owner)
+        observe(owner, observer)
+    }
 
     fun configDataSet(empty: Boolean, more: Boolean, init: Boolean, moreGone: Boolean) {
         mDataSet.enableEmptyItem = empty
@@ -27,12 +36,27 @@ open class ListLiveData : LiveData<DataItemGroup>() {
         mDataSet.enableMoreGone = moreGone
     }
 
-    fun getDataSet(): DataSet {
-        return mDataSet
+    open fun loadInitBefore(bundle: Bundle?) {
+        update { DataItemChange(it.setDataLoading(), true) }
+        mDataSet.paging.reset()
+    }
+
+    open fun loadRefreshBefore(refreshStyle: Boolean) {
+        refreshLiveData.value = refreshStyle
+        mDataSet.paging.reset()
+    }
+
+    open fun loadSearchBefore(search: Bundle?) {
+        update { DataItemChange(it.setDataLoading(), true) }
+        mDataSet.paging.reset()
+    }
+
+    open fun loadMoreBefore() {
+        mDataSet.paging.next()
     }
 
     @MainThread
-    fun loadInit(bundle: Bundle?) {
+    fun loadInit(bundle: Bundle? = null) {
         if (mDataSet.canLoadInit() && mLoadType.init()) {
             loadInitBefore(bundle)
             loadDataBase(bundle)
@@ -51,10 +75,10 @@ open class ListLiveData : LiveData<DataItemGroup>() {
 
 
     @MainThread
-    fun loadSearch(search: String?) {
+    fun loadSearch(search: Bundle? = null) {
         if (mLoadType.search()) {
             loadSearchBefore(search)
-            loadDataBase(search = search)
+            loadDataBase(search)
         }
     }
 
@@ -63,51 +87,6 @@ open class ListLiveData : LiveData<DataItemGroup>() {
         if (mDataSet.canLoadMore() && mLoadType.more()) {
             loadMoreBefore()
             loadDataBase()
-        }
-    }
-
-    private fun loadDataBase(bundle: Bundle? = null, search: String? = null) {
-        if (loadData(bundle, search, mDataSet.paging, mLoadType) { ok, items -> loadDataAfter(ok, items) }) {
-            return
-        }
-        mDisposable = Single.create<List<DataItem>> {
-            it.onSuccess(loadData(bundle, search, mDataSet.paging, mLoadType) ?: listOf())
-        }.subscribeOn(Schedulers.newThread()).observeOn(AndroidSchedulers.mainThread()).subscribe { items, error ->
-            loadDataAfter(error == null, items)
-        }
-    }
-
-    @MainThread
-    open fun loadData(bundle: Bundle? = null, search: String? = null, paging: Paging, loadType: LoadType,
-        loadDataAfter: (ok: Boolean, items: List<DataItem>) -> Unit): Boolean = false
-
-    @WorkerThread
-    open fun loadData(bundle: Bundle? = null, search: String? = null, paging: Paging, loadType: LoadType): List<DataItem>? = null
-
-    open fun loadInitBefore(bundle: Bundle?) {
-        update { DataItemGroup(true, it.setDataLoading()) }
-        mDataSet.paging.reset()
-    }
-
-    open fun loadRefreshBefore(refreshStyle: Boolean) {
-        refreshLiveData.value = refreshStyle
-        mDataSet.paging.reset()
-    }
-
-    open fun loadSearchBefore(search: String?) {
-        update { DataItemGroup(true, it.setDataLoading()) }
-        mDataSet.paging.reset()
-    }
-
-    open fun loadMoreBefore() {
-        mDataSet.paging.next()
-    }
-
-    open fun loadMoreAfter(ok: Boolean, items: List<DataItem>): List<DataItem> {
-        return if (ok) {
-            mDataSet.addDataSuccess(items)
-        } else {
-            mDataSet.addDataFailure()
         }
     }
 
@@ -136,59 +115,75 @@ open class ListLiveData : LiveData<DataItemGroup>() {
         }
     }
 
+    open fun loadMoreAfter(ok: Boolean, items: List<DataItem>): List<DataItem> {
+        return if (ok) {
+            mDataSet.addDataSuccess(items)
+        } else {
+            mDataSet.addDataFailure()
+        }
+    }
+
     open fun loadDataAfter(ok: Boolean, items: List<DataItem>) {
         when {
-            mLoadType.isMore() -> DataItemGroup(false, loadMoreAfter(ok, items))
-            mLoadType.isInit() -> DataItemGroup(true, loadInitAfter(ok, items))
-            mLoadType.isSearch() -> DataItemGroup(true, loadSearchAfter(ok, items))
-            mLoadType.isRefresh() -> DataItemGroup(true, loadRefreshAfter(ok, items))
-            else -> null
-        }?.also { group -> update { group } }
+            mLoadType.isInit() -> update { DataItemChange(loadInitAfter(ok, items), true) }
+            mLoadType.isRefresh() -> update { DataItemChange(loadRefreshAfter(ok, items), true) }
+            mLoadType.isSearch() -> update { DataItemChange(loadSearchAfter(ok, items), true) }
+            mLoadType.isMore() -> update { DataItemChange(loadMoreAfter(ok, items), false) }
+        }
         mLoadType.complete()
     }
 
-    fun move(start: DataItem?, end: DataItem?): Boolean {
-        return update { DataItemGroup(false, it.move(start, end)) }
+    private fun loadDataBase(bundle: Bundle? = null) {
+        if (loadData(bundle, mDataSet.paging, mLoadType) { ok, items -> loadDataAfter(ok, items) }) {
+            return
+        }
+        mDisposable = Single.create<List<DataItem>> {
+            it.onSuccess(loadData(bundle, mDataSet.paging, mLoadType) ?: listOf())
+        }.subscribeOn(Schedulers.newThread()).observeOn(AndroidSchedulers.mainThread()).subscribe { items, error ->
+            loadDataAfter(error == null, items)
+        }
     }
 
-    /**
-     * DataSet#addDataAnchor
-     * DataSet#delete
-     */
-    fun update(callback: (DataSet) -> DataItemGroup?): Boolean {
-        return callback(mDataSet)?.let {
-            postValue(it)
-            true
+    @MainThread
+    open fun loadData(bundle: Bundle? = null, paging: Paging, loadType: LoadType, loadDataAfter: LoadDataAfter<DataItem>): Boolean = false
+
+    @WorkerThread
+    open fun loadData(bundle: Bundle? = null, paging: Paging, loadType: LoadType): List<DataItem>? = null
+
+    fun sortMove(start: Int, end: Int): Boolean {
+        return value?.data?.let {
+            val range = 0 until it.size
+            val startItem = if (start in range) it[start] else null
+            val endItem = if (end in range) it[end] else null
+            mDataSet.move(startItem, endItem)?.let { list ->
+                update { DataItemChange(list) }
+                true
+            } ?: false
         } ?: false
     }
 
-    fun change(position: Int, change: (DataItemChange, DataItem) -> Unit) {
-        value?.data?.apply {
-            if (position in 0 until size) {
-                DataItemChange(position).let {
-                    change(it, this[position])
-                    changeLiveData.postValue(it)
-                }
+    open fun sortEnd() {}
+
+    fun itemChange(change: (List<DataItem>?) -> Boolean = { true }) {
+        val items = value?.data
+        if (change(items)) {
+            update {
+                DataItemChange(it.getDataList())
             }
         }
     }
 
-    fun change(change: (DataItemChange, DataItem) -> Boolean) {
-        value?.data?.forEachIndexed { index, dataItem ->
-            DataItemChange(index).let {
-                if (change(it, dataItem)) {
-                    runImmediate {
-                        changeLiveData.postValue(it)
-                    }
-                }
+    fun itemDelete(delete: (DataSet) -> Boolean = { true }) {
+        if (delete(mDataSet)) {
+            update {
+                DataItemChange(it.getDataList())
             }
         }
     }
 
-    open fun moveEnd() {
-    }
-
-    open fun areContentsTheSame(oldItem: DataItem, newItem: DataItem): Boolean {
-        return true
+    private fun update(callback: (DataSet) -> DataItemChange) {
+        callback(mDataSet).let {
+            postValue(it)
+        }
     }
 }

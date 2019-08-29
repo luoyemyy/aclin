@@ -6,7 +6,6 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.core.os.bundleOf
 import androidx.databinding.ViewDataBinding
 import androidx.fragment.app.Fragment
 import com.github.luoyemyy.aclin.app.R
@@ -45,28 +44,8 @@ class ProfileFragment : Fragment() {
             return listOf(binding.root)
         }
 
-        override fun onItemViewClick(vh: VH<ViewDataBinding>, view: View) {
-            val selectPosition = vh.adapterPosition
-            val activePosition = Profile.activePosition()
-            if (activePosition != selectPosition) {
-                Profile.changeType(context, selectPosition) {
-                    refreshApi()
-                    postBus(BusEvent.PROFILE_CHANGE)
-                    notifyItemChanged(activePosition, bundleOf("active" to false, "type" to "profile"))
-                    notifyItemChanged(selectPosition, bundleOf("active" to true, "type" to "profile"))
-                }
-            }
-        }
-
-        override fun bindContentPayload(binding: ViewDataBinding, item: DataItem, viewType: Int, position: Int, payloads: MutableList<Any>) {
-            val bundle = payloads[0] as Bundle
-            when {
-                bundle.getString("type") == "profile" && item is ProfileItem -> {
-                    item.active = bundle.getBoolean("active")
-                    binding.setVariable(1, item)
-                }
-            }
-            binding.executePendingBindings()
+        override fun onItemViewClick(binding: ViewDataBinding, vh: VH<*>, view: View) {
+            mPresenter.changeActive(vh.adapterPosition)
         }
 
         override fun enableLoadMore(): Boolean {
@@ -81,8 +60,29 @@ class ProfileFragment : Fragment() {
     class Presenter(private var mApp: Application) : AbsPresenter(mApp) {
 
         val listLiveData = object : ListLiveData() {
-            override fun loadData(bundle: Bundle?, search: String?, paging: Paging, loadType: LoadType): List<DataItem>? {
+            override fun loadData(bundle: Bundle?, paging: Paging, loadType: LoadType): List<DataItem>? {
                 return Profile.allTypes().map { ProfileItem(it.desc, it.isActive()) }
+            }
+        }
+
+        fun changeActive(selectPosition: Int) {
+            val activePosition = Profile.activePosition()
+            if (activePosition != selectPosition) {
+                Profile.changeType(mApp, selectPosition) {
+                    refreshApi()
+                    postBus(BusEvent.PROFILE_CHANGE)
+                    listLiveData.itemChange {
+                        (it?.get(activePosition)as? ProfileItem)?.apply {
+                            active = false
+                            usePayload()
+                        }
+                        (it?.get(selectPosition) as? ProfileItem)?.apply {
+                            active = true
+                            usePayload()
+                        }
+                        true
+                    }
+                }
             }
         }
     }

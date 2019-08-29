@@ -7,27 +7,43 @@ import android.os.Handler
 import android.provider.MediaStore
 import androidx.lifecycle.MutableLiveData
 import com.github.luoyemyy.aclin.R
+import com.github.luoyemyy.aclin.ext.runOnMain
 import com.github.luoyemyy.aclin.ext.toast
 import com.github.luoyemyy.aclin.image.ImagePicker
-import com.github.luoyemyy.aclin.mvp.*
+import com.github.luoyemyy.aclin.mvp.DataItem
+import com.github.luoyemyy.aclin.mvp.ListLiveData
+import com.github.luoyemyy.aclin.mvp.LoadType
+import com.github.luoyemyy.aclin.mvp.Paging
 import java.io.File
 
 class BucketLiveData(private val mApp: Application) : ListLiveData() {
 
     companion object {
-        private const val BUCKET_ALL = "bucketAll"
+        const val BUCKET_ALL = "bucketAll"
+        const val BUCKET_SELECT = "bucketSelect"
     }
 
     private var mBuckets: MutableList<Bucket> = mutableListOf()
     private var mBucketMap: MutableMap<String, Bucket> = mutableMapOf()
     private var mGalleryArgs = ImagePicker.parseGalleryArgs(null)
 
-    val selectBucketLiveData = MutableLiveData<Bucket>()
     val menuLiveData = MutableLiveData<Boolean>()
 
+    val selectBucketLiveData = object : MutableLiveData<Bucket>() {
+        override fun onActive() {
+            mApp.contentResolver.registerContentObserver(
+                MediaStore.Images.Media.EXTERNAL_CONTENT_URI, true, mContentObserver
+            )
+        }
+
+        override fun onInactive() {
+            mApp.contentResolver.unregisterContentObserver(mContentObserver)
+        }
+    }
+
     val imageLiveData = object : ListLiveData() {
-        override fun loadData(bundle: Bundle?, search: String?, paging: Paging, loadType: LoadType): List<DataItem>? {
-            return mBucketMap[getSelectBucketId()]?.images
+        override fun loadData(bundle: Bundle?, paging: Paging, loadType: LoadType): List<DataItem>? {
+            return selectBucketLiveData.value?.let { mBucketMap[it.id]?.images }
         }
     }
 
@@ -37,73 +53,7 @@ class BucketLiveData(private val mApp: Application) : ListLiveData() {
         }
     }
 
-    fun changeImage(position: Int, select: Boolean): Boolean {
-        val image = getSelectBucket()?.let {
-            if (position in 0 until it.images.size) {
-                it.images[position]
-            } else {
-                null
-            }
-        } ?: let {
-            return false
-        }
-
-        if (select && !image.select && countSelectImage() >= mGalleryArgs.maxSelect) {
-            mApp.toast(mApp.getString(R.string.aclin_image_picker_gallery_select_limit_max, mGalleryArgs.maxSelect))
-            return false
-        }
-        image.select = select
-        menuLiveData.value = true
-        return select
-    }
-
-    fun countSelectImage(): Int {
-        return mBucketMap[BUCKET_ALL]?.images?.count { it.select } ?: 0
-    }
-
-    fun submitImageText(): String {
-        return mApp.getString(R.string.aclin_image_picker_gallery_menu_sure, countSelectImage(), mGalleryArgs.maxSelect)
-    }
-
-    fun selectImages(): ArrayList<String>? {
-        return mBucketMap[BUCKET_ALL]?.images?.filter { it.select }?.mapTo(arrayListOf()) { it.path } ?: let {
-            //            mApp.toast()
-            null
-        }
-    }
-
-    fun changeBucket(position: Int) {
-        var selectPosition = -1
-        var select: Bucket? = null
-        mBuckets.forEachIndexed { index, bucket ->
-            if (bucket.select) {
-                selectPosition = index
-            }
-            bucket.select = index == position
-            if (bucket.select) {
-                select = bucket
-            }
-        }
-        if (selectPosition != position) {
-            value = DataItemGroup(true, mBuckets)
-            imageLiveData.loadRefresh()
-        }
-        select?.apply {
-            selectBucketLiveData.value = select
-        }
-    }
-
-    override fun onActive() {
-        mApp.contentResolver.registerContentObserver(
-            MediaStore.Images.Media.EXTERNAL_CONTENT_URI, true, mContentObserver
-        )
-    }
-
-    override fun onInactive() {
-        mApp.contentResolver.unregisterContentObserver(mContentObserver)
-    }
-
-    override fun loadData(bundle: Bundle?, search: String?, paging: Paging, loadType: LoadType): List<DataItem>? {
+    override fun loadData(bundle: Bundle?, paging: Paging, loadType: LoadType): List<DataItem>? {
         if (loadType.isInit()) {
             mGalleryArgs = ImagePicker.parseGalleryArgs(bundle)
         }
@@ -111,20 +61,75 @@ class BucketLiveData(private val mApp: Application) : ListLiveData() {
         return mBuckets
     }
 
-    override fun loadInitAfter(ok: Boolean, items: List<DataItem>): List<DataItem> {
-        imageLiveData.loadInit(null)
-        return super.loadInitAfter(ok, items)
+    private fun countSelectImage(): Int {
+        return selectedImages0()?.size ?: 0
     }
 
-    private fun getSelectBucketId(): String? {
-        return getSelectBucket()?.id
+    fun enableSubmit(): Boolean {
+        return countSelectImage() in (mGalleryArgs.minSelect..mGalleryArgs.maxSelect)
     }
 
-    private fun getSelectBucket(): Bucket? {
-        return mBuckets.firstOrNull { it.select }
+    fun submitMenuText(): String {
+        return mApp.getString(R.string.aclin_image_picker_gallery_menu_sure, countSelectImage(), mGalleryArgs.maxSelect)
     }
 
-    private fun load() {
+    private fun selectedImages0(): List<Image>? {
+        return mBucketMap[BUCKET_SELECT]?.images
+    }
+
+    fun selectedImages(): ArrayList<String>? {
+        return selectedImages0()?.mapTo(arrayListOf()) { it.path } ?: let {
+            null
+        }
+    }
+
+    fun selectImage(position: Int, select: Boolean): Boolean {
+        val image = mBucketMap[selectBucketLiveData.value?.id]?.images?.get(position) ?: return false
+        if (select && !image.select && countSelectImage() >= mGalleryArgs.maxSelect) {
+            mApp.toast(mApp.getString(R.string.aclin_image_picker_gallery_select_limit_max, mGalleryArgs.maxSelect))
+            return false
+        }
+        image.select = select
+        updateSelectImages()
+        menuLiveData.value = true
+        return select
+    }
+
+    private fun updateSelectImages() {
+        mBucketMap[BUCKET_SELECT]?.images = mBucketMap[BUCKET_ALL]?.images?.filterTo(mutableListOf()) { it.select } ?: mutableListOf()
+        itemChange {
+            mBucketMap[BUCKET_SELECT]?.usePayload()
+            true
+        }
+    }
+
+    /**
+     * 选中分类
+     * @param bucket 当前选中的分类，如果为null,则默认为全部图片
+     */
+    fun selectBucket(bucket: Bucket?, updateBuckets: Boolean = true) {
+        val select = bucket ?: mBucketMap[BUCKET_ALL] ?: return
+        itemChange { list ->
+            list?.forEach {
+                if (it is Bucket) {
+                    if (it.id == select.id && !it.select) {
+                        it.select = true
+                        it.usePayload()
+                    } else if (it.id != select.id && it.select) {
+                        it.select = false
+                        it.usePayload()
+                    }
+                }
+            }
+            updateBuckets
+        }
+        selectBucketLiveData.postValue(select)
+        runOnMain {
+            imageLiveData.loadRefresh()
+        }
+    }
+
+    private fun load(): List<Bucket> {
 
         val data = mApp.contentResolver.query(
             MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
@@ -137,6 +142,7 @@ class BucketLiveData(private val mApp: Application) : ListLiveData() {
         val buckets = mutableListOf<Bucket>()
         val bucketMap = mutableMapOf<String, Bucket>()
 
+        //添加全部分类
         val bucketAll = Bucket(BUCKET_ALL, mApp.getString(R.string.aclin_image_picker_gallery_bucket_all))
         buckets.add(bucketAll)
         bucketMap[bucketAll.id] = bucketAll
@@ -148,24 +154,37 @@ class BucketLiveData(private val mApp: Application) : ListLiveData() {
                 val path = data.getString(data.getColumnIndex("_data"))
                 if (!path.isNullOrEmpty() && File(path).exists()) {
                     val image = Image(path)
-                    if (!bucketId.isNullOrEmpty() && !bucketName.isNullOrEmpty()) {
-                        (bucketMap[bucketId] ?: Bucket(bucketId, bucketName).apply {
-                            bucketMap[bucketId] = this
-                            buckets.add(this)
-                        }).images.add(image)
-                    }
+                    //往全部图片中添加
                     bucketAll.images.add(image)
+
+                    if (!bucketId.isNullOrEmpty() && !bucketName.isNullOrEmpty()) {
+                        bucketMap[bucketId]?.apply {
+                            //图片类别已存在，直接向给分类中添加图片
+                            this.images.add(image)
+                        } ?: let {
+                            //图片类别不存在，创建分类，添加图片，并保存
+                            Bucket(bucketId, bucketName).apply {
+                                bucketMap[bucketId] = this
+                                buckets.add(this)
+                                images.add(image)
+                            }
+                        }
+                    }
                 }
             }
         }
         data?.close()
 
-        (selectBucketLiveData.value?.apply { buckets.first { it.id == id } } ?: bucketAll).apply {
-            select = true
-            selectBucketLiveData.postValue(this)
-        }
+        //添加已选择分类
+        val bucketSelect = Bucket(BUCKET_SELECT, mApp.getString(R.string.aclin_image_picker_gallery_bucket_select))
+        buckets.add(bucketSelect)
+        bucketMap[bucketSelect.id] = bucketSelect
 
         mBuckets = buckets
         mBucketMap = bucketMap
+
+        selectBucket(selectBucketLiveData.value)
+
+        return mBuckets
     }
 }

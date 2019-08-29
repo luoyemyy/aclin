@@ -1,7 +1,6 @@
 package com.github.luoyemyy.aclin.image.picker.gallery
 
 import android.Manifest
-import android.app.Application
 import android.os.Bundle
 import android.view.*
 import androidx.core.os.bundleOf
@@ -11,6 +10,7 @@ import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
 import com.github.luoyemyy.aclin.R
 import com.github.luoyemyy.aclin.databinding.AclinImagePickerGalleryBinding
+import com.github.luoyemyy.aclin.databinding.AclinImagePickerGalleryBucketBinding
 import com.github.luoyemyy.aclin.databinding.AclinImagePickerGalleryImageBinding
 import com.github.luoyemyy.aclin.mvp.*
 import com.github.luoyemyy.aclin.permission.PermissionManager
@@ -20,7 +20,7 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior
 class GalleryFragment : Fragment() {
 
     private lateinit var mBinding: AclinImagePickerGalleryBinding
-    private lateinit var mPresenter: Presenter
+    private lateinit var mPresenter: GalleryPresenter
     private lateinit var mBottomBehavior: BottomSheetBehavior<View>
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -34,15 +34,15 @@ class GalleryFragment : Fragment() {
 
     override fun onPrepareOptionsMenu(menu: Menu) {
         menu.findItem(R.id.sure)?.apply {
-            title = mPresenter.bucketLiveData.submitImageText()
-            isEnabled = mPresenter.bucketLiveData.countSelectImage() > 0
+            title = mPresenter.bucketsLiveData.submitMenuText()
+            isEnabled = mPresenter.bucketsLiveData.enableSubmit()
         }
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             R.id.sure -> {
-                mPresenter.bucketLiveData.selectImages()?.apply {
+                mPresenter.bucketsLiveData.selectedImages()?.apply {
                     findNavController().navigate(R.id.action_galleryFragment_to_previewFragment, bundleOf("paths" to this))
                 }
             }
@@ -58,10 +58,10 @@ class GalleryFragment : Fragment() {
         mBottomBehavior = BottomSheetBehavior.from(mBinding.layoutBucket)
         bottomSheetState(false)
         mPresenter = getPresenter()
-        mPresenter.bucketLiveData.selectBucketLiveData.observe(this, Observer {
+        mPresenter.selectBucketLiveData.observe(this, Observer {
             mBinding.entity = it
         })
-        mPresenter.bucketLiveData.menuLiveData.observe(this, Observer {
+        mPresenter.menuLiveData.observe(this, Observer {
             requireActivity().invalidateOptionsMenu()
         })
 
@@ -76,13 +76,14 @@ class GalleryFragment : Fragment() {
             }
 
             txtPreview.setOnClickListener {
-                mPresenter.bucketLiveData.selectImages()?.apply {
+                mPresenter.bucketsLiveData.selectedImages()?.apply {
                     findNavController().navigate(R.id.action_galleryFragment_to_previewFragment, bundleOf("paths" to this))
                 }
             }
         }
+        mPresenter.setupArgs(arguments)
         requestPermission(this, requireContext().getString(R.string.aclin_image_picker_gallery_permission_request)).granted {
-            mPresenter.bucketLiveData.loadInit(arguments)
+            mPresenter.bucketsLiveData.loadInit(null)
         }.denied {
             PermissionManager.toSetting(this, requireContext().getString(R.string.aclin_image_picker_gallery_permission_failure))
         }.buildAndRequest(Manifest.permission.WRITE_EXTERNAL_STORAGE)
@@ -100,16 +101,16 @@ class GalleryFragment : Fragment() {
     }
 
 
-    inner class ImageAdapter : GalleryAdapter(this, mPresenter.bucketLiveData.imageLiveData) {
+    inner class ImageAdapter : FixedAdapter<Image, AclinImagePickerGalleryImageBinding>(this, mPresenter.imagesLiveData) {
 
         override fun getContentLayoutId(viewType: Int): Int {
             return R.layout.aclin_image_picker_gallery_image
         }
 
-        override fun bindItemEvents(vh: VH<ViewDataBinding>) {
-            (vh.binding as? AclinImagePickerGalleryImageBinding)?.apply {
+        override fun bindItemEvents(binding: AclinImagePickerGalleryImageBinding, vh: VH<*>) {
+            binding.apply {
                 checkbox.setOnCheckedChangeListener { compoundButton, b ->
-                    mPresenter.bucketLiveData.changeImage(vh.adapterPosition, b).also {
+                    mPresenter.bucketsLiveData.selectImage(vh.adapterPosition, b).also {
                         if (it != b) {
                             compoundButton.isChecked = it
                         }
@@ -118,7 +119,8 @@ class GalleryFragment : Fragment() {
             }
         }
 
-        override fun createContentBinding(inflater: LayoutInflater, parent: ViewGroup, viewType: Int): ViewDataBinding? {
+        override fun createContentBinding(inflater: LayoutInflater, parent: ViewGroup,
+            viewType: Int): AclinImagePickerGalleryImageBinding? {
             return super.createContentBinding(inflater, parent, viewType)?.apply {
                 root.layoutParams.width = mPresenter.getImageSize()
                 root.layoutParams.height = mPresenter.getImageSize()
@@ -126,42 +128,15 @@ class GalleryFragment : Fragment() {
         }
     }
 
-    inner class BucketAdapter : GalleryAdapter(this, mPresenter.bucketLiveData) {
+    inner class BucketAdapter : FixedAdapter<Bucket,AclinImagePickerGalleryBucketBinding>(this, mPresenter.bucketsLiveData) {
 
         override fun getContentLayoutId(viewType: Int): Int {
             return R.layout.aclin_image_picker_gallery_bucket
         }
 
-        override fun onItemViewClick(vh: VH<ViewDataBinding>, view: View) {
-            mPresenter.bucketLiveData.changeBucket(vh.adapterPosition)
+        override fun onItemViewClick(binding: AclinImagePickerGalleryBucketBinding, vh: VH<*>, view: View) {
+            mPresenter.bucketsLiveData.selectBucket(getItem(vh.adapterPosition) as? Bucket)
             bottomSheetState(false)
-        }
-    }
-
-    class Presenter(private var mApp: Application) : AbsPresenter(mApp) {
-        val bucketLiveData = BucketLiveData(mApp)
-
-        private var mImageInfo: Pair<Int, Int>? = null
-
-        fun getImageSpan(): Int {
-            return getImageInfo().first
-        }
-
-        fun getImageSize(): Int {
-            return getImageInfo().second
-        }
-
-        private fun getImageInfo() = mImageInfo ?: calculateImageItemSize()
-
-        private fun calculateImageItemSize(): Pair<Int, Int> {
-            val suggestSize = mApp.resources.displayMetrics.density * 80
-            val screenWidth = mApp.resources.displayMetrics.widthPixels
-
-            val span = (screenWidth / suggestSize).toInt()
-            val size = screenWidth / span
-            return Pair(span, size).apply {
-                mImageInfo = this
-            }
         }
     }
 }

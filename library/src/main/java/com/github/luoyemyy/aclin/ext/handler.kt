@@ -12,5 +12,9 @@ fun runImmediate(runnable: () -> Unit) {
 }
 
 fun runOnThread(runnable: () -> Unit) {
+    ArchTaskExecutor.getInstance().executeOnDiskIO(runnable)
+}
+
+fun runOnMain(runnable: () -> Unit) {
     ArchTaskExecutor.getInstance().postToMainThread(runnable)
 }

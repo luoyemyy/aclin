@@ -3,19 +3,16 @@ package com.github.luoyemyy.aclin.mvp
 import android.view.View
 import androidx.annotation.LayoutRes
 import androidx.databinding.ViewDataBinding
-import androidx.recyclerview.widget.RecyclerView
 
-interface AdapterExt {
+interface AdapterExt<T : DataItem, B : ViewDataBinding> {
 
     /**
      * 设置刷新控件样式
      */
     fun setRefreshState(refreshing: Boolean) {}
 
-    fun afterChangeAll(){}
-
     /**
-     * 创建内容view
+     * 主要的item
      */
     @LayoutRes
     fun getContentLayoutId(viewType: Int): Int
@@ -27,19 +24,25 @@ interface AdapterExt {
     fun getExtraLayoutId(viewType: Int): Int = 0
 
     /**
-     *
+     * 绑定主要内容
      */
-    fun bindContent(binding: ViewDataBinding, item: DataItem, viewType: Int, position: Int)
+    fun bindContent(binding: B, item: T, viewType: Int, position: Int)
 
-    fun bindContentPayload(binding: ViewDataBinding, item: DataItem, viewType: Int, position: Int, payloads: MutableList<Any>) {
-    }
+//    /**
+//     * 绑定主要内容
+//     */
+//    fun bindContentPayload(binding: B, item: T, viewType: Int, position: Int, payloads: MutableList<Any>) {
+//    }
 
     /**
-     *
+     * 绑定额外内容
      */
     fun bindExtra(binding: ViewDataBinding, item: DataItem, viewType: Int, position: Int) {}
 
-    fun bindExtraPayload(binding: ViewDataBinding, item: DataItem, viewType: Int, position: Int, payloads: MutableList<Any>) {}
+//    /**
+//     * 绑定额外内容
+//     */
+//    fun bindExtraPayload(binding: ViewDataBinding, item: DataItem, viewType: Int, position: Int, payloads: MutableList<Any>) {}
 
     /**
      * 内容类型
@@ -49,20 +52,22 @@ interface AdapterExt {
     /**
      * 获得需要绑定点击事件的view
      */
-    fun getItemClickViews(binding: ViewDataBinding): List<View> = listOf()
+    fun getItemClickViews(binding: B): List<View> = listOf()
 
-
-    fun getItemSortView(binding: ViewDataBinding): View? = null
+    /**
+     * 获得点击拖动的view
+     */
+    fun getItemSortView(binding: B): View? = null
 
     /**
      * 点击事件处理
      */
-    fun onItemViewClick(vh: VH<ViewDataBinding>, view: View) {}
+    fun onItemViewClick(binding: B, vh: VH<*>, view: View) {}
 
     /**
      * 绑定其他事件
      */
-    fun bindItemEvents(vh: VH<ViewDataBinding>) {}
+    fun bindItemEvents(binding: B, vh: VH<*>) {}
 
     /**
      * 是否需要加载更多样式
@@ -83,6 +88,5 @@ interface AdapterExt {
      * 加载完全部数据后，是否隐藏该项目
      */
     fun enableMoreGone(): Boolean = false
-
 
 }

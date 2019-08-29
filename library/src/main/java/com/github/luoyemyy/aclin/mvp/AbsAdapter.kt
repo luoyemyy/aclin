@@ -1,3 +1,5 @@
+@file:Suppress("UNCHECKED_CAST", "MemberVisibilityCanBePrivate")
+
 package com.github.luoyemyy.aclin.mvp
 
 import android.view.LayoutInflater
@@ -8,62 +10,37 @@ import androidx.databinding.DataBindingUtil
 import androidx.databinding.ViewDataBinding
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.Observer
-import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.github.luoyemyy.aclin.databinding.*
 import com.github.luoyemyy.aclin.ext.runDelay
 
-abstract class AbsAdapter(owner: LifecycleOwner, private val mListLiveData: ListLiveData,
-    diffCallback: DiffUtil.ItemCallback<DataItem> = object : DiffUtil.ItemCallback<DataItem>() {
-        override fun areItemsTheSame(oldItem: DataItem, newItem: DataItem): Boolean {
-            return oldItem == newItem
-        }
+abstract class AbsAdapter<T : DataItem, B : ViewDataBinding>(owner: LifecycleOwner, private val mLiveData: ListLiveData) :
+        ListAdapter<DataItem, VH<ViewDataBinding>>(getDiffCallback()), AdapterExt<T, B> {
 
-        override fun areContentsTheSame(oldItem: DataItem, newItem: DataItem): Boolean {
-            return mListLiveData.areContentsTheSame(oldItem, newItem)
-        }
-    }) : ListAdapter<DataItem, VH<ViewDataBinding>>(diffCallback), AdapterExt {
-
-
-    private var mRecyclerView: RecyclerView? = null
     private var mEnableSort = false
-    private val mItemTouchHelper by lazy {
-        ItemTouchHelper(SortCallback(mListLiveData, this))
-    }
+    private val mItemTouchHelper by lazy { ItemTouchHelper(SortCallback(mLiveData)) }
+    private var mRecyclerView: RecyclerView? = null
 
     init {
-        mListLiveData.apply {
+        mLiveData.apply {
             configDataSet(enableEmpty(), enableLoadMore(), enableInit(), enableMoreGone())
-            removeObservers(owner)
-            refreshLiveData.removeObservers(owner)
-            changeLiveData.removeObservers(owner)
-            observe(owner, Observer {
+            observeRefresh(owner, Observer { setRefreshState(it) })
+            observeChange(owner, Observer {
                 if (it.changeAll) {
-                    submitList(null) {
-                        mRecyclerView?.scrollToPosition(0)
-                        afterChangeAll()
-                    }
+                    submitList(null)
                 }
-                submitList(it.data)
-            })
-            refreshLiveData.observe(owner, Observer {
-                setRefreshState(it)
-            })
-            changeLiveData.observe(owner, Observer {
-                if (it.payload) {
-                    notifyItemChanged(it.position, it.data)
-                } else {
-                    notifyItemChanged(it.position)
+                submitList(it.data) {
+                    if (it.changeAll) {
+                        it.changeAll = false
+                        if (it.data.isNotEmpty()) {
+                            mRecyclerView?.scrollToPosition(0)
+                        }
+                    }
                 }
             })
         }
-    }
-
-    fun enableSort(recyclerView: RecyclerView) {
-        mEnableSort = true
-        mItemTouchHelper.attachToRecyclerView(recyclerView)
     }
 
     override fun onAttachedToRecyclerView(recyclerView: RecyclerView) {
@@ -74,8 +51,17 @@ abstract class AbsAdapter(owner: LifecycleOwner, private val mListLiveData: List
         mRecyclerView = null
     }
 
-    public override fun getItem(position: Int): DataItem {
-        return super.getItem(position)
+    fun enableSort(recyclerView: RecyclerView) {
+        mEnableSort = true
+        mItemTouchHelper.attachToRecyclerView(recyclerView)
+    }
+
+    fun getContentItem(position: Int): T? {
+        return getItem(position) as? T
+    }
+
+    fun getExtraItem(position: Int): DataItem {
+        return getItem(position)
     }
 
     override fun getItemViewType(position: Int): Int {
@@ -92,31 +78,38 @@ abstract class AbsAdapter(owner: LifecycleOwner, private val mListLiveData: List
         triggerLoadMore(position)
         val viewType = getItemViewType(position)
         if (viewType < 0) {
-            bindExtra(holder.binding, getItem(position), viewType, position)
+            bindExtra(holder.binding, getExtraItem(position), viewType, position)
         } else {
-            bindContent(holder.binding, getItem(position), viewType, position)
-        }
-    }
-
-
-    override fun onBindViewHolder(holder: VH<ViewDataBinding>, position: Int, payloads: MutableList<Any>) {
-        if (payloads.size == 0) {
-            onBindViewHolder(holder, position)
-        } else {
-            triggerLoadMore(position)
-            val viewType = getItemViewType(position)
-            if (viewType < 0) {
-                bindExtraPayload(holder.binding, getItem(position), viewType, holder.adapterPosition, payloads)
-            } else {
-                bindContentPayload(holder.binding, getItem(position), viewType, holder.adapterPosition, payloads)
+            (holder.binding as? B)?.also { binding ->
+                getContentItem(position)?.also { item ->
+                    bindContent(binding, item, viewType, position)
+                }
             }
         }
     }
 
+//    override fun onBindViewHolder(holder: VH<ViewDataBinding>, position: Int, payloads: MutableList<Any>) {
+//        if (payloads.size == 0) {
+//            onBindViewHolder(holder, position)
+//        } else {
+//            triggerLoadMore(position)
+//            val viewType = getItemViewType(position)
+//            if (viewType < 0) {
+//                bindExtraPayload(holder.binding, getExtraItem(position), viewType, holder.adapterPosition, payloads)
+//            } else {
+//                (holder.binding as? B)?.also { binding ->
+//                    getContentItem(position)?.also { item ->
+//                        bindContentPayload(binding, item, viewType, holder.adapterPosition, payloads)
+//                    }
+//                }
+//            }
+//        }
+//    }
+
     private fun triggerLoadMore(position: Int) {
         if (position + 1 == itemCount) {
             runDelay(300) {
-                mListLiveData.loadMore()
+                mLiveData.loadMore()
             }
         }
     }
@@ -129,24 +122,36 @@ abstract class AbsAdapter(owner: LifecycleOwner, private val mListLiveData: List
             }
         } else {
             createContentBinding(inflater, parent, viewType)?.let { binding ->
-                VH(binding).apply {
-                    bindContentEvents(this)
+                VH(binding as ViewDataBinding).apply {
+                    (binding as? B)?.also {
+                        bindContentEvents(binding, this)
+                    }
                 }
             }
         }) ?: VH(AclinListNoneBinding.inflate(inflater, parent, false) as ViewDataBinding)
     }
 
-    private fun bindContentEvents(vh: VH<ViewDataBinding>) {
-        bindItemEvents(vh)
+    open fun createContentBinding(inflater: LayoutInflater, parent: ViewGroup, viewType: Int): B? {
+        return getContentLayoutId(viewType).let {
+            if (it > 0) {
+                DataBindingUtil.inflate(inflater, it, parent, false)
+            } else {
+                null
+            }
+        }
+    }
+
+    private fun bindContentEvents(binding: B, vh: VH<*>) {
+        bindItemEvents(binding, vh)
         //clicks
-        getItemClickViews(vh.binding).forEach { v ->
+        getItemClickViews(binding).forEach { v ->
             v.setOnClickListener {
-                onItemViewClick(vh, it)
+                onItemViewClick(binding, vh, it)
             }
         }
         //sort
         if (mEnableSort) {
-            getItemSortView(vh.binding)?.setOnTouchListener(View.OnTouchListener { _, event ->
+            getItemSortView(binding)?.setOnTouchListener(View.OnTouchListener { _, event ->
                 if (event.actionMasked == MotionEvent.ACTION_DOWN) {
                     mItemTouchHelper.startDrag(vh)
                 }
@@ -169,25 +174,15 @@ abstract class AbsAdapter(owner: LifecycleOwner, private val mListLiveData: List
         return when (viewType) {
             DataSet.INIT_LOADING -> AclinListInitLoadingBinding.inflate(inflater, parent, false)
             DataSet.INIT_FAILURE -> AclinListInitFailureBinding.inflate(inflater, parent, false).apply {
-                root.setOnClickListener { mListLiveData.loadRefresh() }
+                root.setOnClickListener { mLiveData.loadRefresh() }
             }
             DataSet.EMPTY -> AclinListEmptyBinding.inflate(inflater, parent, false)
             DataSet.MORE_LOADING -> AclinListMoreLoadingBinding.inflate(inflater, parent, false)
             DataSet.MORE_FAILURE -> AclinListMoreFailureBinding.inflate(inflater, parent, false).apply {
-                root.setOnClickListener { mListLiveData.loadMore() }
+                root.setOnClickListener { mLiveData.loadMore() }
             }
             DataSet.MORE_END -> AclinListMoreEndBinding.inflate(inflater, parent, false)
             else -> null
-        }
-    }
-
-    open fun createContentBinding(inflater: LayoutInflater, parent: ViewGroup, viewType: Int): ViewDataBinding? {
-        return getContentLayoutId(viewType).let {
-            if (it > 0) {
-                DataBindingUtil.inflate(inflater, it, parent, false)
-            } else {
-                null
-            }
         }
     }
 }

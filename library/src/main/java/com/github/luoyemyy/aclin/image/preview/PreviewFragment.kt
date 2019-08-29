@@ -9,16 +9,12 @@ import androidx.fragment.app.Fragment
 import com.github.luoyemyy.aclin.R
 import com.github.luoyemyy.aclin.databinding.AclinImagePreviewBinding
 import com.github.luoyemyy.aclin.databinding.AclinImagePreviewItemBinding
-import com.github.luoyemyy.aclin.mvp.AbsPresenter
-import com.github.luoyemyy.aclin.mvp.FixedAdapter
-import com.github.luoyemyy.aclin.mvp.TextItem
-import com.github.luoyemyy.aclin.mvp.getPresenter
+import com.github.luoyemyy.aclin.mvp.*
 
 class PreviewFragment : Fragment() {
 
     private lateinit var mBinding: AclinImagePreviewBinding
     private lateinit var mPresenter: Presenter
-
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -32,24 +28,27 @@ class PreviewFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         mPresenter = getPresenter()
         mBinding.viewPager.adapter = Adapter()
-        mBinding.viewPager.setCurrentItem(mPresenter.getCurrentPosition(), false)
+        mPresenter.setupArgs(arguments)
     }
 
-    inner class Adapter : FixedAdapter<AclinImagePreviewItemBinding>(mPresenter.getData(arguments)) {
+    inner class Adapter : FixedAdapter<TextItem, AclinImagePreviewItemBinding>(this, mPresenter.images) {
         override fun getContentLayoutId(viewType: Int): Int {
             return R.layout.aclin_image_preview_item
+        }
+
+        override fun onCurrentListChanged(previousList: MutableList<DataItem>, currentList: MutableList<DataItem>) {
+            mBinding.viewPager.setCurrentItem(mPresenter.getCurrentPosition(), false)
         }
     }
 
     class Presenter(var mApp: Application) : AbsPresenter(mApp) {
 
-        private var mImages: List<TextItem>? = null
         private var mDefaultPosition: Int = 0
 
-        fun getData(bundle: Bundle?): List<TextItem>? {
-            mDefaultPosition = bundle?.getInt("current", 0) ?: 0
-            return bundle?.getStringArrayList("paths")?.map { TextItem(it) }?.apply {
-                mImages = this
+        val images = object : ListLiveData() {
+            override fun loadData(bundle: Bundle?, paging: Paging, loadType: LoadType): List<DataItem>? {
+                mDefaultPosition = bundle?.getInt("current", 0) ?: 0
+                return bundle?.getStringArrayList("paths")?.map { TextItem(it) }
             }
         }
 

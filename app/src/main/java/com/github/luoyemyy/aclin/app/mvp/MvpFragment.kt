@@ -51,7 +51,7 @@ class MvpFragment : Fragment() {
 
         val listLiveData = object : ListLiveData() {
 
-            override fun loadData(bundle: Bundle?, search: String?, paging: Paging, loadType: LoadType): List<DataItem>? {
+            override fun loadData(bundle: Bundle?, paging: Paging, loadType: LoadType): List<DataItem>? {
                 var random = Random.nextInt(9)
                 if (random > 6) {
                     random = 9

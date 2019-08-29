@@ -1,11 +1,31 @@
 package com.github.luoyemyy.aclin.mvp
 
 import android.os.Bundle
+import androidx.annotation.CallSuper
 
-open class DataItem(val type: Int = DataSet.CONTENT)
+open class DataItem(val type: Int = DataSet.CONTENT) {
+
+    private var mUsePayload: Boolean = false
+
+    fun usePayload() {
+        mUsePayload = true
+    }
+
+    open fun areItemsTheSame(oldItem: DataItem): Boolean {
+        return this == oldItem
+    }
+
+    open fun areContentsTheSame(oldItem: DataItem): Boolean {
+        return !mUsePayload
+    }
+
+    @CallSuper
+    open fun getChangePayload(oldItem: DataItem): Bundle? {
+        mUsePayload = false
+        return null
+    }
+}
 
 open class TextItem(var text: String) : DataItem()
 
-data class DataItemChange(val position: Int, var payload: Boolean = false, var data: Bundle? = null)
-
-data class DataItemGroup(val changeAll: Boolean, val data: List<DataItem>?)
+data class DataItemChange(var data: List<DataItem>, var changeAll: Boolean = false)
