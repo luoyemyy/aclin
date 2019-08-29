@@ -4,7 +4,6 @@ import android.Manifest
 import android.os.Bundle
 import android.view.*
 import androidx.core.os.bundleOf
-import androidx.databinding.ViewDataBinding
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
@@ -43,7 +42,7 @@ class GalleryFragment : Fragment() {
         when (item.itemId) {
             R.id.sure -> {
                 mPresenter.bucketsLiveData.selectedImages()?.apply {
-                    findNavController().navigate(R.id.action_galleryFragment_to_previewFragment, bundleOf("paths" to this))
+                    toPreview(this)
                 }
             }
         }
@@ -77,16 +76,18 @@ class GalleryFragment : Fragment() {
 
             txtPreview.setOnClickListener {
                 mPresenter.bucketsLiveData.selectedImages()?.apply {
-                    findNavController().navigate(R.id.action_galleryFragment_to_previewFragment, bundleOf("paths" to this))
+                    toPreview(this)
                 }
             }
         }
-        mPresenter.setupArgs(arguments)
-        requestPermission(this, requireContext().getString(R.string.aclin_image_picker_gallery_permission_request)).granted {
-            mPresenter.bucketsLiveData.loadInit(null)
-        }.denied {
-            PermissionManager.toSetting(this, requireContext().getString(R.string.aclin_image_picker_gallery_permission_failure))
-        }.buildAndRequest(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+        requestPermission(this, requireContext().getString(R.string.aclin_image_picker_gallery_permission_request))
+                .granted {
+                    mPresenter.bucketsLiveData.loadInit(null)
+                }
+                .denied {
+                    PermissionManager.toSetting(this, requireContext().getString(R.string.aclin_image_picker_gallery_permission_failure))
+                }
+                .buildAndRequest(Manifest.permission.WRITE_EXTERNAL_STORAGE)
     }
 
     private fun bottomSheetToggle() {
@@ -94,6 +95,10 @@ class GalleryFragment : Fragment() {
             BottomSheetBehavior.STATE_EXPANDED -> bottomSheetState(false)
             BottomSheetBehavior.STATE_HIDDEN -> bottomSheetState(true)
         }
+    }
+
+    private fun toPreview(paths: ArrayList<String>, current: Int = 0) {
+        findNavController().navigate(R.id.action_galleryFragment_to_previewFragment, bundleOf("paths" to paths, "current" to current))
     }
 
     private fun bottomSheetState(show: Boolean) {
@@ -119,8 +124,13 @@ class GalleryFragment : Fragment() {
             }
         }
 
-        override fun createContentBinding(inflater: LayoutInflater, parent: ViewGroup,
-            viewType: Int): AclinImagePickerGalleryImageBinding? {
+        override fun onItemViewClick(binding: AclinImagePickerGalleryImageBinding, vh: VH<*>, view: View) {
+            mPresenter.bucketsLiveData.previewImages(vh.adapterPosition) { position, images ->
+                toPreview(images, position)
+            }
+        }
+
+        override fun createContentBinding(inflater: LayoutInflater, parent: ViewGroup, viewType: Int): AclinImagePickerGalleryImageBinding? {
             return super.createContentBinding(inflater, parent, viewType)?.apply {
                 root.layoutParams.width = mPresenter.getImageSize()
                 root.layoutParams.height = mPresenter.getImageSize()
@@ -128,7 +138,7 @@ class GalleryFragment : Fragment() {
         }
     }
 
-    inner class BucketAdapter : FixedAdapter<Bucket,AclinImagePickerGalleryBucketBinding>(this, mPresenter.bucketsLiveData) {
+    inner class BucketAdapter : FixedAdapter<Bucket, AclinImagePickerGalleryBucketBinding>(this, mPresenter.bucketsLiveData) {
 
         override fun getContentLayoutId(viewType: Int): Int {
             return R.layout.aclin_image_picker_gallery_bucket

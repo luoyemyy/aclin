@@ -83,6 +83,12 @@ class BucketLiveData(private val mApp: Application) : ListLiveData() {
         }
     }
 
+    fun previewImages(position: Int, callback: (Int, ArrayList<String>) -> Unit) {
+        mBucketMap[selectBucketLiveData.value?.id]?.images?.mapTo(arrayListOf()) { it.path }?.apply {
+            callback(position, this)
+        }
+    }
+
     fun selectImage(position: Int, select: Boolean): Boolean {
         val image = mBucketMap[selectBucketLiveData.value?.id]?.images?.get(position) ?: return false
         if (select && !image.select && countSelectImage() >= mGalleryArgs.maxSelect) {
@@ -109,16 +115,14 @@ class BucketLiveData(private val mApp: Application) : ListLiveData() {
      */
     fun selectBucket(bucket: Bucket?, updateBuckets: Boolean = true) {
         val select = bucket ?: mBucketMap[BUCKET_ALL] ?: return
-        itemChange { list ->
-            list?.forEach {
-                if (it is Bucket) {
-                    if (it.id == select.id && !it.select) {
-                        it.select = true
-                        it.usePayload()
-                    } else if (it.id != select.id && it.select) {
-                        it.select = false
-                        it.usePayload()
-                    }
+        itemChange {
+            mBuckets.forEach {
+                if (it.id == select.id && !it.select) {
+                    it.select = true
+                    it.usePayload()
+                } else if (it.id != select.id && it.select) {
+                    it.select = false
+                    it.usePayload()
                 }
             }
             updateBuckets
@@ -183,7 +187,7 @@ class BucketLiveData(private val mApp: Application) : ListLiveData() {
         mBuckets = buckets
         mBucketMap = bucketMap
 
-        selectBucket(selectBucketLiveData.value)
+        selectBucket(selectBucketLiveData.value, false)
 
         return mBuckets
     }

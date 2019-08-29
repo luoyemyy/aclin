@@ -60,13 +60,9 @@ class LoggerListFragment : Fragment() {
             return R.layout.aclin_logger_list_item
         }
 
-        //        override fun bindContentPayload(binding: AclinLoggerListItemBinding, item: LoggerItem, viewType: Int, position: Int,
-        //            payloads: MutableList<Any>) {
-        //            val bundle = payloads[0] as Bundle
-        //            item.select = bundle.getBoolean("select")
-        //            binding.setVariable(1, item)
-        //            binding.executePendingBindings()
-        //        }
+        override fun setRefreshState(refreshing: Boolean) {
+            mBinding.swipeRefreshLayout.isRefreshing = refreshing
+        }
 
         override fun bindItemEvents(binding: AclinLoggerListItemBinding, vh: VH<*>) {
             binding.checkbox.setOnCheckedChangeListener { _, b ->

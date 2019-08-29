@@ -28,7 +28,7 @@ class PreviewFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         mPresenter = getPresenter()
         mBinding.viewPager.adapter = Adapter()
-        mPresenter.setupArgs(arguments)
+        mPresenter.images.loadInit(arguments)
     }
 
     inner class Adapter : FixedAdapter<TextItem, AclinImagePreviewItemBinding>(this, mPresenter.images) {
