@@ -3,7 +3,7 @@ package com.github.luoyemyy.aclin.app
 import android.app.Application
 import android.util.Log
 import com.github.luoyemyy.aclin.app.common.db.Db
-import com.github.luoyemyy.aclin.app.profile.Properties
+import com.github.luoyemyy.aclin.app.common.profile.Properties
 import com.github.luoyemyy.aclin.bus.Bus
 import com.github.luoyemyy.aclin.bus.BusDebugListener
 

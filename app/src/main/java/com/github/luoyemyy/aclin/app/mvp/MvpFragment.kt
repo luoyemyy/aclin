@@ -7,6 +7,7 @@ import android.view.*
 import androidx.fragment.app.Fragment
 import com.github.luoyemyy.aclin.app.R
 import com.github.luoyemyy.aclin.app.databinding.FragmentListBinding
+import com.github.luoyemyy.aclin.app.databinding.FragmentListItemBinding
 import com.github.luoyemyy.aclin.mvp.*
 import kotlin.random.Random
 
@@ -37,7 +38,8 @@ class MvpFragment : Fragment() {
         return super.onOptionsItemSelected(item)
     }
 
-    inner class Adapter(private var context: Context) : SimpleAdapter(this, mPresenter.listLiveData) {
+    inner class Adapter(private var context: Context) : AbsAdapter<TextItem, FragmentListItemBinding>(this, mPresenter.listLiveData) {
+
         override fun getContentLayoutId(viewType: Int): Int {
             return R.layout.fragment_list_item
         }

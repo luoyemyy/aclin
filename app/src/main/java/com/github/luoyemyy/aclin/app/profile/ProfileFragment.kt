@@ -1,17 +1,16 @@
 package com.github.luoyemyy.aclin.app.profile
 
 import android.app.Application
-import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.databinding.ViewDataBinding
 import androidx.fragment.app.Fragment
 import com.github.luoyemyy.aclin.api.refreshApi
 import com.github.luoyemyy.aclin.app.R
 import com.github.luoyemyy.aclin.app.common.util.BusEvent
 import com.github.luoyemyy.aclin.app.databinding.FragmentListBinding
+import com.github.luoyemyy.aclin.app.databinding.FragmentProfileItemBinding
 import com.github.luoyemyy.aclin.bus.postBus
 import com.github.luoyemyy.aclin.mvp.*
 import com.github.luoyemyy.aclin.profile.Profile
@@ -28,23 +27,19 @@ class ProfileFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         mPresenter = getPresenter()
         mBinding.apply {
-            recyclerView.setupLinear(Adapter(requireContext()), true, LinearDecoration.middle(requireContext()))
+            recyclerView.setupLinear(Adapter())
             swipeRefreshLayout.setup(mPresenter.listLiveData)
         }
         mPresenter.listLiveData.loadInit(arguments)
     }
 
-    inner class Adapter(private var context: Context) : SimpleAdapter(this, mPresenter.listLiveData) {
+    inner class Adapter : FixedAdapter<ProfileItem, FragmentProfileItemBinding>(this, mPresenter.listLiveData) {
         override fun getContentLayoutId(viewType: Int): Int {
             return R.layout.fragment_profile_item
         }
 
-        override fun onItemViewClick(binding: ViewDataBinding, vh: VH<*>, view: View) {
+        override fun onItemViewClick(binding: FragmentProfileItemBinding, vh: VH<*>, view: View) {
             mPresenter.changeActive(vh.adapterPosition)
-        }
-
-        override fun enableLoadMore(): Boolean {
-            return false
         }
 
         override fun setRefreshState(refreshing: Boolean) {

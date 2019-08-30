@@ -26,7 +26,10 @@ interface AdapterExt<T : DataItem, B : ViewDataBinding> {
     /**
      * 绑定主要内容
      */
-    fun bindContent(binding: B, item: T, viewType: Int, position: Int)
+    fun bindContent(binding: B, item: T, viewType: Int, position: Int){
+        binding.setVariable(1, item)
+        binding.executePendingBindings()
+    }
 
     /**
      * 绑定额外内容

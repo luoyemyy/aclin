@@ -1,4 +1,4 @@
-package com.github.luoyemyy.aclin.app.profile
+package com.github.luoyemyy.aclin.app.common.profile
 
 import com.github.luoyemyy.aclin.profile.Profile
 import com.github.luoyemyy.aclin.profile.ProfileAdd

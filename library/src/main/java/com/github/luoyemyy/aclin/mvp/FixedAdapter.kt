@@ -6,11 +6,6 @@ import androidx.lifecycle.LifecycleOwner
 
 abstract class FixedAdapter<T : DataItem, B : ViewDataBinding>(owner: LifecycleOwner, listLiveData: ListLiveData) : AbsAdapter<T, B>(owner, listLiveData) {
 
-    override fun bindContent(binding: B, item: T, viewType: Int, position: Int) {
-        binding.setVariable(1, item)
-        binding.executePendingBindings()
-    }
-
     override fun enableEmpty(): Boolean {
         return false
     }

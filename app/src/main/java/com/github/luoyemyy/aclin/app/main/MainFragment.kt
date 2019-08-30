@@ -45,27 +45,14 @@ class MainFragment : Fragment(), BusResult {
         }
     }
 
-    inner class Adapter : AbsAdapter<TextItem, FragmentListItemBinding>(this, mPresenter.listLiveData) {
+    inner class Adapter : FixedAdapter<TextItem, FragmentListItemBinding>(this, mPresenter.listLiveData) {
 
         override fun getContentLayoutId(viewType: Int): Int {
             return R.layout.fragment_list_item
         }
 
-        override fun enableLoadMore(): Boolean {
-            return false
-        }
-
         override fun setRefreshState(refreshing: Boolean) {
             mBinding.swipeRefreshLayout.isRefreshing = refreshing
-        }
-
-        override fun getItemClickViews(binding: FragmentListItemBinding): List<View> {
-            return listOf(binding.root)
-        }
-
-        override fun bindContent(binding: FragmentListItemBinding, item: TextItem, viewType: Int, position: Int) {
-            binding.setVariable(1, item)
-            binding.executePendingBindings()
         }
 
         override fun onItemViewClick(binding: FragmentListItemBinding, vh: VH<*>, view: View) {
