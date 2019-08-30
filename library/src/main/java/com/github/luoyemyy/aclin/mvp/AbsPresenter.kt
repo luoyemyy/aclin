@@ -6,7 +6,7 @@ import androidx.lifecycle.AndroidViewModel
 
 abstract class AbsPresenter(app: Application) : AndroidViewModel(app) {
 
-    open fun setupArgs(bundle: Bundle?) {
+    open fun setup(bundle: Bundle?) {
 
     }
 }

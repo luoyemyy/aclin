@@ -39,10 +39,6 @@ class ProfileFragment : Fragment() {
             return R.layout.fragment_profile_item
         }
 
-        override fun getItemClickViews(binding: ViewDataBinding): List<View> {
-            return listOf(binding.root)
-        }
-
         override fun onItemViewClick(binding: ViewDataBinding, vh: VH<*>, view: View) {
             mPresenter.changeActive(vh.adapterPosition)
         }
@@ -56,12 +52,10 @@ class ProfileFragment : Fragment() {
         }
     }
 
-    class Presenter(private var mApp: Application) : AbsPresenter(mApp) {
+    class Presenter(private var mApp: Application) : AbsListPresenter(mApp) {
 
-        val listLiveData = object : ListLiveData() {
-            override fun loadData(bundle: Bundle?, paging: Paging, loadType: LoadType): List<DataItem>? {
-                return Profile.allTypes().map { ProfileItem(it.desc, it.isActive()) }
-            }
+        override fun loadData(bundle: Bundle?, paging: Paging, loadType: LoadType): List<DataItem>? {
+            return Profile.allTypes().map { ProfileItem(it.desc, it.isActive()) }
         }
 
         fun changeActive(selectPosition: Int) {

@@ -31,8 +31,8 @@ class LoggerListFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         mPresenter = getPresenter()
         mBinding.recyclerView.setupLinear(Adapter())
-        mBinding.swipeRefreshLayout.setup(mPresenter.liveData)
-        mPresenter.liveData.loadInit(arguments)
+        mBinding.swipeRefreshLayout.setup(mPresenter.listLiveData)
+        mPresenter.listLiveData.loadInit(arguments)
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
@@ -56,7 +56,7 @@ class LoggerListFragment : Fragment() {
         return super.onOptionsItemSelected(item)
     }
 
-    inner class Adapter : FixedAdapter<LoggerItem, AclinLoggerListItemBinding>(this, mPresenter.liveData) {
+    inner class Adapter : FixedAdapter<LoggerItem, AclinLoggerListItemBinding>(this, mPresenter.listLiveData) {
 
         override fun getContentLayoutId(viewType: Int): Int {
             return R.layout.aclin_logger_list_item
@@ -79,12 +79,10 @@ class LoggerListFragment : Fragment() {
         }
     }
 
-    class Presenter(private var mApp: Application) : AbsPresenter(mApp) {
+    class Presenter(private var mApp: Application) : AbsListPresenter(mApp) {
 
-        val liveData = object : ListLiveData() {
-            override fun loadData(bundle: Bundle?, paging: Paging, loadType: LoadType): List<DataItem>? {
-                return files()
-            }
+        override fun loadData(bundle: Bundle?, paging: Paging, loadType: LoadType): List<DataItem>? {
+            return files()
         }
 
         private fun files(): List<LoggerItem>? {
@@ -96,7 +94,7 @@ class LoggerListFragment : Fragment() {
 
         fun selectAll() {
             val selectAll = countSelect() == 0
-            liveData.itemChange { items ->
+            listLiveData.itemChange { items ->
                 items?.forEach {
                     (it as? LoggerItem)?.apply {
                         select = selectAll
@@ -108,11 +106,11 @@ class LoggerListFragment : Fragment() {
         }
 
         fun countSelect(): Int {
-            return liveData.value?.data?.count { it is LoggerItem && it.select } ?: 0
+            return listLiveData.value?.data?.count { it is LoggerItem && it.select } ?: 0
         }
 
         fun deleteSelect() {
-            liveData.itemDelete { dataSet ->
+            listLiveData.itemDelete { dataSet ->
                 val selectItems = dataSet.getContentList().filter { it is LoggerItem && it.select && File(it.path).delete() }
                 if (selectItems.isEmpty()) {
                     false

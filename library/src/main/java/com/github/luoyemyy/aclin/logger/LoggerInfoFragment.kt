@@ -34,15 +34,14 @@ class LoggerInfoFragment : Fragment() {
         mPresenter.textLiveData.observe(this, Observer {
             mBinding.entity = it
         })
-        mPresenter.load(arguments)
+        mPresenter.setup(arguments)
     }
-
 
     class Presenter(private var mApp: Application) : AbsPresenter(mApp) {
         val textLiveData = MutableLiveData<String>()
 
-        fun load(args: Bundle?) {
-            val path = args?.getString("path") ?: return
+        override fun setup(bundle: Bundle?) {
+            val path = bundle?.getString("path") ?: return
             runOnThread {
                 File(path).apply {
                     if (this.exists() && this.isFile) {

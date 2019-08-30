@@ -1,18 +1,11 @@
 package com.github.luoyemyy.aclin.mvp
 
-import android.os.Bundle
-import androidx.annotation.CallSuper
-
 open class DataItem(val type: Int = DataSet.CONTENT) {
 
     private var mUsePayload: Boolean = false
 
     fun hasPayload() {
         mUsePayload = true
-    }
-
-    fun usePayload() {
-        mUsePayload = false
     }
 
     open fun areItemsTheSame(oldItem: DataItem): Boolean {
@@ -23,13 +16,14 @@ open class DataItem(val type: Int = DataSet.CONTENT) {
         return !mUsePayload
     }
 
-    @CallSuper
-    open fun getChangePayload(oldItem: DataItem): Bundle? {
-        usePayload()
-        return null
+    open fun getChangePayload(oldItem: DataItem): Any? {
+        return if (mUsePayload) {
+            mUsePayload = false
+            Any()
+        } else null
     }
 }
 
-open class TextItem(var text: String) : DataItem()
+data class TextItem(var text: String) : DataItem()
 
 data class DataItemChange(var data: List<DataItem>, var changeAll: Boolean = false)

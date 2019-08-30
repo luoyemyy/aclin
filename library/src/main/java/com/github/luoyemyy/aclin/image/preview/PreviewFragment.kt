@@ -28,10 +28,10 @@ class PreviewFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         mPresenter = getPresenter()
         mBinding.viewPager.adapter = Adapter()
-        mPresenter.images.loadInit(arguments)
+        mPresenter.listLiveData.loadInit(arguments)
     }
 
-    inner class Adapter : FixedAdapter<TextItem, AclinImagePreviewItemBinding>(this, mPresenter.images) {
+    inner class Adapter : FixedAdapter<TextItem, AclinImagePreviewItemBinding>(this, mPresenter.listLiveData) {
         override fun getContentLayoutId(viewType: Int): Int {
             return R.layout.aclin_image_preview_item
         }
@@ -41,15 +41,13 @@ class PreviewFragment : Fragment() {
         }
     }
 
-    class Presenter(var mApp: Application) : AbsPresenter(mApp) {
+    class Presenter(var mApp: Application) : AbsListPresenter(mApp) {
 
         private var mDefaultPosition: Int = 0
 
-        val images = object : ListLiveData() {
-            override fun loadData(bundle: Bundle?, paging: Paging, loadType: LoadType): List<DataItem>? {
-                mDefaultPosition = bundle?.getInt("current", 0) ?: 0
-                return bundle?.getStringArrayList("paths")?.map { TextItem(it) }
-            }
+        override fun loadData(bundle: Bundle?, paging: Paging, loadType: LoadType): List<DataItem>? {
+            mDefaultPosition = bundle?.getInt("current", 0) ?: 0
+            return bundle?.getStringArrayList("paths")?.map { TextItem(it) }
         }
 
         fun getCurrentPosition(): Int {

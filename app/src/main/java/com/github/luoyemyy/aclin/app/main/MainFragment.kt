@@ -80,18 +80,16 @@ class MainFragment : Fragment(), BusResult {
         }
     }
 
-    class Presenter(private var mApp: Application) : AbsPresenter(mApp) {
+    class Presenter(private var mApp: Application) : AbsListPresenter(mApp) {
 
-        val listLiveData = object : ListLiveData() {
-            override fun loadData(bundle: Bundle?, paging: Paging, loadType: LoadType): List<DataItem>? {
-                return listOf(
-                    TextItem("mvp"),
-                    TextItem("profile", Profile.active().desc),
-                    TextItem("permission"),
-                    TextItem("image"),
-                    TextItem("logger")
-                )
-            }
+        override fun loadData(bundle: Bundle?, paging: Paging, loadType: LoadType): List<DataItem>? {
+            return listOf(
+                TextItem("mvp"),
+                TextItem("profile", Profile.active().desc),
+                TextItem("permission"),
+                TextItem("image"),
+                TextItem("logger")
+            )
         }
 
         fun updateProfile() {
