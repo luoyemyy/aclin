@@ -4,9 +4,9 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import com.github.luoyemyy.aclin.app.App
-import com.github.luoyemyy.aclin.app.common.db.entity.DbUser
+import com.github.luoyemyy.aclin.app.common.db.entity.User
 
-@Database(entities = arrayOf(DbUser::class), version = 1)
+@Database(entities = arrayOf(User::class), version = 1)
 abstract class Db : RoomDatabase() {
 
     companion object {

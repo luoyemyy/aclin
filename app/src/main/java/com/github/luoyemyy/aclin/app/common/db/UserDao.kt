@@ -4,14 +4,14 @@ import androidx.lifecycle.LiveData
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
-import com.github.luoyemyy.aclin.app.common.db.entity.DbUser
+import com.github.luoyemyy.aclin.app.common.db.entity.User
 
 @Dao
 interface UserDao {
 
     @Insert
-    fun insert(user: DbUser)
+    fun insert(user: User)
 
     @Query("select * from user")
-    fun getAll(): LiveData<List<DbUser>>
+    fun getAll(): LiveData<List<User>>
 }

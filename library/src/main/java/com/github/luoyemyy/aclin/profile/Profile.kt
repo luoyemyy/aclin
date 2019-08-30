@@ -5,25 +5,9 @@ package com.github.luoyemyy.aclin.profile
 import android.content.Context
 import com.github.luoyemyy.aclin.ext.spfInt
 
-
-/**
- * demo code
- *
-//object ProfileProperties {
-//
-//    val API_URL = "api.url"
-//
-//    fun initProperties() {
-//        Profile.add(API_URL, "http://127.0.0.1:8080/")
-//    }
-//}
-//
-//fun getApiUrl() = Profile.get(ProfileProperties.API_URL)
- *
- */
 object Profile {
 
-    data class Item<T>(private val dev: T, private val test: T, private val demo: T, private val pro: T) {
+    class Item<T>(private val dev: T, private val test: T, private val demo: T, private val pro: T) {
         fun get(): T {
             return when (active()) {
                 ProfileType.DEV -> dev

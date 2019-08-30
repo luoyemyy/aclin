@@ -1,5 +1,6 @@
 package com.github.luoyemyy.aclin.api
 
+import com.github.luoyemyy.aclin.profile.getApiUrl
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.CallAdapter
@@ -11,24 +12,16 @@ import retrofit2.converter.gson.GsonConverterFactory
 /**
  * demo code
  *
-//class Api : AbsApiManager() {
-//
-//    companion object {
-//        private val api = Api().apply { initApi() }
-//
-//        fun getInstance() = api
-//    }
-//
-//    override fun baseUrl(): String = getApiUrl()
-//
-//}
-//
-//fun refreshApi() = Api.getInstance().initApi()
-//
-//fun getUserApi(): UserApi = Api.getInstance().getApi()
+ * fun getUserApi(): UserApi = ApiManager.getInstance().getApi()
  *
  */
-abstract class AbsApiManager {
+open class ApiManager {
+
+    companion object {
+        private val api = ApiManager().apply { initApi() }
+
+        fun getInstance() = api
+    }
 
     private lateinit var mRetrofit: Retrofit
 
@@ -44,7 +37,7 @@ abstract class AbsApiManager {
         return getRetrofit().create(T::class.java)
     }
 
-    abstract fun baseUrl(): String
+    open fun baseUrl(): String = getApiUrl()
 
     open fun client(): OkHttpClient.Builder {
         return OkHttpClient.Builder().addInterceptor(HttpLoggingInterceptor().apply {

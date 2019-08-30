@@ -3,7 +3,7 @@ package com.github.luoyemyy.aclin.app
 import android.app.Application
 import android.util.Log
 import com.github.luoyemyy.aclin.app.common.db.Db
-import com.github.luoyemyy.aclin.app.profile.ProfileProperties
+import com.github.luoyemyy.aclin.app.profile.Properties
 import com.github.luoyemyy.aclin.bus.Bus
 import com.github.luoyemyy.aclin.bus.BusDebugListener
 
@@ -11,8 +11,7 @@ class App : Application(), BusDebugListener {
     override fun onCreate() {
         super.onCreate()
         Db.initDb(this)
-        AppInfo.init(this, BuildConfig.BUILD_TYPE)
-        ProfileProperties.initProperties()
+        AppInfo.init(this, BuildConfig.BUILD_TYPE, Properties())
 
         //        debugBus(this)
     }
