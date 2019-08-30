@@ -8,8 +8,8 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.databinding.ViewDataBinding
 import androidx.fragment.app.Fragment
+import com.github.luoyemyy.aclin.api.refreshApi
 import com.github.luoyemyy.aclin.app.R
-import com.github.luoyemyy.aclin.app.common.api.refreshApi
 import com.github.luoyemyy.aclin.app.common.util.BusEvent
 import com.github.luoyemyy.aclin.app.databinding.FragmentListBinding
 import com.github.luoyemyy.aclin.bus.postBus

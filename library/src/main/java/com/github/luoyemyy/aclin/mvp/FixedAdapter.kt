@@ -4,8 +4,7 @@ import android.view.View
 import androidx.databinding.ViewDataBinding
 import androidx.lifecycle.LifecycleOwner
 
-abstract class FixedAdapter<T : DataItem, B : ViewDataBinding>(owner: LifecycleOwner, listLiveData: ListLiveData) :
-        AbsAdapter<T, B>(owner, listLiveData) {
+abstract class FixedAdapter<T : DataItem, B : ViewDataBinding>(owner: LifecycleOwner, listLiveData: ListLiveData) : AbsAdapter<T, B>(owner, listLiveData) {
 
     override fun bindContent(binding: B, item: T, viewType: Int, position: Int) {
         binding.setVariable(1, item)

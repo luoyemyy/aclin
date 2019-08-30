@@ -14,5 +14,5 @@
     <fragment
         android:id="@+id/previewFragment"
         android:name="com.github.luoyemyy.aclin.image.preview.PreviewFragment"
-        android:label="PreviewFragment" />
+        android:label="" />
 </navigation>

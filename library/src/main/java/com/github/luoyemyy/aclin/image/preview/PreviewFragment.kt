@@ -6,9 +6,11 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.viewpager2.widget.ViewPager2
 import com.github.luoyemyy.aclin.R
 import com.github.luoyemyy.aclin.databinding.AclinImagePreviewBinding
 import com.github.luoyemyy.aclin.databinding.AclinImagePreviewItemBinding
+import com.github.luoyemyy.aclin.ext.runOnMain
 import com.github.luoyemyy.aclin.mvp.*
 
 class PreviewFragment : Fragment() {
@@ -27,7 +29,15 @@ class PreviewFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         mPresenter = getPresenter()
-        mBinding.viewPager.adapter = Adapter()
+        mBinding.viewPager.apply {
+            adapter = Adapter()
+            offscreenPageLimit = 3
+            registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
+                override fun onPageSelected(position: Int) {
+                    requireActivity().title = "${position + 1}/${mPresenter.count}"
+                }
+            })
+        }
         mPresenter.listLiveData.loadInit(arguments)
     }
 
@@ -37,21 +47,22 @@ class PreviewFragment : Fragment() {
         }
 
         override fun onCurrentListChanged(previousList: MutableList<DataItem>, currentList: MutableList<DataItem>) {
-            mBinding.viewPager.setCurrentItem(mPresenter.getCurrentPosition(), false)
+            runOnMain {
+                mBinding.viewPager.setCurrentItem(mPresenter.defaultPosition, false)
+            }
         }
     }
 
     class Presenter(var mApp: Application) : AbsListPresenter(mApp) {
 
-        private var mDefaultPosition: Int = 0
+        var defaultPosition: Int = 0
+        var count: Int = 0
 
         override fun loadData(bundle: Bundle?, paging: Paging, loadType: LoadType): List<DataItem>? {
-            mDefaultPosition = bundle?.getInt("current", 0) ?: 0
-            return bundle?.getStringArrayList("paths")?.map { TextItem(it) }
-        }
-
-        fun getCurrentPosition(): Int {
-            return mDefaultPosition
+            defaultPosition = bundle?.getInt("current", 0) ?: 0
+            return bundle?.getStringArrayList("paths")?.map { TextItem(it) }?.apply {
+                count = size
+            }
         }
     }
 }

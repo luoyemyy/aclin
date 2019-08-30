@@ -8,9 +8,8 @@
             type="com.github.luoyemyy.aclin.mvp.TextItem" />
     </data>
 
-    <ImageView
+    <com.github.luoyemyy.aclin.image.view.PreviewImageView
         aclin_image_url="@{entity.text}"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:scaleType="fitCenter" />
+        android:layout_height="match_parent" />
 </layout>
