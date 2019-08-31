@@ -8,8 +8,7 @@ import android.view.View
 import androidx.recyclerview.widget.RecyclerView
 import kotlin.math.roundToInt
 
-class LinearDecoration private constructor(private val type: Int, private val context: Context, space: Int, spacePxUnit: Boolean) :
-        RecyclerView.ItemDecoration() {
+class LinearDecoration private constructor(private val type: Int, private val context: Context, space: Int, spacePxUnit: Boolean) : RecyclerView.ItemDecoration() {
 
     companion object {
 

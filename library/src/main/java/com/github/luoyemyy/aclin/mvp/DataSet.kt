@@ -2,8 +2,11 @@ package com.github.luoyemyy.aclin.mvp
 
 import java.util.*
 
-class DataSet(var paging: Paging = Paging.Page(), var enableEmptyItem: Boolean = true, var enableMoreItem: Boolean = true,
-    var enableMoreGone: Boolean = false, var enableInitItem: Boolean = true) {
+class DataSet(var paging: Paging = Paging.Page(),
+              var enableEmptyItem: Boolean = true,
+              var enableMoreItem: Boolean = true,
+              var enableMoreGone: Boolean = false,
+              var enableInitItem: Boolean = true) {
 
     companion object {
         const val INIT_LOADING = -1

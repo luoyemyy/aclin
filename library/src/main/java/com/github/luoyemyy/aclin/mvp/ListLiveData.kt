@@ -118,6 +118,7 @@ open class ListLiveData : MutableLiveData<DataItemChange>() {
         return if (ok) {
             mDataSet.addDataSuccess(items)
         } else {
+            mDataSet.paging.errorBack()
             mDataSet.addDataFailure()
         }
     }

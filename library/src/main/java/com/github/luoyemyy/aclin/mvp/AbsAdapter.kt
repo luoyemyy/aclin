@@ -17,7 +17,7 @@ import com.github.luoyemyy.aclin.databinding.*
 import com.github.luoyemyy.aclin.ext.runDelay
 
 abstract class AbsAdapter<T : DataItem, B : ViewDataBinding>(owner: LifecycleOwner, private val mLiveData: ListLiveData) :
-        ListAdapter<DataItem, VH<ViewDataBinding>>(getDiffCallback()), AdapterExt<T, B> {
+    ListAdapter<DataItem, VH<ViewDataBinding>>(getDiffCallback()), AdapterExt<T, B> {
 
     private var mEnableSort = false
     private val mItemTouchHelper by lazy { ItemTouchHelper(SortCallback(mLiveData)) }
@@ -105,9 +105,7 @@ abstract class AbsAdapter<T : DataItem, B : ViewDataBinding>(owner: LifecycleOwn
         } else {
             createContentBinding(inflater, parent, viewType)?.let { binding ->
                 VH(binding as ViewDataBinding).apply {
-                    (binding as? B)?.also {
-                        bindContentEvents(binding, this)
-                    }
+                    bindContentEvents(binding, this)
                 }
             }
         }) ?: VH(AclinListNoneBinding.inflate(inflater, parent, false) as ViewDataBinding)

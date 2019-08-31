@@ -33,15 +33,18 @@ inline fun <reified T : AndroidViewModel> FragmentActivity.getPresenter(): T = V
 
 inline fun <reified T : AndroidViewModel> Fragment.getPresenter(): T = ViewModelProviders.of(this).get(T::class.java)
 
-fun RecyclerView.setupLinear(adapter: RecyclerView.Adapter<*>, vertical: Boolean = true,
-    decoration: RecyclerView.ItemDecoration = LinearDecoration.middle(context)) {
+fun RecyclerView.setupLinear(adapter: RecyclerView.Adapter<*>,
+                             vertical: Boolean = true,
+                             decoration: RecyclerView.ItemDecoration = LinearDecoration.middle(context)) {
     this.layoutManager = LinearLayoutManager(context, if (vertical) RecyclerView.VERTICAL else RecyclerView.HORIZONTAL, false)
     this.adapter = adapter
     this.addItemDecoration(decoration)
 }
 
-fun RecyclerView.setupGrid(adapter: RecyclerView.Adapter<*>, span: Int, vertical: Boolean = true,
-    decoration: RecyclerView.ItemDecoration = GridDecoration.create(context, span, 1)) {
+fun RecyclerView.setupGrid(adapter: RecyclerView.Adapter<*>,
+                           span: Int,
+                           vertical: Boolean = true,
+                           decoration: RecyclerView.ItemDecoration = GridDecoration.create(context, span, 1)) {
     this.layoutManager = StaggeredGridLayoutManager(span, if (vertical) RecyclerView.VERTICAL else RecyclerView.HORIZONTAL)
     this.adapter = adapter
     this.addItemDecoration(decoration)

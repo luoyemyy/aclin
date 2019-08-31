@@ -4,7 +4,8 @@ import android.view.View
 import androidx.databinding.ViewDataBinding
 import androidx.lifecycle.LifecycleOwner
 
-abstract class FixedAdapter<T : DataItem, B : ViewDataBinding>(owner: LifecycleOwner, listLiveData: ListLiveData) : AbsAdapter<T, B>(owner, listLiveData) {
+abstract class FixedAdapter<T : DataItem, B : ViewDataBinding>(owner: LifecycleOwner, listLiveData: ListLiveData) :
+    AbsAdapter<T, B>(owner, listLiveData) {
 
     override fun enableEmpty(): Boolean {
         return false
