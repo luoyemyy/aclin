@@ -24,9 +24,15 @@ object AppInfo {
     lateinit var appInfo: String
     lateinit var fileProvider: String
 
-    fun init(app: Application, buildType: String, profileAdd: ProfileAdd) {
+    /**
+     * @param app           Application
+     * @param buildType     BuildConfig.BUILD_TYPE
+     * @param profileAdd
+     * @param provider      fileProvider
+     */
+    fun init(app: Application, buildType: String, profileAdd: ProfileAdd, provider: String? = null) {
         appInfo = "app_info"
-        fileProvider = "${app.packageName}.FileProvider"
+        fileProvider = provider ?: "${app.packageName}.FileProvider"
         AppError.init(app)
         FileManager.init(app)
         Profile.initType(app, buildType)

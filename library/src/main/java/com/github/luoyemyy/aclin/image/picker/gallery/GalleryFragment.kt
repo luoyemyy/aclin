@@ -4,28 +4,23 @@ import android.Manifest
 import android.os.Bundle
 import android.view.*
 import androidx.core.os.bundleOf
-import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
 import com.github.luoyemyy.aclin.R
 import com.github.luoyemyy.aclin.databinding.AclinImagePickerGalleryBinding
 import com.github.luoyemyy.aclin.databinding.AclinImagePickerGalleryBucketBinding
 import com.github.luoyemyy.aclin.databinding.AclinImagePickerGalleryImageBinding
+import com.github.luoyemyy.aclin.fragment.OverrideMenuFragment
 import com.github.luoyemyy.aclin.mvp.*
 import com.github.luoyemyy.aclin.permission.PermissionManager
 import com.github.luoyemyy.aclin.permission.requestPermission
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 
-class GalleryFragment : Fragment() {
+class GalleryFragment : OverrideMenuFragment() {
 
     private lateinit var mBinding: AclinImagePickerGalleryBinding
     private lateinit var mPresenter: GalleryPresenter
     private lateinit var mBottomBehavior: BottomSheetBehavior<View>
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setHasOptionsMenu(true)
-    }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         inflater.inflate(R.menu.aclin_image_picker_gallery, menu)

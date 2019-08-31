@@ -18,7 +18,9 @@ import retrofit2.converter.gson.GsonConverterFactory
 open class ApiManager {
 
     companion object {
-        private val api = ApiManager().apply { initApi() }
+        private val api by lazy(LazyThreadSafetyMode.SYNCHRONIZED) {
+            ApiManager().apply { initApi() }
+        }
 
         fun getInstance() = api
     }

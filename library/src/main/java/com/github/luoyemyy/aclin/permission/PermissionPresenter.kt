@@ -8,11 +8,11 @@ import androidx.lifecycle.Observer
 
 class PermissionPresenter(app: Application) : AndroidViewModel(app) {
 
-    private val mGranted = MutableLiveData<Array<String>>()
-    private val mDenied = MutableLiveData<Array<String>>()
+    private val mGranted = MutableLiveData<Array<String>?>()
+    private val mDenied = MutableLiveData<Array<String>?>()
     private lateinit var mAllPerms: Array<String>
 
-    internal val request = MutableLiveData<Array<String>>()
+    internal val request = MutableLiveData<Array<String>?>()
 
     /**
      * @param owner 发起授权的页面

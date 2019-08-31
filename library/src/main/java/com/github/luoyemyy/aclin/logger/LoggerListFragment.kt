@@ -5,24 +5,19 @@ import android.os.Bundle
 import android.view.*
 import androidx.appcompat.app.AlertDialog
 import androidx.core.os.bundleOf
-import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import com.github.luoyemyy.aclin.R
 import com.github.luoyemyy.aclin.databinding.AclinLoggerListBinding
 import com.github.luoyemyy.aclin.databinding.AclinLoggerListItemBinding
 import com.github.luoyemyy.aclin.ext.toast
+import com.github.luoyemyy.aclin.fragment.OverrideMenuFragment
 import com.github.luoyemyy.aclin.mvp.*
 import java.io.File
 
-class LoggerListFragment : Fragment() {
+class LoggerListFragment : OverrideMenuFragment() {
 
     private lateinit var mBinding: AclinLoggerListBinding
     private lateinit var mPresenter: Presenter
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setHasOptionsMenu(true)
-    }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return AclinLoggerListBinding.inflate(inflater, container, false).apply { mBinding = this }.root

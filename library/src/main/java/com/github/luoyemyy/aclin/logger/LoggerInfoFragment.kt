@@ -5,25 +5,20 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.fragment.app.Fragment
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
 import com.github.luoyemyy.aclin.databinding.AclinLoggerInfoBinding
 import com.github.luoyemyy.aclin.ext.runOnThread
+import com.github.luoyemyy.aclin.fragment.OverrideMenuFragment
 import com.github.luoyemyy.aclin.mvp.AbsPresenter
 import com.github.luoyemyy.aclin.mvp.getPresenter
 import java.io.File
 import java.io.FileReader
 
-class LoggerInfoFragment : Fragment() {
+class LoggerInfoFragment : OverrideMenuFragment() {
 
     private lateinit var mBinding: AclinLoggerInfoBinding
     private lateinit var mPresenter: Presenter
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setHasOptionsMenu(true)
-    }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return AclinLoggerInfoBinding.inflate(inflater, container, false).apply { mBinding = this }.root

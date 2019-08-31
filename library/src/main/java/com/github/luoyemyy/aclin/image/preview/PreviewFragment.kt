@@ -5,23 +5,18 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.fragment.app.Fragment
 import androidx.viewpager2.widget.ViewPager2
 import com.github.luoyemyy.aclin.R
 import com.github.luoyemyy.aclin.databinding.AclinImagePreviewBinding
 import com.github.luoyemyy.aclin.databinding.AclinImagePreviewItemBinding
 import com.github.luoyemyy.aclin.ext.runOnMain
+import com.github.luoyemyy.aclin.fragment.OverrideMenuFragment
 import com.github.luoyemyy.aclin.mvp.*
 
-class PreviewFragment : Fragment() {
+class PreviewFragment : OverrideMenuFragment() {
 
     private lateinit var mBinding: AclinImagePreviewBinding
     private lateinit var mPresenter: Presenter
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setHasOptionsMenu(true)
-    }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return AclinImagePreviewBinding.inflate(inflater, container, false).apply { mBinding = this }.root

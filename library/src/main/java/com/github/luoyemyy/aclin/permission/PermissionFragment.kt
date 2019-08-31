@@ -7,7 +7,7 @@ import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.Observer
 import com.github.luoyemyy.aclin.mvp.getPresenter
 
-class PermissionFragment : Fragment(), Observer<Array<String>> {
+class PermissionFragment : Fragment(), Observer<Array<String>?> {
 
     companion object {
         private const val PERMISSION_FRAGMENT_TAG = "com.github.luoyemyy.aclin.permission.PermissionFragment"
