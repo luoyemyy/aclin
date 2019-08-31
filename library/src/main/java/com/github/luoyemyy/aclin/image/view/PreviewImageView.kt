@@ -24,9 +24,7 @@ open class PreviewImageView(context: Context, attributeSet: AttributeSet?, defSt
     private var mMatrix = Matrix()
     private var mResetMatrix = Matrix()
     private var mImageViewListeners = mutableListOf<ImageViewListener>()
-    private val mScaleGestureDetector = ScaleGestureDetector(context, ScaleGestureListener()).apply {
-        isQuickScaleEnabled = true
-    }
+    private val mScaleGestureDetector = ScaleGestureDetector(context, ScaleGestureListener())
     private val mGestureDetector = GestureDetector(context, GestureListener())
     private var mVWidth: Int = 0
     private var mVHeight: Int = 0

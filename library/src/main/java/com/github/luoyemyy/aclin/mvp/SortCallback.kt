@@ -8,7 +8,7 @@ class SortCallback(private val mLiveData: ListLiveData) : ItemTouchHelper.Simple
 ) {
 
     override fun onMove(recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder, target: RecyclerView.ViewHolder): Boolean {
-        return mLiveData.sortMove(viewHolder.adapterPosition, target.adapterPosition)
+        return mLiveData.itemSortMove(viewHolder.adapterPosition, target.adapterPosition)
     }
 
     override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
@@ -17,7 +17,7 @@ class SortCallback(private val mLiveData: ListLiveData) : ItemTouchHelper.Simple
     override fun onSelectedChanged(viewHolder: RecyclerView.ViewHolder?, actionState: Int) {
         super.onSelectedChanged(viewHolder, actionState)
         if (actionState == ItemTouchHelper.ACTION_STATE_IDLE) {
-            mLiveData.sortEnd()
+            mLiveData.itemSortEnd()
         }
     }
 

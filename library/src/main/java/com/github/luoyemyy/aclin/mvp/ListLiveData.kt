@@ -37,7 +37,7 @@ open class ListLiveData : MutableLiveData<DataItemChange>() {
     }
 
     open fun loadInitBefore(bundle: Bundle?) {
-        update { DataItemChange(it.setDataLoading(), true) }
+        postValue(DataItemChange(mDataSet.setDataLoading(), true))
         mDataSet.paging.reset()
     }
 
@@ -47,7 +47,7 @@ open class ListLiveData : MutableLiveData<DataItemChange>() {
     }
 
     open fun loadSearchBefore(search: Bundle?) {
-        update { DataItemChange(it.setDataLoading(), true) }
+        postValue(DataItemChange(mDataSet.setDataLoading(), true))
         mDataSet.paging.reset()
     }
 
@@ -124,10 +124,10 @@ open class ListLiveData : MutableLiveData<DataItemChange>() {
 
     open fun loadDataAfter(ok: Boolean, items: List<DataItem>) {
         when {
-            mLoadType.isInit() -> update { DataItemChange(loadInitAfter(ok, items), true) }
-            mLoadType.isRefresh() -> update { DataItemChange(loadRefreshAfter(ok, items), true) }
-            mLoadType.isSearch() -> update { DataItemChange(loadSearchAfter(ok, items), true) }
-            mLoadType.isMore() -> update { DataItemChange(loadMoreAfter(ok, items), false) }
+            mLoadType.isInit() -> postValue(DataItemChange(loadInitAfter(ok, items), true))
+            mLoadType.isRefresh() -> postValue(DataItemChange(loadRefreshAfter(ok, items), true))
+            mLoadType.isSearch() -> postValue(DataItemChange(loadSearchAfter(ok, items), true))
+            mLoadType.isMore() -> postValue(DataItemChange(loadMoreAfter(ok, items), false))
         }
         mLoadType.complete()
     }
@@ -137,14 +137,14 @@ open class ListLiveData : MutableLiveData<DataItemChange>() {
             return
         }
         mDisposable = Single
-                .create<List<DataItem>> {
-                    it.onSuccess(loadData(bundle, mDataSet.paging, mLoadType) ?: listOf())
-                }
-                .subscribeOn(Schedulers.newThread())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe { items, error ->
-                    loadDataAfter(error == null, items)
-                }
+            .create<List<DataItem>> {
+                it.onSuccess(loadData(bundle, mDataSet.paging, mLoadType) ?: listOf())
+            }
+            .subscribeOn(Schedulers.newThread())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe { items, error ->
+                loadDataAfter(error == null, items)
+            }
     }
 
     @MainThread
@@ -153,40 +153,32 @@ open class ListLiveData : MutableLiveData<DataItemChange>() {
     @WorkerThread
     open fun loadData(bundle: Bundle? = null, paging: Paging, loadType: LoadType): List<DataItem>? = null
 
-    fun sortMove(start: Int, end: Int): Boolean {
+    fun itemSortMove(start: Int, end: Int): Boolean {
         return value?.data?.let {
             val range = 0 until it.size
             val startItem = if (start in range) it[start] else null
             val endItem = if (end in range) it[end] else null
             mDataSet.move(startItem, endItem)?.let { list ->
-                update { DataItemChange(list) }
+                postValue(DataItemChange(list))
                 true
             } ?: false
         } ?: false
     }
 
-    open fun sortEnd() {}
+    open fun itemSortEnd() {}
 
-    fun itemChange(change: (List<DataItem>?) -> Boolean = { true }) {
+    fun itemChange(change: ItemCallback = { _, _ -> true }) {
+        itemUpdateBase(change)
+    }
+
+    fun itemDelete(delete: ItemCallback = { _, _ -> true }) {
+        itemUpdateBase(delete)
+    }
+
+    private fun itemUpdateBase(base: ItemCallback) {
         val items = value?.data
-        if (change(items)) {
-            update {
-                DataItemChange(it.getDataList())
-            }
-        }
-    }
-
-    fun itemDelete(delete: (DataSet) -> Boolean = { true }) {
-        if (delete(mDataSet)) {
-            update {
-                DataItemChange(it.getDataList())
-            }
-        }
-    }
-
-    private fun update(callback: (DataSet) -> DataItemChange) {
-        callback(mDataSet).let {
-            postValue(it)
+        if (base(items, mDataSet)) {
+            postValue(DataItemChange(mDataSet.getDataList()))
         }
     }
 }

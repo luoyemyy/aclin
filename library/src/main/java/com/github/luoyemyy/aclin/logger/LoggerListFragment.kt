@@ -46,11 +46,11 @@ class LoggerListFragment : Fragment() {
                 requireContext().toast(R.string.aclin_logger_menu_select_tip)
             } else {
                 AlertDialog.Builder(requireContext())
-                        .setMessage(R.string.aclin_logger_menu_delete_tip)
-                        .setNegativeButton(android.R.string.cancel, null)
-                        .setPositiveButton(R.string.aclin_logger_menu_delete) { _, _ ->
-                            mPresenter.deleteSelect()
-                        }.show()
+                    .setMessage(R.string.aclin_logger_menu_delete_tip)
+                    .setNegativeButton(android.R.string.cancel, null)
+                    .setPositiveButton(R.string.aclin_logger_menu_delete) { _, _ ->
+                        mPresenter.deleteSelect()
+                    }.show()
             }
         }
         return super.onOptionsItemSelected(item)
@@ -94,7 +94,7 @@ class LoggerListFragment : Fragment() {
 
         fun selectAll() {
             val selectAll = countSelect() == 0
-            listLiveData.itemChange { items ->
+            listLiveData.itemChange { items, _ ->
                 items?.forEach {
                     (it as? LoggerItem)?.apply {
                         select = selectAll
@@ -110,7 +110,7 @@ class LoggerListFragment : Fragment() {
         }
 
         fun deleteSelect() {
-            listLiveData.itemDelete { dataSet ->
+            listLiveData.itemDelete { _, dataSet ->
                 val selectItems = dataSet.getContentList().filter { it is LoggerItem && it.select && File(it.path).delete() }
                 if (selectItems.isEmpty()) {
                     false

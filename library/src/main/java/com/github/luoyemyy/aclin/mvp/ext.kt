@@ -12,6 +12,8 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 
 typealias LoadDataAfter<T> = (ok: Boolean, items: List<T>) -> Unit
 
+typealias ItemCallback = (List<DataItem>?, DataSet) -> Boolean
+
 fun <T : DataItem> getDiffCallback() = object : DiffUtil.ItemCallback<T>() {
 
     override fun areItemsTheSame(oldItem: T, newItem: T): Boolean {
