@@ -3,4 +3,7 @@
     <files-path
         name="app_logger"
         path="log" />
+    <files-path
+        name="image"
+        path="image" />
 </paths>

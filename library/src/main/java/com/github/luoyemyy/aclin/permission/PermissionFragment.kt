@@ -7,7 +7,7 @@ import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.Observer
 import com.github.luoyemyy.aclin.mvp.getPresenter
 
-class PermissionFragment : Fragment(), Observer<Array<String>?> {
+class PermissionFragment : Fragment(), Observer<PermissionManager.Request> {
 
     companion object {
         private const val PERMISSION_FRAGMENT_TAG = "com.github.luoyemyy.aclin.permission.PermissionFragment"
@@ -29,22 +29,21 @@ class PermissionFragment : Fragment(), Observer<Array<String>?> {
         mPresenter.request.observe(this, this)
     }
 
-    override fun onChanged(it: Array<String>?) {
-        if (!it.isNullOrEmpty()) {
-            requestPermissions(it, 1991)
+    override fun onChanged(value: PermissionManager.Request?) {
+        value?.apply {
+            if (!notGrantedPerms.isNullOrEmpty()) {
+                requestPermissions(notGrantedPerms, id)
+            }
         }
     }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
-        if (requestCode == 1991) {
-            val denied = permissions.filterIndexed { index, _ ->
-                grantResults[index] != PackageManager.PERMISSION_GRANTED
-            }.toTypedArray()
-            if (denied.isNotEmpty()) {
-                mPresenter.denied(denied)
-            } else {
-                mPresenter.granted()
-            }
+        val value = mPresenter.request.value ?: return
+        if (value.requestCode == requestCode) {
+            val deniedPerms = permissions
+                    .filterIndexed { index, _ -> grantResults[index] != PackageManager.PERMISSION_GRANTED }
+                    .toTypedArray()
+            mPresenter.response.postValue(PermissionManager.Response(value.requestCode, deniedPerms.isEmpty(), value.allPerms, deniedPerms))
         }
     }
 }

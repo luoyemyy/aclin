@@ -1,5 +1,6 @@
 package com.github.luoyemyy.aclin.app.main
 
+import android.Manifest
 import android.app.Application
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -15,7 +16,10 @@ import com.github.luoyemyy.aclin.app.mvp.TextItem
 import com.github.luoyemyy.aclin.bus.BusMsg
 import com.github.luoyemyy.aclin.bus.BusResult
 import com.github.luoyemyy.aclin.bus.addBus
+import com.github.luoyemyy.aclin.ext.toast
+import com.github.luoyemyy.aclin.image.picker.camera.CameraBuilder
 import com.github.luoyemyy.aclin.mvp.*
+import com.github.luoyemyy.aclin.permission.requestPermission
 import com.github.luoyemyy.aclin.profile.Profile
 
 class MainFragment : Fragment(), BusResult {
@@ -61,7 +65,14 @@ class MainFragment : Fragment(), BusResult {
                 "mvp" -> findNavController().navigate(R.id.action_mainFragment_to_mvpFragment)
                 "profile" -> findNavController().navigate(R.id.action_mainFragment_to_profileFragment)
                 "permission" -> findNavController().navigate(R.id.action_mainFragment_to_permissionFragment)
-                "image" -> findNavController().navigate(R.id.action_mainFragment_to_aclin_image)
+                "image_gallery" -> findNavController().navigate(R.id.action_mainFragment_to_aclin_image)
+                "image_camera" -> {
+                    requestPermission(this@MainFragment).granted {
+                        CameraBuilder(this@MainFragment).callback {
+                            requireContext().toast(it)
+                        }.buildAndCapture()
+                    }.buildAndRequest(Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                }
                 "logger" -> findNavController().navigate(R.id.action_mainFragment_to_aclin_logger)
             }
         }
@@ -74,13 +85,14 @@ class MainFragment : Fragment(), BusResult {
                 TextItem("mvp"),
                 TextItem("profile", Profile.active().desc),
                 TextItem("permission"),
-                TextItem("image"),
+                TextItem("image_gallery"),
+                TextItem("image_camera"),
                 TextItem("logger")
             )
         }
 
         fun updateProfile() {
-            listLiveData.itemChange { items,_ ->
+            listLiveData.itemChange { items, _ ->
                 items?.forEach {
                     if (it is TextItem && it.key == "profile") {
                         it.value = Profile.active().desc

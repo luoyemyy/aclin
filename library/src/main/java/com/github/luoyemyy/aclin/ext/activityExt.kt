@@ -5,73 +5,18 @@ package com.github.luoyemyy.aclin.ext
 import android.app.Activity
 import android.content.Context
 import android.content.pm.PackageManager
-import android.graphics.Rect
 import android.net.Uri
 import android.os.Build
-import android.view.MotionEvent
 import android.view.View
-import android.view.ViewGroup
-import android.view.inputmethod.InputMethodManager
-import android.widget.EditText
 import android.widget.Toast
+import androidx.annotation.ArrayRes
 import androidx.annotation.StringRes
+import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import com.github.luoyemyy.aclin.app.AppInfo
 import java.io.File
 import kotlin.math.roundToInt
-
-/**
- * 点击editText之外的区域自动关闭键盘，并取消焦点
- */
-fun Activity.autoCloseKeyboardAndClearFocus(ev: MotionEvent?) {
-    val x = ev?.rawX?.toInt() ?: return
-    val y = ev.rawY.toInt()
-    val viewGroup = window.peekDecorView() as? ViewGroup ?: return
-    if (x >= 0 && y >= 0 && !viewGroup.pointInEditText(x, y)) {
-        hideKeyboard()
-        (currentFocus as? EditText)?.clearFocus()
-    }
-}
-
-/**
- * 关闭键盘
- */
-fun Activity.hideKeyboard() {
-    val manager = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-    val focusView = currentFocus
-    if (manager.isActive && focusView != null && focusView.windowToken != null) {
-        manager.hideSoftInputFromWindow(focusView.windowToken, InputMethodManager.HIDE_NOT_ALWAYS)
-    }
-}
-
-/**
- * 判断坐标是否在 View 上
- */
-fun View.pointInView(x: Int, y: Int): Boolean {
-    val location = intArrayOf(0, 0)
-    getLocationOnScreen(location)
-    val rect = Rect(location[0], location[1], location[0] + width, location[1] + height)
-    return rect.contains(x, y)
-}
-
-/**
- * 判断坐标是否在 ViewGroup 中的 EditText 上
- */
-fun ViewGroup.pointInEditText(x: Int, y: Int): Boolean {
-    (0 until childCount).forEach {
-        val view = getChildAt(it)
-        if (view.pointInView(x, y)) {
-            return when (view) {
-                is EditText -> true
-                is ViewGroup -> view.pointInEditText(x, y)
-                else -> false
-            }
-        }
-    }
-    return false
-}
-
 
 fun View.hide() {
     visibility = View.GONE
@@ -83,6 +28,57 @@ fun View.hideInvisible() {
 
 fun View.show() {
     visibility = View.VISIBLE
+}
+
+fun Activity.alert(
+        @StringRes messageId: Int = 0,
+        @StringRes okText: Int = android.R.string.ok,
+        ok: () -> Unit = {}) {
+    AlertDialog.Builder(this).setMessage(messageId).setPositiveButton(okText) { _, _ -> ok() }.show()
+}
+
+fun Activity.alert(
+        message: String = "alert message",
+        @StringRes okText: Int = android.R.string.ok,
+        ok: () -> Unit = {}) {
+    AlertDialog.Builder(this).setMessage(message).setPositiveButton(okText) { _, _ -> ok() }.show()
+}
+
+fun Activity.confirm(
+        @StringRes titleId: Int = 0,
+        @StringRes messageId: Int = 0,
+        okText: Int = android.R.string.ok,
+        ok: () -> Unit = {},
+        cancelText: Int = android.R.string.cancel,
+        cancel: () -> Unit = {}) {
+    AlertDialog.Builder(this)
+            .setTitle(titleId).setMessage(messageId)
+            .setNegativeButton(cancelText) { _, _ -> cancel() }
+            .setPositiveButton(okText) { _, _ -> ok() }
+            .show()
+}
+
+fun Activity.confirm(
+        title: String? = null,
+        message: String? = null,
+        okText: Int = android.R.string.ok,
+        ok: () -> Unit = {},
+        cancelText: Int = android.R.string.cancel,
+        cancel: () -> Unit = {}) {
+    AlertDialog.Builder(this)
+            .setTitle(title)
+            .setMessage(message)
+            .setNegativeButton(cancelText) { _, _ -> cancel() }
+            .setPositiveButton(okText) { _, _ -> ok() }
+            .show()
+}
+
+fun Activity.items(@ArrayRes itemId: Int, ok: (Int) -> Unit) {
+    AlertDialog.Builder(this).setItems(itemId) { _, i -> ok(i) }.show()
+}
+
+fun Activity.items(items: Array<String>, ok: (Int) -> Unit) {
+    AlertDialog.Builder(this).setItems(items) { _, i -> ok(i) }.show()
 }
 
 /**
