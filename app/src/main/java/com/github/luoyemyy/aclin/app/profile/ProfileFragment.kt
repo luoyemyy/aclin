@@ -59,12 +59,12 @@ class ProfileFragment : Fragment() {
                 Profile.changeType(mApp, selectPosition) {
                     refreshApi()
                     postBus(BusEvent.PROFILE_CHANGE)
-                    listLiveData.itemChange {
-                        (it?.get(activePosition)as? ProfileItem)?.apply {
+                    listLiveData.itemChange { items, _ ->
+                        (items?.get(activePosition)as? ProfileItem)?.apply {
                             active = false
                             hasPayload()
                         }
-                        (it?.get(selectPosition) as? ProfileItem)?.apply {
+                        (items?.get(selectPosition) as? ProfileItem)?.apply {
                             active = true
                             hasPayload()
                         }

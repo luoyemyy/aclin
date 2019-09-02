@@ -93,7 +93,9 @@ class GalleryFragment : OverrideMenuFragment() {
     }
 
     private fun toPreview(paths: ArrayList<String>, current: Int = 0) {
-        findNavController().navigate(R.id.action_galleryFragment_to_previewFragment, bundleOf("paths" to paths, "current" to current))
+        if (paths.isNotEmpty()) {
+            findNavController().navigate(R.id.action_galleryFragment_to_previewFragment, bundleOf("paths" to paths, "current" to current))
+        }
     }
 
     private fun bottomSheetState(show: Boolean) {

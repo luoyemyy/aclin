@@ -23,7 +23,6 @@ open class PreviewImageView(context: Context, attributeSet: AttributeSet?, defSt
 
     private var mMatrix = Matrix()
     private var mResetMatrix = Matrix()
-    private var mImageViewListeners = mutableListOf<ImageViewListener>()
     private val mScaleGestureDetector = ScaleGestureDetector(context, ScaleGestureListener())
     private val mGestureDetector = GestureDetector(context, GestureListener())
     private var mVWidth: Int = 0
@@ -31,8 +30,8 @@ open class PreviewImageView(context: Context, attributeSet: AttributeSet?, defSt
     private var mLastScaleX: Float = 0f
     private var mLastScaleY: Float = 0f
     private val mAnimDuration = 240
-    private val mMaxScale = 10f
-    private val mMinScale = 0.5f
+    private val mMaxScale = 8f
+    private val mMinScale = 1f
     private var mCurrentAction: Action? = null
     private var mIsPreview = false
 
@@ -43,10 +42,6 @@ open class PreviewImageView(context: Context, attributeSet: AttributeSet?, defSt
                 mVHeight = height
             }
         }
-    }
-
-    fun addImageViewListener(listener: ImageViewListener) {
-        mImageViewListeners.add(listener)
     }
 
     /**
@@ -71,18 +66,10 @@ open class PreviewImageView(context: Context, attributeSet: AttributeSet?, defSt
     /**
      * 获得指定matrix的值
      */
-    protected fun getMatrixValues(matrix: Matrix): FloatArray {
+    private fun getMatrixValues(matrix: Matrix): FloatArray {
         val array = FloatArray(9)
         matrix.getValues(array)
         return array
-    }
-
-    protected fun getResetValues(): FloatArray {
-        return getMatrixValues(mResetMatrix)
-    }
-
-    protected fun getCurrentValues(): FloatArray {
-        return getMatrixValues(mMatrix)
     }
 
     private fun equalsMatrix(matrix1: Matrix, matrix2: Matrix): Boolean {
@@ -91,7 +78,7 @@ open class PreviewImageView(context: Context, attributeSet: AttributeSet?, defSt
         return (0..8).all { array1[it] == array2[it] }
     }
 
-    fun addAction(action: Action) {
+    private fun addAction(action: Action) {
         mCurrentAction?.apply {
             if (action.canRun(this)) {
                 if (isRunning) {
@@ -130,7 +117,7 @@ open class PreviewImageView(context: Context, attributeSet: AttributeSet?, defSt
     /**
      * 图片缩放
      */
-    fun scale(scale: Float, x: Float, y: Float) {
+    private fun scale(scale: Float, x: Float, y: Float) {
         mMatrix.postScale(scale, scale, x, y)
         imageMatrix = mMatrix
     }
@@ -138,7 +125,7 @@ open class PreviewImageView(context: Context, attributeSet: AttributeSet?, defSt
     /**
      * 图片平移
      */
-    fun translate(x: Float, y: Float) {
+    private fun translate(x: Float, y: Float) {
         mMatrix.postTranslate(x, y)
         imageMatrix = mMatrix
     }
@@ -151,6 +138,7 @@ open class PreviewImageView(context: Context, attributeSet: AttributeSet?, defSt
             val start = getMatrixValues(startMatrix)
             val end = getMatrixValues(endMatrix)
             setObjectValues(start, end)
+            interpolator = DecelerateInterpolator()
             duration = mAnimDuration.toLong()
             setEvaluator { fraction, _, _ ->
                 val v = FloatArray(9)
@@ -167,10 +155,6 @@ open class PreviewImageView(context: Context, attributeSet: AttributeSet?, defSt
         }
     }
 
-    protected fun copyCurrentMatrix(): Matrix {
-        return Matrix(mMatrix)
-    }
-
     private fun getDrawableRect(): RectF? {
         val dWidth = drawable?.intrinsicWidth ?: 0
         val dHeight = drawable?.intrinsicHeight ?: 0
@@ -178,7 +162,7 @@ open class PreviewImageView(context: Context, attributeSet: AttributeSet?, defSt
         return RectF(0f, 0f, dWidth.toFloat(), dHeight.toFloat())
     }
 
-    protected fun getBitmapRect(matrix: Matrix): RectF? {
+    private fun getBitmapRect(matrix: Matrix): RectF? {
         return getDrawableRect()?.let {
             matrix.mapRect(it)
             it
@@ -189,12 +173,11 @@ open class PreviewImageView(context: Context, attributeSet: AttributeSet?, defSt
         return RectF(0f, 0f, mVWidth.toFloat(), mVHeight.toFloat())
     }
 
-
     /**
      * 限制
      */
-    protected open fun calculateLimitMatrix(): Matrix? {
-        val endMatrix = copyCurrentMatrix()
+    private fun calculateLimitMatrix(): Matrix? {
+        val endMatrix = Matrix(mMatrix)
 
         //scale
         val currentScale = getMatrixValues(mMatrix)[Matrix.MSCALE_X]
@@ -216,7 +199,7 @@ open class PreviewImageView(context: Context, attributeSet: AttributeSet?, defSt
         return endMatrix
     }
 
-    protected fun calculateScroll(bitmapRect: RectF, limitRect: RectF): Pair<Float, Float> {
+    private fun calculateScroll(bitmapRect: RectF, limitRect: RectF): Pair<Float, Float> {
         val x = when {
             //bitmap 宽度 小于 限制宽度
             bitmapRect.right - bitmapRect.left <= limitRect.right - limitRect.left -> when {
@@ -261,11 +244,6 @@ open class PreviewImageView(context: Context, attributeSet: AttributeSet?, defSt
 
     inner class ScaleGestureListener : ScaleGestureDetector.SimpleOnScaleGestureListener() {
 
-        override fun onScaleBegin(detector: ScaleGestureDetector?): Boolean {
-            mImageViewListeners.forEach { it.onChange() }
-            return true
-        }
-
         override fun onScale(detector: ScaleGestureDetector): Boolean {
             mLastScaleX = detector.focusX
             mLastScaleY = detector.focusY
@@ -291,11 +269,6 @@ open class PreviewImageView(context: Context, attributeSet: AttributeSet?, defSt
         override fun onDoubleTap(e: MotionEvent?): Boolean {
             addAction(ResetAction())
             return true
-        }
-
-        override fun onSingleTapConfirmed(e: MotionEvent?): Boolean {
-            mImageViewListeners.forEach { it.onSingleTap() }
-            return super.onSingleTapConfirmed(e)
         }
 
         override fun onFling(e1: MotionEvent?, e2: MotionEvent?, velocityX: Float, velocityY: Float): Boolean {
