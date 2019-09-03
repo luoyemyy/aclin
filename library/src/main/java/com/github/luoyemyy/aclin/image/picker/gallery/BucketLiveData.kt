@@ -27,18 +27,7 @@ class BucketLiveData(private val mApp: Application) : ListLiveData() {
     private var mGalleryArgs = GalleryBuilder.parseGalleryArgs(null)
 
     val menuLiveData = MutableLiveData<Boolean>()
-
-    val selectBucketLiveData = object : MutableLiveData<Bucket>() {
-        override fun onActive() {
-            mApp.contentResolver.registerContentObserver(
-                MediaStore.Images.Media.EXTERNAL_CONTENT_URI, true, mContentObserver
-            )
-        }
-
-        override fun onInactive() {
-            mApp.contentResolver.unregisterContentObserver(mContentObserver)
-        }
-    }
+    val selectBucketLiveData = MutableLiveData<Bucket>()
 
     val imageLiveData = object : ListLiveData() {
         override fun loadData(bundle: Bundle?, paging: Paging, loadType: LoadType): List<DataItem>? {
@@ -50,6 +39,14 @@ class BucketLiveData(private val mApp: Application) : ListLiveData() {
         override fun onChange(selfChange: Boolean) {
             loadRefresh()
         }
+    }
+
+    override fun onActive() {
+        mApp.contentResolver.registerContentObserver(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, true, mContentObserver)
+    }
+
+    override fun onInactive() {
+        mApp.contentResolver.unregisterContentObserver(mContentObserver)
     }
 
     override fun loadData(bundle: Bundle?, paging: Paging, loadType: LoadType): List<DataItem>? {
@@ -113,12 +110,15 @@ class BucketLiveData(private val mApp: Application) : ListLiveData() {
      * @param bucket 当前选中的分类，如果为null,则默认为全部图片
      */
     fun selectBucket(bucket: Bucket?, updateBuckets: Boolean = true) {
-        val select = bucket ?: mBucketMap[BUCKET_ALL] ?: return
+        var select = bucket ?: mBucketMap[BUCKET_ALL] ?: return
         itemChange { _, _ ->
             mBuckets.forEach {
-                if (it.id == select.id && !it.select) {
-                    it.select = true
-                    it.hasPayload()
+                if (it.id == select.id) {
+                    select = it
+                    if (!it.select) {
+                        it.select = true
+                        it.hasPayload()
+                    }
                 } else if (it.id != select.id && it.select) {
                     it.select = false
                     it.hasPayload()

@@ -14,12 +14,14 @@ import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.github.luoyemyy.aclin.databinding.*
+import com.github.luoyemyy.aclin.ext.TouchInfo
 import com.github.luoyemyy.aclin.ext.runDelay
 
 abstract class AbsAdapter<T : DataItem, B : ViewDataBinding>(owner: LifecycleOwner, private val mLiveData: ListLiveData) :
-    ListAdapter<DataItem, VH<ViewDataBinding>>(getDiffCallback()), AdapterExt<T, B> {
+        ListAdapter<DataItem, VH<ViewDataBinding>>(getDiffCallback()), AdapterExt<T, B> {
 
     private var mEnableSort = false
+    private var mEnablePopupMenu = false
     private val mItemTouchHelper by lazy { ItemTouchHelper(SortCallback(mLiveData)) }
     private var mRecyclerView: RecyclerView? = null
 
@@ -54,6 +56,10 @@ abstract class AbsAdapter<T : DataItem, B : ViewDataBinding>(owner: LifecycleOwn
     fun enableSort(recyclerView: RecyclerView) {
         mEnableSort = true
         mItemTouchHelper.attachToRecyclerView(recyclerView)
+    }
+
+    fun enablePopupMenu() {
+        mEnablePopupMenu = true
     }
 
     fun getContentItem(position: Int): T? {
@@ -127,6 +133,12 @@ abstract class AbsAdapter<T : DataItem, B : ViewDataBinding>(owner: LifecycleOwn
         getItemClickViews(binding).forEach { v ->
             v.setOnClickListener {
                 onItemViewClick(binding, vh, it)
+            }
+        }
+        if (mEnablePopupMenu) {
+            binding.root.setOnTouchListener { _, motionEvent ->
+                TouchInfo.touch(motionEvent)
+                false
             }
         }
         //sort

@@ -1,7 +1,6 @@
 package com.github.luoyemyy.aclin.image.picker.gallery
 
 import android.app.Application
-import com.github.luoyemyy.aclin.image.calculateImageItemSize
 import com.github.luoyemyy.aclin.mvp.AbsPresenter
 
 class GalleryPresenter(private var mApp: Application) : AbsPresenter(mApp) {

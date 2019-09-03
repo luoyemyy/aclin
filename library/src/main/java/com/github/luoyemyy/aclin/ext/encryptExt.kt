@@ -4,7 +4,6 @@ package com.github.luoyemyy.aclin.ext
 
 import android.util.Log
 import java.security.MessageDigest
-import java.security.NoSuchAlgorithmException
 
 /**
  * md5
@@ -24,7 +23,7 @@ fun String?.md5(): String? {
             stringBuffer.append(Integer.toHexString(x))
         }
         return stringBuffer.toString().toUpperCase()
-    } catch (e: NoSuchAlgorithmException) {
+    } catch (e: Throwable) {
         Log.e("Md5", "md5", e)
         null
     }

@@ -7,34 +7,31 @@ import androidx.appcompat.widget.PopupMenu
 import java.lang.reflect.Method
 
 object TouchInfo {
-    internal var touchX: Int = 0
-    internal var touchY: Int = 0
+    private var touchX: Int = 0
+    private var touchY: Int = 0
 
-    /**
-     * 在Activity#dispatchTouchEvent方法内执行该方法，记录每次按下的位置
-     */
     fun touch(event: MotionEvent?) {
         touchX = event?.rawX?.toInt() ?: 0
         touchY = event?.rawY?.toInt() ?: 0
     }
-}
 
-fun getMethod(obj: Any, name: String, vararg args: Class<*>): Method {
-    return obj::class.java.getMethod(name, *args).apply { isAccessible = true }
-}
+    private fun getField(obj: Any): Any? {
+        return obj::class.java.getDeclaredField("mPopup").apply { isAccessible = true }.get(obj)
+    }
 
-fun getField(obj: Any, name: String): Any? {
-    return obj::class.java.getDeclaredField(name).apply { isAccessible = true }.get(obj)
-}
+    private fun getMethod(obj: Any, vararg args: Class<*>): Method {
+        return obj::class.java.getMethod("show", *args).apply { isAccessible = true }
+    }
 
-fun PopupMenu.showAnchor(anchor: View) {
-    val location = intArrayOf(0, 0)
-    anchor.getLocationInWindow(location)
-    val x = TouchInfo.touchX - location[0]
-    val y = TouchInfo.touchY - location[1] - anchor.height
+    fun showAnchor(popupMenu: PopupMenu, anchor: View) {
+        val location = intArrayOf(0, 0)
+        anchor.getLocationInWindow(location)
+        val x = touchX - location[0]
+        val y = touchY - location[1] - anchor.height
 
-    val popup = getField(this, "mPopup") ?: return
-    getMethod(popup, "show", Int::class.java, Int::class.java).invoke(popup, x, y)
+        val popup = getField(popupMenu) ?: return
+        getMethod(popup, Int::class.java, Int::class.java).invoke(popup, x, y)
+    }
 }
 
 fun popupMenu(context: Context, anchor: View, menuId: Int, listener: (Int) -> Unit): Boolean {
@@ -44,7 +41,7 @@ fun popupMenu(context: Context, anchor: View, menuId: Int, listener: (Int) -> Un
             listener(menuItem.itemId)
             true
         }
-        showAnchor(anchor)
+        TouchInfo.showAnchor(this, anchor)
     }
     return true
 }
