@@ -2,4 +2,6 @@
     <string name="app_name">aclin</string>
     <string name="refresh">refresh</string>
     <string name="permission">permission</string>
+    <string name="picker_gallery">gallery</string>
+    <string name="picker_camera">camera</string>
 </resources>

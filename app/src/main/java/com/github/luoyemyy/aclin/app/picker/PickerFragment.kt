@@ -8,6 +8,7 @@ import com.github.luoyemyy.aclin.app.R
 import com.github.luoyemyy.aclin.app.databinding.FragmentListBinding
 import com.github.luoyemyy.aclin.app.databinding.FragmentListItemBinding
 import com.github.luoyemyy.aclin.ext.items
+import com.github.luoyemyy.aclin.ext.popupMenu
 import com.github.luoyemyy.aclin.ext.toast
 import com.github.luoyemyy.aclin.fragment.OverrideMenuFragment
 import com.github.luoyemyy.aclin.image.picker.camera.CameraBuilder
@@ -26,19 +27,10 @@ class PickerFragment : OverrideMenuFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         mPresenter = getPresenter()
         mBinding.apply {
-            recyclerView.setupLinear(Adapter(requireContext()))
+            recyclerView.setupLinear(Adapter(requireContext()).apply { enablePopupMenu() })
             swipeRefreshLayout.setup(mPresenter.listLiveData)
         }
         mPresenter.listLiveData.loadInit(arguments)
-    }
-
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        inflater.inflate(R.menu.mvp, menu)
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        mPresenter.listLiveData.loadSearch(null)
-        return super.onOptionsItemSelected(item)
     }
 
     private fun gallery() {
@@ -67,6 +59,17 @@ class PickerFragment : OverrideMenuFragment() {
 
         override fun setRefreshState(refreshing: Boolean) {
             mBinding.swipeRefreshLayout.isRefreshing = refreshing
+        }
+
+        override fun bindItemEvents(binding: FragmentListItemBinding, vh: VH<*>) {
+            binding.root.setOnLongClickListener {
+                popupMenu(requireContext(), it, R.menu.picker) { itemId ->
+                    when (itemId) {
+                        R.id.gallery -> gallery()
+                        R.id.camera -> camera()
+                    }
+                }
+            }
         }
 
         override fun onItemViewClick(binding: FragmentListItemBinding, vh: VH<*>, view: View) {
