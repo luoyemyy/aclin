@@ -21,8 +21,8 @@
             android:id="@+id/action_mainFragment_to_aclin_logger"
             app:destination="@id/aclin_logger" />
         <action
-            android:id="@+id/action_mainFragment_to_aclin_image"
-            app:destination="@id/aclin_image" />
+            android:id="@+id/action_mainFragment_to_pickerFragment"
+            app:destination="@id/pickerFragment" />
 
     </fragment>
     <fragment
@@ -41,5 +41,13 @@
     <include app:graph="@navigation/aclin_logger" />
 
     <include app:graph="@navigation/aclin_image" />
+    <fragment
+        android:id="@+id/pickerFragment"
+        android:name="com.github.luoyemyy.aclin.app.picker.PickerFragment"
+        android:label="PickerFragment" >
+        <action
+            android:id="@+id/action_pickerFragment_to_aclin_image"
+            app:destination="@id/aclin_image" />
+    </fragment>
 
 </navigation>

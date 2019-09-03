@@ -2,7 +2,7 @@
 <layout xmlns:android="http://schemas.android.com/apk/res/android">
 
     <data>
-        <variable name="entity" type="com.github.luoyemyy.aclin.app.mvp.TextItem"/>
+        <variable name="entity" type="com.github.luoyemyy.aclin.mvp.TextItem"/>
     </data>
 
     <LinearLayout

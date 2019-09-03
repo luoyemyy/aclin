@@ -7,6 +7,7 @@ import androidx.core.os.bundleOf
 import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
 import com.github.luoyemyy.aclin.R
+import com.github.luoyemyy.aclin.bus.postBus
 import com.github.luoyemyy.aclin.databinding.AclinImagePickerGalleryBinding
 import com.github.luoyemyy.aclin.databinding.AclinImagePickerGalleryBucketBinding
 import com.github.luoyemyy.aclin.databinding.AclinImagePickerGalleryImageBinding
@@ -37,7 +38,8 @@ class GalleryFragment : OverrideMenuFragment() {
         when (item.itemId) {
             R.id.sure -> {
                 mPresenter.bucketsLiveData.selectedImages()?.apply {
-                    toPreview(this)
+                    postBus(GalleryBuilder.PICKER_RESULT, extra = bundleOf(GalleryBuilder.PICKER_RESULT to this))
+                    findNavController().navigateUp()
                 }
             }
         }

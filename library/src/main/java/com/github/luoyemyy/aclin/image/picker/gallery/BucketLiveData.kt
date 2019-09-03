@@ -9,7 +9,6 @@ import androidx.lifecycle.MutableLiveData
 import com.github.luoyemyy.aclin.R
 import com.github.luoyemyy.aclin.ext.runOnMain
 import com.github.luoyemyy.aclin.ext.toast
-import com.github.luoyemyy.aclin.image.ImagePicker
 import com.github.luoyemyy.aclin.mvp.DataItem
 import com.github.luoyemyy.aclin.mvp.ListLiveData
 import com.github.luoyemyy.aclin.mvp.LoadType
@@ -25,7 +24,7 @@ class BucketLiveData(private val mApp: Application) : ListLiveData() {
 
     private var mBuckets: MutableList<Bucket> = mutableListOf()
     private var mBucketMap: MutableMap<String, Bucket> = mutableMapOf()
-    private var mGalleryArgs = ImagePicker.parseGalleryArgs(null)
+    private var mGalleryArgs = GalleryBuilder.parseGalleryArgs(null)
 
     val menuLiveData = MutableLiveData<Boolean>()
 
@@ -55,7 +54,7 @@ class BucketLiveData(private val mApp: Application) : ListLiveData() {
 
     override fun loadData(bundle: Bundle?, paging: Paging, loadType: LoadType): List<DataItem>? {
         if (loadType.isInit()) {
-            mGalleryArgs = ImagePicker.parseGalleryArgs(bundle)
+            mGalleryArgs = GalleryBuilder.parseGalleryArgs(bundle)
         }
         load()
         return mBuckets
