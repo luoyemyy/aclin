@@ -14,6 +14,7 @@ import android.view.MotionEvent
 import android.view.ScaleGestureDetector
 import android.view.animation.DecelerateInterpolator
 import android.widget.ImageView
+import androidx.core.graphics.values
 
 open class PreviewImageView(context: Context, attributeSet: AttributeSet?, defStyleAttr: Int, defStyleRes: Int) : ImageView(context, attributeSet, defStyleAttr, defStyleRes) {
 
@@ -29,8 +30,8 @@ open class PreviewImageView(context: Context, attributeSet: AttributeSet?, defSt
     private var mVHeight: Int = 0
     private var mLastScaleX: Float = 0f
     private var mLastScaleY: Float = 0f
-    private val mAnimDuration = 240
-    private val mMaxScale = 8f
+    private val mAnimDuration = 240L
+    private val mMaxScale = 5f
     private val mMinScale = 1f
     private var mCurrentAction: Action? = null
     private var mIsPreview = false
@@ -63,18 +64,9 @@ open class PreviewImageView(context: Context, attributeSet: AttributeSet?, defSt
         }
     }
 
-    /**
-     * 获得指定matrix的值
-     */
-    private fun getMatrixValues(matrix: Matrix): FloatArray {
-        val array = FloatArray(9)
-        matrix.getValues(array)
-        return array
-    }
-
     private fun equalsMatrix(matrix1: Matrix, matrix2: Matrix): Boolean {
-        val array1 = getMatrixValues(matrix1)
-        val array2 = getMatrixValues(matrix2)
+        val array1 = matrix1.values()
+        val array2 = matrix2.values()
         return (0..8).all { array1[it] == array2[it] }
     }
 
@@ -130,13 +122,30 @@ open class PreviewImageView(context: Context, attributeSet: AttributeSet?, defSt
         imageMatrix = mMatrix
     }
 
+    private fun animatorScale(endScale: Float, x: Float, y: Float): ValueAnimator {
+        return ValueAnimator().apply {
+            val startScale = mMatrix.values()[Matrix.MSCALE_X]
+            var preScale = 1f
+            setObjectValues(startScale, endScale)
+            interpolator = DecelerateInterpolator()
+            duration = mAnimDuration
+            addUpdateListener {
+                (it.animatedValue as Float).apply {
+                    scale(this / preScale, x, y)
+                    preScale = this
+                }
+            }
+            start()
+        }
+    }
+
     /**
      * 动画
      */
-    protected fun animator(startMatrix: Matrix, endMatrix: Matrix): ValueAnimator {
+    private fun animator(startMatrix: Matrix, endMatrix: Matrix): ValueAnimator {
         return ValueAnimator().apply {
-            val start = getMatrixValues(startMatrix)
-            val end = getMatrixValues(endMatrix)
+            val start = startMatrix.values()
+            val end = endMatrix.values()
             setObjectValues(start, end)
             interpolator = DecelerateInterpolator()
             duration = mAnimDuration.toLong()
@@ -180,7 +189,7 @@ open class PreviewImageView(context: Context, attributeSet: AttributeSet?, defSt
         val endMatrix = Matrix(mMatrix)
 
         //scale
-        val currentScale = getMatrixValues(mMatrix)[Matrix.MSCALE_X]
+        val currentScale = mMatrix.values()[Matrix.MSCALE_X]
         val dScale = when {
             currentScale > mMaxScale -> mMaxScale / currentScale
             currentScale < mMinScale -> mMinScale / currentScale
@@ -266,8 +275,12 @@ open class PreviewImageView(context: Context, attributeSet: AttributeSet?, defSt
             return mIsPreview
         }
 
-        override fun onDoubleTap(e: MotionEvent?): Boolean {
-            addAction(ResetAction())
+        override fun onDoubleTap(e: MotionEvent): Boolean {
+            if (mMatrix.values().contentEquals(mResetMatrix.values())) {
+                addAction(ScaleMaxAction(e.x, e.y))
+            } else {
+                addAction(ResetAction())
+            }
             return true
         }
 
@@ -294,6 +307,30 @@ open class PreviewImageView(context: Context, attributeSet: AttributeSet?, defSt
             isRunning = true
             scale(scale, x, y)
             isRunning = false
+        }
+    }
+
+    inner class ScaleMaxAction(private val x: Float, private val y: Float) : Action(1) {
+
+        private lateinit var mAnimator: ValueAnimator
+
+        override fun start() {
+            mIsPreview = true
+            mAnimator = animatorScale(mMaxScale, x, y).apply {
+                addListener(object : AnimatorListenerAdapter() {
+                    override fun onAnimationEnd(animation: Animator?) {
+                        this@ScaleMaxAction.isRunning = false
+                    }
+                })
+            }
+            isRunning = true
+        }
+
+        override fun cancel() {
+            if (isRunning && this::mAnimator.isInitialized) {
+                mAnimator.cancel()
+                isRunning = false
+            }
         }
     }
 
