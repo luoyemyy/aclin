@@ -26,7 +26,7 @@ interface AdapterExt<T : DataItem, B : ViewDataBinding> {
     /**
      * 绑定主要内容
      */
-    fun bindContent(binding: B, item: T, viewType: Int, position: Int){
+    fun bindContent(binding: B, item: T, viewType: Int, position: Int) {
         binding.setVariable(1, item)
         binding.executePendingBindings()
     }
@@ -80,5 +80,15 @@ interface AdapterExt<T : DataItem, B : ViewDataBinding> {
      * 加载完全部数据后，是否隐藏该项目
      */
     fun enableMoreGone(): Boolean = false
+
+    /**
+     * 翻转列表
+     */
+    fun reversed(): Boolean = false
+
+    /**
+     * 每页加载数量
+     */
+    fun pageSize(): Int = 10
 
 }

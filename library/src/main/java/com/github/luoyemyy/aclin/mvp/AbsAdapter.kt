@@ -27,7 +27,17 @@ abstract class AbsAdapter<T : DataItem, B : ViewDataBinding>(owner: LifecycleOwn
 
     init {
         mLiveData.apply {
-            configDataSet(enableEmpty(), enableLoadMore(), enableInit(), enableMoreGone())
+            configDataSet {
+                it.enableEmptyItem = enableEmpty()
+                it.enableMoreItem = enableLoadMore()
+                it.enableInitItem = enableInit()
+                it.enableMoreGone = enableMoreGone()
+                it.reversed = reversed()
+                it.pageSize = pageSize()
+            }
+            configPaging {
+                it.setSize(pageSize())
+            }
             observeRefresh(owner, Observer { setRefreshState(it) })
             observeChange(owner, Observer {
                 if (it.changeAll) {
@@ -37,7 +47,11 @@ abstract class AbsAdapter<T : DataItem, B : ViewDataBinding>(owner: LifecycleOwn
                     if (it.changeAll) {
                         it.changeAll = false
                         if (it.data.isNotEmpty()) {
-                            mRecyclerView?.scrollToPosition(0)
+                            if (reversed()) {
+                                mRecyclerView?.scrollToPosition(it.data.size - 1)
+                            } else {
+                                mRecyclerView?.scrollToPosition(0)
+                            }
                         }
                     }
                 }
@@ -95,9 +109,11 @@ abstract class AbsAdapter<T : DataItem, B : ViewDataBinding>(owner: LifecycleOwn
     }
 
     private fun triggerLoadMore(position: Int) {
-        if (position + 1 == itemCount) {
-            runDelay(300) {
-                mLiveData.loadMore()
+        (if (reversed()) position == 0 else position + 1 == itemCount).apply {
+            if (this) {
+                runDelay(300) {
+                    mLiveData.loadMore()
+                }
             }
         }
     }

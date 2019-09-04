@@ -55,7 +55,8 @@ class MainFragment : Fragment(), BusResult {
         override fun onItemViewClick(binding: FragmentListItemBinding, vh: VH<*>, view: View) {
             val item = getItem(vh.adapterPosition) as? TextItem ?: return
             when (item.text.split(":")[0]) {
-                "mvp" -> findNavController().navigate(R.id.action_mainFragment_to_mvpFragment)
+                "list" -> findNavController().navigate(R.id.action_mainFragment_to_mvpFragment)
+                "list-reversed" -> findNavController().navigate(R.id.action_mainFragment_to_reversedFragment)
                 "profile" -> findNavController().navigate(R.id.action_mainFragment_to_profileFragment)
                 "permission" -> findNavController().navigate(R.id.action_mainFragment_to_permissionFragment)
                 "image" -> findNavController().navigate(R.id.action_mainFragment_to_pickerFragment)
@@ -68,7 +69,8 @@ class MainFragment : Fragment(), BusResult {
 
         override fun loadData(bundle: Bundle?, paging: Paging, loadType: LoadType): List<DataItem>? {
             return listOf(
-                TextItem("mvp"),
+                TextItem("list"),
+                TextItem("list-reversed"),
                 TextItem("profile:${Profile.active().desc}"),
                 TextItem("permission"),
                 TextItem("image"),

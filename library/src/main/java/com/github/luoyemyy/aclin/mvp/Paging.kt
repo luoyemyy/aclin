@@ -10,9 +10,11 @@ interface Paging {
 
     fun size(): Int
 
+    fun setSize(size: Int)
+
     fun errorBack()
 
-    class Page(private val size: Int = 10) : Paging {
+    class Page(private var size: Int = 10) : Paging {
 
         private var currentPage: Long = 1
         private var prevPage: Long = 0
@@ -36,6 +38,10 @@ interface Paging {
 
         override fun size(): Int {
             return size
+        }
+
+        override fun setSize(size: Int) {
+            this.size = size
         }
 
         override fun current(): Long {

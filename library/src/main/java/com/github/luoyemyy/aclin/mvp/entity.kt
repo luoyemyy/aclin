@@ -24,6 +24,6 @@ open class DataItem(val type: Int = DataSet.CONTENT) {
     }
 }
 
-data class TextItem(var text: String) : DataItem()
+class TextItem(var text: String) : DataItem()
 
-data class DataItemChange(var data: List<DataItem>, var changeAll: Boolean = false)
+class DataItemChange(var data: List<DataItem>, var changeAll: Boolean = false)

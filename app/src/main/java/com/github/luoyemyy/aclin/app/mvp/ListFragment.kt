@@ -11,7 +11,7 @@ import com.github.luoyemyy.aclin.fragment.OverrideMenuFragment
 import com.github.luoyemyy.aclin.mvp.*
 import kotlin.random.Random
 
-class MvpFragment : OverrideMenuFragment() {
+class ListFragment : OverrideMenuFragment() {
 
     private lateinit var mBinding: FragmentListBinding
     private lateinit var mPresenter: Presenter
@@ -49,17 +49,14 @@ class MvpFragment : OverrideMenuFragment() {
         }
     }
 
-    class Presenter(private var mApp: Application) : AbsPresenter(mApp) {
+    class Presenter(private var mApp: Application) : AbsListPresenter(mApp) {
 
-        val listLiveData = object : ListLiveData() {
-
-            override fun loadData(bundle: Bundle?, paging: Paging, loadType: LoadType): List<DataItem>? {
-                var random = Random.nextInt(9)
-                if (random > 6) {
-                    random = 9
-                }
-                return (0..random).map { TextItem(Random.nextInt(9).toString()) }
+        override fun loadData(bundle: Bundle?, paging: Paging, loadType: LoadType): List<DataItem>? {
+            var random = Random.nextInt(9)
+            if (random > 3) {
+                random = 9
             }
+            return (0..random).map { TextItem(Random.nextDouble().toString()) }
         }
     }
 }

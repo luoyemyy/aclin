@@ -16,6 +16,7 @@ open class ListLiveData : MutableLiveData<DataItemChange>() {
     private val refreshLiveData = MutableLiveData<Boolean>()
 
     private val mDataSet by lazy { DataSet() }
+    private val mPaging by lazy { Paging.Page() }
     private val mLoadType = LoadType()
     private var mDisposable: Disposable? = null
 
@@ -29,30 +30,31 @@ open class ListLiveData : MutableLiveData<DataItemChange>() {
         observe(owner, observer)
     }
 
-    internal fun configDataSet(empty: Boolean, more: Boolean, init: Boolean, moreGone: Boolean) {
-        mDataSet.enableEmptyItem = empty
-        mDataSet.enableMoreItem = more
-        mDataSet.enableInitItem = init
-        mDataSet.enableMoreGone = moreGone
+    internal fun configDataSet(callback: (dataSet: DataSet) -> Unit) {
+        callback(mDataSet)
+    }
+
+    internal fun configPaging(callback: (paging: Paging) -> Unit) {
+        callback(mPaging)
     }
 
     open fun loadInitBefore(bundle: Bundle?) {
         postValue(DataItemChange(mDataSet.setDataLoading(), true))
-        mDataSet.paging.reset()
+        mPaging.reset()
     }
 
     open fun loadRefreshBefore(refreshStyle: Boolean) {
         refreshLiveData.value = refreshStyle
-        mDataSet.paging.reset()
+        mPaging.reset()
     }
 
     open fun loadSearchBefore(search: Bundle?) {
         postValue(DataItemChange(mDataSet.setDataLoading(), true))
-        mDataSet.paging.reset()
+        mPaging.reset()
     }
 
     open fun loadMoreBefore() {
-        mDataSet.paging.next()
+        mPaging.next()
     }
 
     @MainThread
@@ -118,7 +120,7 @@ open class ListLiveData : MutableLiveData<DataItemChange>() {
         return if (ok) {
             mDataSet.addDataSuccess(items)
         } else {
-            mDataSet.paging.errorBack()
+            mPaging.errorBack()
             mDataSet.addDataFailure()
         }
     }
@@ -134,18 +136,18 @@ open class ListLiveData : MutableLiveData<DataItemChange>() {
     }
 
     private fun loadDataBase(bundle: Bundle? = null) {
-        if (loadData(bundle, mDataSet.paging, mLoadType) { ok, items -> loadDataAfter(ok, items) }) {
+        if (loadData(bundle, mPaging, mLoadType) { ok, items -> loadDataAfter(ok, items) }) {
             return
         }
         mDisposable = Single
-            .create<List<DataItem>> {
-                it.onSuccess(loadData(bundle, mDataSet.paging, mLoadType) ?: listOf())
-            }
-            .subscribeOn(Schedulers.newThread())
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe { items, error ->
-                loadDataAfter(error == null, items)
-            }
+                .create<List<DataItem>> {
+                    it.onSuccess(loadData(bundle, mPaging, mLoadType) ?: listOf())
+                }
+                .subscribeOn(Schedulers.newThread())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe { items, error ->
+                    loadDataAfter(error == null, items)
+                }
     }
 
     @MainThread

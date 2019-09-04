@@ -2,11 +2,12 @@ package com.github.luoyemyy.aclin.mvp
 
 import java.util.*
 
-class DataSet(var paging: Paging = Paging.Page(),
+class DataSet(var pageSize: Int = 10,
               var enableEmptyItem: Boolean = true,
               var enableMoreItem: Boolean = true,
               var enableMoreGone: Boolean = false,
-              var enableInitItem: Boolean = true) {
+              var enableInitItem: Boolean = true,
+              var reversed: Boolean = false) {
 
     companion object {
         const val INIT_LOADING = -1
@@ -18,13 +19,6 @@ class DataSet(var paging: Paging = Paging.Page(),
         const val MORE_FAILURE = -103
         const val CONTENT = 1
     }
-
-    private val mInitLoadingData = DataItem(INIT_LOADING)
-    private val mInitFailureData = DataItem(INIT_FAILURE)
-    private val mEmptyData = DataItem(EMPTY)
-    private val mMoreLoadingData = DataItem(MORE_LOADING)
-    private val mMoreEndData = DataItem(MORE_END)
-    private val mMoreFailureData = DataItem(MORE_FAILURE)
 
     /**
      * 内容列表
@@ -44,7 +38,7 @@ class DataSet(var paging: Paging = Paging.Page(),
 
     private fun setLoadMoreState(list: List<DataItem>?) {
         if (enableMoreItem) {
-            mMoreState = if (list.isNullOrEmpty() || list.size < paging.size()) {
+            mMoreState = if (list.isNullOrEmpty() || list.size < pageSize) {
                 MORE_END
             } else {
                 MORE_LOADING
@@ -79,7 +73,11 @@ class DataSet(var paging: Paging = Paging.Page(),
 
     fun addDataSuccess(list: List<DataItem>?): List<DataItem> {
         if (!list.isNullOrEmpty()) {
-            contentList.addAll(list)
+            if (reversed) {
+                contentList.addAll(0, list)
+            } else {
+                contentList.addAll(list)
+            }
         }
         setLoadMoreState(list)
         return getDataList()
@@ -114,20 +112,25 @@ class DataSet(var paging: Paging = Paging.Page(),
     fun getDataList(): List<DataItem> {
         val list = mutableListOf<DataItem>()
         when (mInitState) {
-            INIT_LOADING -> if (enableInitItem) list.add(mInitLoadingData)
-            INIT_FAILURE -> if (enableInitItem) list.add(mInitFailureData)
+            INIT_LOADING -> if (enableInitItem) list.add(DataItem(INIT_LOADING))
+            INIT_FAILURE -> if (enableInitItem) list.add(DataItem(INIT_FAILURE))
             INIT_END -> {
                 contentList.size.also {
                     if (it == 0) {
-                        if (enableEmptyItem) list.add(mEmptyData)
+                        if (enableEmptyItem) list.add(DataItem(EMPTY))
                     } else {
-                        list.addAll(contentList)
+                        if (!reversed) {
+                            list.addAll(contentList)
+                        }
                         if (enableMoreItem) {
                             when (mMoreState) {
-                                MORE_LOADING -> list.add(mMoreLoadingData)
-                                MORE_FAILURE -> list.add(mMoreFailureData)
-                                MORE_END -> if (!enableMoreGone) list.add(mMoreEndData)
+                                MORE_LOADING -> list.add(DataItem(MORE_LOADING))
+                                MORE_FAILURE -> list.add(DataItem(MORE_FAILURE))
+                                MORE_END -> if (!enableMoreGone) list.add(DataItem(MORE_END))
                             }
+                        }
+                        if (reversed) {
+                            list.addAll(contentList)
                         }
                     }
                 }
