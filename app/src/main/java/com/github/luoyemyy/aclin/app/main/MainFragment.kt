@@ -81,7 +81,7 @@ class MainFragment : Fragment(), BusResult {
         fun updateProfile() {
             listLiveData.itemChange { items, _ ->
                 items?.forEach {
-                    if (it is TextItem && it.text == "profile") {
+                    if (it is TextItem && it.text.startsWith("profile")) {
                         it.text = "profile:${Profile.active().desc}"
                         it.hasPayload()
                     }
