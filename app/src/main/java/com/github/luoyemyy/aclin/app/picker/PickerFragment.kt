@@ -3,7 +3,11 @@ package com.github.luoyemyy.aclin.app.picker
 import android.app.Application
 import android.content.Context
 import android.os.Bundle
-import android.view.*
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import androidx.core.os.bundleOf
+import androidx.navigation.fragment.findNavController
 import com.github.luoyemyy.aclin.app.R
 import com.github.luoyemyy.aclin.app.databinding.FragmentListBinding
 import com.github.luoyemyy.aclin.app.databinding.FragmentListItemBinding
@@ -38,6 +42,7 @@ class PickerFragment : OverrideMenuFragment() {
                 .actionId(R.id.action_pickerFragment_to_aclin_image)
                 .callback {
                     requireContext().toast(it.joinToString(","))
+                    findNavController().navigate(R.id.action_pickerFragment_to_cropFragment, bundleOf("path" to it[0]))
                 }
                 .buildAndPicker()
     }

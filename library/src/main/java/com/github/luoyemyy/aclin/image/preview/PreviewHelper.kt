@@ -1,14 +1,11 @@
-package com.github.luoyemyy.aclin.image.view
+package com.github.luoyemyy.aclin.image.preview
 
 import android.animation.Animator
 import android.animation.AnimatorListenerAdapter
 import android.animation.ObjectAnimator
 import android.animation.ValueAnimator
-import android.content.Context
 import android.graphics.Matrix
 import android.graphics.RectF
-import android.graphics.drawable.Drawable
-import android.util.AttributeSet
 import android.view.GestureDetector
 import android.view.MotionEvent
 import android.view.ScaleGestureDetector
@@ -16,16 +13,12 @@ import android.view.animation.DecelerateInterpolator
 import android.widget.ImageView
 import androidx.core.graphics.values
 
-open class PreviewImageView(context: Context, attributeSet: AttributeSet?, defStyleAttr: Int, defStyleRes: Int) : ImageView(context, attributeSet, defStyleAttr, defStyleRes) {
-
-    constructor(context: Context, attributeSet: AttributeSet?, defStyleAttr: Int) : this(context, attributeSet, defStyleAttr, 0)
-    constructor(context: Context, attributeSet: AttributeSet?) : this(context, attributeSet, 0, 0)
-    constructor(context: Context) : this(context, null, 0, 0)
+open class PreviewHelper(private val mImageView: ImageView) {
 
     private var mMatrix = Matrix()
     private var mResetMatrix = Matrix()
-    private val mScaleGestureDetector = ScaleGestureDetector(context, ScaleGestureListener())
-    private val mGestureDetector = GestureDetector(context, GestureListener())
+    private val mScaleGestureDetector = ScaleGestureDetector(mImageView.context, ScaleGestureListener())
+    private val mGestureDetector = GestureDetector(mImageView.context, GestureListener())
     private var mVWidth: Int = 0
     private var mVHeight: Int = 0
     private var mLastScaleX: Float = 0f
@@ -37,30 +30,22 @@ open class PreviewImageView(context: Context, attributeSet: AttributeSet?, defSt
     private var mIsPreview = false
 
     init {
-        viewTreeObserver.addOnGlobalLayoutListener {
+        mImageView.viewTreeObserver.addOnGlobalLayoutListener {
             if (mVWidth == 0 && mVHeight == 0) {
-                mVWidth = width
-                mVHeight = height
+                mVWidth = mImageView.width
+                mVHeight = mImageView.height
             }
         }
     }
 
-    /**
-     * 设置图片时，设置当前的scaleType
-     */
-    override fun setImageDrawable(drawable: Drawable?) {
-        scaleType = ScaleType.CENTER_INSIDE
-        super.setImageDrawable(drawable)
-    }
-
     private fun setMatrixType() {
-        val dWidth = drawable?.intrinsicWidth ?: 0
-        val dHeight = drawable?.intrinsicHeight ?: 0
-        if (dWidth > 0 && dHeight > 0 && scaleType != ScaleType.MATRIX) {
-            mMatrix.set(imageMatrix)
-            mResetMatrix.set(imageMatrix)
-            scaleType = ScaleType.MATRIX
-            imageMatrix = mMatrix
+        val dWidth = mImageView.drawable?.intrinsicWidth ?: 0
+        val dHeight = mImageView.drawable?.intrinsicHeight ?: 0
+        if (dWidth > 0 && dHeight > 0 && mImageView.scaleType != ImageView.ScaleType.MATRIX) {
+            mMatrix.set(mImageView.imageMatrix)
+            mResetMatrix.set(mImageView.imageMatrix)
+            mImageView.scaleType = ImageView.ScaleType.MATRIX
+            mImageView.imageMatrix = mMatrix
         }
     }
 
@@ -88,20 +73,16 @@ open class PreviewImageView(context: Context, attributeSet: AttributeSet?, defSt
     /**
      * 接管事件
      */
-    override fun onTouchEvent(event: MotionEvent?): Boolean {
+    fun onTouchEvent(event: MotionEvent?): Boolean {
         if (event == null) return false
         when (event.action and MotionEvent.ACTION_MASK) {
             MotionEvent.ACTION_POINTER_DOWN -> mIsPreview = true
         }
-        parent.requestDisallowInterceptTouchEvent(mIsPreview)
+        mImageView.parent.requestDisallowInterceptTouchEvent(mIsPreview)
         mGestureDetector.onTouchEvent(event)
         mScaleGestureDetector.onTouchEvent(event)
-
-        //停止手势时 先执行fling  然后检查缩放和边界
-        if (event.action and MotionEvent.ACTION_MASK == MotionEvent.ACTION_UP) {
-            (mCurrentAction as? FlingAction) ?: let {
-                addAction(LimitAction())
-            }
+        if (event.action and MotionEvent.ACTION_MASK == MotionEvent.ACTION_UP && mCurrentAction !is FlingAction) {
+            addAction(LimitAction())
         }
         return true
     }
@@ -111,7 +92,7 @@ open class PreviewImageView(context: Context, attributeSet: AttributeSet?, defSt
      */
     private fun scale(scale: Float, x: Float, y: Float) {
         mMatrix.postScale(scale, scale, x, y)
-        imageMatrix = mMatrix
+        mImageView.imageMatrix = mMatrix
     }
 
     /**
@@ -119,7 +100,7 @@ open class PreviewImageView(context: Context, attributeSet: AttributeSet?, defSt
      */
     private fun translate(x: Float, y: Float) {
         mMatrix.postTranslate(x, y)
-        imageMatrix = mMatrix
+        mImageView.imageMatrix = mMatrix
     }
 
     private fun animatorScale(endScale: Float, x: Float, y: Float): ValueAnimator {
@@ -158,15 +139,15 @@ open class PreviewImageView(context: Context, attributeSet: AttributeSet?, defSt
             }
             addUpdateListener {
                 mMatrix.set(it.animatedValue as Matrix)
-                imageMatrix = mMatrix
+                mImageView.imageMatrix = mMatrix
             }
             start()
         }
     }
 
     private fun getDrawableRect(): RectF? {
-        val dWidth = drawable?.intrinsicWidth ?: 0
-        val dHeight = drawable?.intrinsicHeight ?: 0
+        val dWidth = mImageView.drawable?.intrinsicWidth ?: 0
+        val dHeight = mImageView.drawable?.intrinsicHeight ?: 0
         if (dWidth == 0 || dHeight == 0) return null
         return RectF(0f, 0f, dWidth.toFloat(), dHeight.toFloat())
     }
@@ -437,5 +418,6 @@ open class PreviewImageView(context: Context, attributeSet: AttributeSet?, defSt
 
         open fun cancel() {}
     }
+
 
 }

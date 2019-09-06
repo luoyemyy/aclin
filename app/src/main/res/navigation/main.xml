@@ -51,10 +51,17 @@
         <action
             android:id="@+id/action_pickerFragment_to_aclin_image"
             app:destination="@id/aclin_image" />
+        <action
+            android:id="@+id/action_pickerFragment_to_cropFragment"
+            app:destination="@id/cropFragment" />
     </fragment>
     <fragment
         android:id="@+id/reversedFragment"
         android:name="com.github.luoyemyy.aclin.app.mvp.ReversedFragment"
         android:label="ReversedFragment" />
+    <fragment
+        android:id="@+id/cropFragment"
+        android:name="com.github.luoyemyy.aclin.image.crop.CropFragment"
+        android:label="CropFragment" />
 
 </navigation>

@@ -20,4 +20,10 @@
     <string name="aclin_logger_menu_select_tip">请选择需要删除的日志文件</string>
     <string name="aclin_logger_menu_delete">删除</string>
     <string name="aclin_logger_menu_delete_tip">确定要删除已选择的日志文件？</string>
+    <string name="aclin_image_crop_ratio_1_1">1:1</string>
+    <string name="aclin_image_crop_ratio_4_3">4:3</string>
+    <string name="aclin_image_crop_ratio_3_4">3:4</string>
+    <string name="aclin_image_crop_ratio_16_9">16:9</string>
+    <string name="aclin_image_crop_ratio_9_16">9:16</string>
+    <string name="aclin_image_crop_ratio_0_0">自定义</string>
 </resources>
