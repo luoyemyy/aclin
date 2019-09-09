@@ -12,7 +12,7 @@ class CropImageView(context: Context, attributeSet: AttributeSet?, defStyleAttr:
     constructor(context: Context, attributeSet: AttributeSet?) : this(context, attributeSet, 0, 0)
     constructor(context: Context) : this(context, null, 0, 0)
 
-    private val mHelp: CropHelp = CropHelp(this)
+    private val mHelp: CropHelper = CropHelper(this)
 
     override fun onTouchEvent(event: MotionEvent?): Boolean {
         return mHelp.onTouchEvent(event)

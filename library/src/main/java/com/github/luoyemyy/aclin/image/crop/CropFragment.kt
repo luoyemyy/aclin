@@ -5,15 +5,17 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.appcompat.app.AlertDialog
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
 import com.github.luoyemyy.aclin.R
 import com.github.luoyemyy.aclin.databinding.AclinImageCropBinding
+import com.github.luoyemyy.aclin.databinding.AclinImageCropRatioCustomBinding
 import com.github.luoyemyy.aclin.fragment.OverrideMenuFragment
 import com.github.luoyemyy.aclin.mvp.AbsPresenter
 import com.github.luoyemyy.aclin.mvp.getPresenter
 
-class CropFragment : OverrideMenuFragment() {
+class CropFragment : OverrideMenuFragment(), View.OnClickListener {
     private lateinit var mPresenter: Presenter
     private lateinit var mBinding: AclinImageCropBinding
 
@@ -24,20 +26,73 @@ class CropFragment : OverrideMenuFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         mPresenter = getPresenter()
         mPresenter.image.observe(this, Observer {
-            mBinding.entity = it
-            mBinding.chipGroup.check(R.id.chip00)
+            mBinding.path = it
         })
-
+        mPresenter.custom.observe(this, Observer {
+            mBinding.customRatio = it
+        })
+        mPresenter.ratio.observe(this, Observer {
+            mBinding.cropView.setMaskRatio(it)
+        })
+        mBinding.apply {
+            chip00.setOnClickListener(this@CropFragment)
+            chip11.setOnClickListener(this@CropFragment)
+            chip169.setOnClickListener(this@CropFragment)
+            chip34.setOnClickListener(this@CropFragment)
+            chip43.setOnClickListener(this@CropFragment)
+            chip916.setOnClickListener(this@CropFragment)
+        }
         mPresenter.setup(arguments)
     }
 
+    override fun onClick(v: View?) {
+        when (v) {
+            mBinding.chip11 -> mPresenter.fixedRatio(1f)
+            mBinding.chip169 -> mPresenter.fixedRatio(16f / 9f)
+            mBinding.chip34 -> mPresenter.fixedRatio(3f / 4f)
+            mBinding.chip43 -> mPresenter.fixedRatio(4f / 3f)
+            mBinding.chip916 -> mPresenter.fixedRatio(9f / 16f)
+            mBinding.chip00 -> {
+                val binding = AclinImageCropRatioCustomBinding.inflate(layoutInflater).apply {
+                    ratioWidth.apply {
+                        minValue = 1
+                        maxValue = 10
+                    }
+                    ratioHeight.apply {
+                        minValue = 1
+                        maxValue = 10
+                    }
+                }
+                AlertDialog.Builder(requireContext())
+                        .setTitle(R.string.aclin_image_crop_ratio_custom_title)
+                        .setView(binding.root)
+                        .setNegativeButton(android.R.string.cancel, null)
+                        .setPositiveButton(android.R.string.ok) { _, _ ->
+                            mPresenter.customRatio(binding.ratioWidth.value, binding.ratioHeight.value)
+                        }.show()
+            }
+        }
+    }
+
     class Presenter(var mApp: Application) : AbsPresenter(mApp) {
-        val image = MutableLiveData<CropImage>()
+        val image = MutableLiveData<String>()
+        val custom = MutableLiveData<String>()
+        val ratio = MutableLiveData<Float>()
 
         override fun setup(bundle: Bundle?) {
-            image.value = bundle?.let {
-                CropImage(R.id.chip11, 1f, it.getString("path", ""))
-            }
+            image.value = bundle?.getString("path")
+            ratio.value = bundle?.getFloat("ratio", 1f)
+            custom.value = mApp.getString(R.string.aclin_image_crop_ratio_0_0)
+        }
+
+        fun fixedRatio(ratioValue: Float) {
+            ratio.value = ratioValue
+            custom.value = mApp.getString(R.string.aclin_image_crop_ratio_0_0)
+        }
+
+        fun customRatio(w: Int, h: Int) {
+            ratio.value = w * 1f / h
+            custom.value = mApp.getString(R.string.aclin_image_crop_ratio_custom_0_0, w, h)
         }
     }
 }

@@ -70,13 +70,17 @@ open class PreviewHelper(private val mImageView: ImageView) {
         }
     }
 
+    open fun nestScroll(): Boolean {
+        return true
+    }
+
     /**
      * 接管事件
      */
     fun onTouchEvent(event: MotionEvent?): Boolean {
         if (event == null) return false
-        when (event.action and MotionEvent.ACTION_MASK) {
-            MotionEvent.ACTION_POINTER_DOWN -> mIsPreview = true
+        if (!nestScroll() || event.action and MotionEvent.ACTION_MASK == MotionEvent.ACTION_POINTER_DOWN) {
+            mIsPreview = true
         }
         mImageView.parent.requestDisallowInterceptTouchEvent(mIsPreview)
         mGestureDetector.onTouchEvent(event)
@@ -145,7 +149,7 @@ open class PreviewHelper(private val mImageView: ImageView) {
         }
     }
 
-    private fun getDrawableRect(): RectF? {
+    protected fun getDrawableRect(): RectF? {
         val dWidth = mImageView.drawable?.intrinsicWidth ?: 0
         val dHeight = mImageView.drawable?.intrinsicHeight ?: 0
         if (dWidth == 0 || dHeight == 0) return null
@@ -324,7 +328,9 @@ open class PreviewHelper(private val mImageView: ImageView) {
                 addListener(object : AnimatorListenerAdapter() {
                     override fun onAnimationEnd(animation: Animator?) {
                         this@ResetAction.isRunning = false
-                        mIsPreview = false
+                        if (nestScroll()) {
+                            mIsPreview = false
+                        }
                     }
                 })
             }

@@ -3,6 +3,7 @@ package com.github.luoyemyy.aclin.mvp
 import android.view.View
 import androidx.annotation.LayoutRes
 import androidx.databinding.ViewDataBinding
+import com.github.luoyemyy.aclin.BR
 
 interface AdapterExt<T : DataItem, B : ViewDataBinding> {
 
@@ -27,7 +28,7 @@ interface AdapterExt<T : DataItem, B : ViewDataBinding> {
      * 绑定主要内容
      */
     fun bindContent(binding: B, item: T, viewType: Int, position: Int) {
-        binding.setVariable(1, item)
+        binding.setVariable(BR.entity, item)
         binding.executePendingBindings()
     }
 

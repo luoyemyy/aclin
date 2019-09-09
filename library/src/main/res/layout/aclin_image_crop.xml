@@ -4,9 +4,19 @@
 
     <data>
 
+        <import type="android.view.View" />
+
         <variable
-            name="entity"
-            type="com.github.luoyemyy.aclin.image.crop.CropImage" />
+            name="path"
+            type="String" />
+
+        <variable
+            name="customRatio"
+            type="String" />
+
+        <variable
+            name="canOp"
+            type="Boolean" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -14,7 +24,8 @@
         android:layout_height="match_parent">
 
         <com.github.luoyemyy.aclin.image.crop.CropImageView
-            aclin_image_url="@{entity.path}"
+            android:id="@+id/cropView"
+            aclin_image_url="@{path}"
             android:layout_width="match_parent"
             android:layout_height="0dp"
             app:layout_constraintBottom_toTopOf="@id/layoutOp"
@@ -26,6 +37,9 @@
             android:id="@+id/layoutOp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:background="@android:color/white"
+            android:scrollbars="none"
+            android:visibility="@{canOp?View.VISIBLE:View.GONE}"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent">
@@ -35,45 +49,49 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:paddingStart="10dp"
-                android:paddingEnd="10dp"
-                app:chipSpacingHorizontal="10dp">
+                android:paddingEnd="10dp">
 
                 <com.google.android.material.chip.Chip
                     android:id="@+id/chip11"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/aclin_image_crop_ratio_1_1" />
+                    android:text="@string/aclin_image_crop_ratio_1_1"
+                    app:chipBackgroundColor="@android:color/white" />
 
                 <com.google.android.material.chip.Chip
                     android:id="@+id/chip43"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/aclin_image_crop_ratio_4_3" />
+                    android:text="@string/aclin_image_crop_ratio_4_3"
+                    app:chipBackgroundColor="@android:color/white" />
 
                 <com.google.android.material.chip.Chip
                     android:id="@+id/chip34"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/aclin_image_crop_ratio_3_4" />
+                    android:text="@string/aclin_image_crop_ratio_3_4"
+                    app:chipBackgroundColor="@android:color/white" />
 
                 <com.google.android.material.chip.Chip
                     android:id="@+id/chip169"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/aclin_image_crop_ratio_16_9" />
+                    android:text="@string/aclin_image_crop_ratio_16_9"
+                    app:chipBackgroundColor="@android:color/white" />
 
                 <com.google.android.material.chip.Chip
                     android:id="@+id/chip916"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/aclin_image_crop_ratio_9_16" />
+                    android:text="@string/aclin_image_crop_ratio_9_16"
+                    app:chipBackgroundColor="@android:color/white" />
 
                 <com.google.android.material.chip.Chip
                     android:id="@+id/chip00"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/aclin_image_crop_ratio_0_0" />
-
+                    android:text="@{customRatio}"
+                    app:chipBackgroundColor="@android:color/white" />
 
             </com.google.android.material.chip.ChipGroup>
         </HorizontalScrollView>
