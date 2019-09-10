@@ -38,6 +38,10 @@ open class PreviewHelper(private val mImageView: ImageView) {
         }
     }
 
+    fun resetMatix(): Matrix {
+        return mResetMatrix
+    }
+
     private fun setMatrixType() {
         val dWidth = mImageView.drawable?.intrinsicWidth ?: 0
         val dHeight = mImageView.drawable?.intrinsicHeight ?: 0
@@ -55,7 +59,7 @@ open class PreviewHelper(private val mImageView: ImageView) {
         return (0..8).all { array1[it] == array2[it] }
     }
 
-    private fun addAction(action: Action) {
+    protected fun addAction(action: Action) {
         mCurrentAction?.apply {
             if (action.canRun(this)) {
                 if (isRunning) {

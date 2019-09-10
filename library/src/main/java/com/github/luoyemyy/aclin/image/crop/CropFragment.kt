@@ -2,25 +2,43 @@ package com.github.luoyemyy.aclin.image.crop
 
 import android.app.Application
 import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
 import androidx.appcompat.app.AlertDialog
+import androidx.core.os.bundleOf
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
+import androidx.navigation.fragment.findNavController
 import com.github.luoyemyy.aclin.R
+import com.github.luoyemyy.aclin.bus.postBus
 import com.github.luoyemyy.aclin.databinding.AclinImageCropBinding
 import com.github.luoyemyy.aclin.databinding.AclinImageCropRatioCustomBinding
 import com.github.luoyemyy.aclin.fragment.OverrideMenuFragment
+import com.github.luoyemyy.aclin.image.picker.gallery.GalleryBuilder
 import com.github.luoyemyy.aclin.mvp.AbsPresenter
 import com.github.luoyemyy.aclin.mvp.getPresenter
 
 class CropFragment : OverrideMenuFragment(), View.OnClickListener {
+
     private lateinit var mPresenter: Presenter
     private lateinit var mBinding: AclinImageCropBinding
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return AclinImageCropBinding.inflate(inflater, container, false).apply { mBinding = this }.root
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        inflater.inflate(R.menu.aclin_image_crop, menu)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when (item.itemId) {
+            R.id.yes -> {
+                mBinding.cropView.crop {
+
+                }
+            }
+        }
+        return super.onOptionsItemSelected(item)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {

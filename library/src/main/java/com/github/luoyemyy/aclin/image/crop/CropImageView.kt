@@ -1,7 +1,9 @@
 package com.github.luoyemyy.aclin.image.crop
 
 import android.content.Context
+import android.graphics.Bitmap
 import android.graphics.Canvas
+import android.graphics.drawable.Drawable
 import android.util.AttributeSet
 import android.view.MotionEvent
 import android.widget.ImageView
@@ -25,5 +27,9 @@ class CropImageView(context: Context, attributeSet: AttributeSet?, defStyleAttr:
 
     fun setMaskRatio(ratio: Float) {
         mHelp.setMaskRatio(ratio)
+    }
+
+    fun crop(failure: ((Throwable?) -> Unit)? = null, success: (Bitmap) -> Unit) {
+        mHelp.crop(failure, success)
     }
 }
