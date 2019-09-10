@@ -2,9 +2,8 @@ package com.github.luoyemyy.aclin.mvp
 
 import android.app.Application
 import android.os.Bundle
-import androidx.lifecycle.AndroidViewModel
 
-abstract class AbsListPresenter(app: Application) : AndroidViewModel(app) {
+abstract class AbsListPresenter(app: Application) : AbsPresenter(app) {
 
     val listLiveData by lazy {
         object : ListLiveData() {
@@ -22,6 +21,10 @@ abstract class AbsListPresenter(app: Application) : AndroidViewModel(app) {
 
     open fun loadData(bundle: Bundle?, paging: Paging, loadType: LoadType): List<DataItem>? {
         return null
+    }
+
+    final override fun loadData(bundle: Bundle?) {
+        listLiveData.loadInit(bundle)
     }
 
 }

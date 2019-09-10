@@ -1,6 +1,7 @@
 package com.github.luoyemyy.aclin.image.picker.gallery
 
 import android.app.Application
+import android.os.Bundle
 import com.github.luoyemyy.aclin.mvp.AbsPresenter
 
 class GalleryPresenter(private var mApp: Application) : AbsPresenter(mApp) {
@@ -18,4 +19,7 @@ class GalleryPresenter(private var mApp: Application) : AbsPresenter(mApp) {
 
     private fun getImageInfo() = mImageInfo ?: calculateImageItemSize(mApp).apply { mImageInfo = this }
 
+    override fun loadData(bundle: Bundle?) {
+
+    }
 }

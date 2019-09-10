@@ -29,13 +29,13 @@ class LoggerInfoFragment : OverrideMenuFragment() {
         mPresenter.textLiveData.observe(this, Observer {
             mBinding.entity = it
         })
-        mPresenter.setup(arguments)
+        mPresenter.loadInit(arguments)
     }
 
     class Presenter(private var mApp: Application) : AbsPresenter(mApp) {
         val textLiveData = MutableLiveData<String>()
 
-        override fun setup(bundle: Bundle?) {
+        override fun loadData(bundle: Bundle?) {
             val path = bundle?.getString("path") ?: return
             runOnThread {
                 File(path).apply {

@@ -6,7 +6,14 @@ import androidx.lifecycle.AndroidViewModel
 
 abstract class AbsPresenter(app: Application) : AndroidViewModel(app) {
 
-    open fun setup(bundle: Bundle?) {
+    private var mInitialized: Boolean = false
 
+    fun loadInit(bundle: Bundle?) {
+        if (!mInitialized) {
+            mInitialized = true
+            loadData(bundle)
+        }
     }
+
+    protected abstract fun loadData(bundle: Bundle?)
 }

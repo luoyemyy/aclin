@@ -163,7 +163,7 @@ open class PreviewHelper(private val mImageView: ImageView) {
         }
     }
 
-    private fun getLimitRect(): RectF {
+    internal open fun getLimitRect(): RectF {
         return RectF(0f, 0f, mVWidth.toFloat(), mVHeight.toFloat())
     }
 

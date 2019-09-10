@@ -4,7 +4,6 @@ package com.github.luoyemyy.aclin.mvp
 
 import android.view.LayoutInflater
 import android.view.MotionEvent
-import android.view.View
 import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
 import androidx.databinding.ViewDataBinding
@@ -151,6 +150,7 @@ abstract class AbsAdapter<T : DataItem, B : ViewDataBinding>(owner: LifecycleOwn
                 onItemViewClick(binding, vh, it)
             }
         }
+        //popup menu
         if (mEnablePopupMenu) {
             binding.root.setOnTouchListener { _, motionEvent ->
                 TouchInfo.touch(motionEvent)
@@ -159,12 +159,12 @@ abstract class AbsAdapter<T : DataItem, B : ViewDataBinding>(owner: LifecycleOwn
         }
         //sort
         if (mEnableSort) {
-            getItemSortView(binding)?.setOnTouchListener(View.OnTouchListener { _, event ->
+            getItemSortView(binding)?.setOnTouchListener { _, event ->
                 if (event.actionMasked == MotionEvent.ACTION_DOWN) {
                     mItemTouchHelper.startDrag(vh)
                 }
-                return@OnTouchListener false
-            })
+                false
+            }
         }
     }
 

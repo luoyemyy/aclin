@@ -34,6 +34,9 @@ class CropFragment : OverrideMenuFragment(), View.OnClickListener {
         mPresenter.ratio.observe(this, Observer {
             mBinding.cropView.setMaskRatio(it)
         })
+        mPresenter.canOp.observe(this, Observer {
+            mBinding.canOp = it
+        })
         mBinding.apply {
             chip00.setOnClickListener(this@CropFragment)
             chip11.setOnClickListener(this@CropFragment)
@@ -42,7 +45,7 @@ class CropFragment : OverrideMenuFragment(), View.OnClickListener {
             chip43.setOnClickListener(this@CropFragment)
             chip916.setOnClickListener(this@CropFragment)
         }
-        mPresenter.setup(arguments)
+        mPresenter.loadInit(arguments)
     }
 
     override fun onClick(v: View?) {
@@ -78,10 +81,12 @@ class CropFragment : OverrideMenuFragment(), View.OnClickListener {
         val image = MutableLiveData<String>()
         val custom = MutableLiveData<String>()
         val ratio = MutableLiveData<Float>()
+        val canOp = MutableLiveData<Boolean>()
 
-        override fun setup(bundle: Bundle?) {
+        override fun loadData(bundle: Bundle?) {
             image.value = bundle?.getString("path")
             ratio.value = bundle?.getFloat("ratio", 1f)
+            canOp.value = bundle?.getBoolean("canOp", true)
             custom.value = mApp.getString(R.string.aclin_image_crop_ratio_0_0)
         }
 

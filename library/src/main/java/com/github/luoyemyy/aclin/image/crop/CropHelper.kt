@@ -9,6 +9,7 @@ import com.github.luoyemyy.aclin.image.preview.PreviewHelper
 
 class CropHelper(private val mImageView: ImageView) : PreviewHelper(mImageView) {
 
+    private val mEmptyRectF = RectF(0f, 0f, 0f, 0f)
     private var mMaskRatio = 1f
     private var mMaskPadding = 0.9f
     private var mMaskColor: Int = 0x80000000.toInt()
@@ -22,6 +23,10 @@ class CropHelper(private val mImageView: ImageView) : PreviewHelper(mImageView) 
 
     override fun nestScroll(): Boolean {
         return false
+    }
+
+    override fun getLimitRect(): RectF {
+        return calculateCropSpace()
     }
 
     fun setMaskRatio(ratio: Float) {
@@ -49,10 +54,10 @@ class CropHelper(private val mImageView: ImageView) : PreviewHelper(mImageView) 
     /**
      * 计算裁剪区域
      */
-    private fun calculateCropSpace(): RectF? {
+    private fun calculateCropSpace(): RectF {
         val vw = mImageView.width * 1f
         val vh = mImageView.height * 1f
-        val dr = if (mImageView.isInEditMode) RectF(0f, 0f, vw, vh) else getDrawableRect() ?: return null
+        val dr = if (mImageView.isInEditMode) RectF(0f, 0f, vw, vh) else getDrawableRect() ?: return mEmptyRectF
         val dw = dr.right
         val dh = dr.bottom
         val dRatio = dw / dh

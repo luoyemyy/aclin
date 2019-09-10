@@ -55,8 +55,7 @@ class PickerFragment : OverrideMenuFragment() {
                 .buildAndCapture()
     }
 
-    inner class Adapter(private var context: Context) :
-            FixedAdapter<TextItem, FragmentListItemBinding>(this, mPresenter.listLiveData) {
+    inner class Adapter(private var context: Context) : FixedAdapter<TextItem, FragmentListItemBinding>(this, mPresenter.listLiveData) {
 
         override fun getContentLayoutId(viewType: Int): Int {
             return R.layout.fragment_list_item
@@ -90,21 +89,16 @@ class PickerFragment : OverrideMenuFragment() {
                 }
             }
         }
-
-
     }
 
-    class Presenter(private var mApp: Application) : AbsPresenter(mApp) {
+    class Presenter(private var mApp: Application) : AbsListPresenter(mApp) {
 
-        val listLiveData = object : ListLiveData() {
-
-            override fun loadData(bundle: Bundle?, paging: Paging, loadType: LoadType): List<DataItem>? {
-                return listOf(
-                    TextItem("gallery"),
-                    TextItem("camera"),
-                    TextItem("gallery/camera")
-                )
-            }
+        override fun loadData(bundle: Bundle?, paging: Paging, loadType: LoadType): List<DataItem>? {
+            return listOf(
+                TextItem("gallery"),
+                TextItem("camera"),
+                TextItem("gallery/camera")
+            )
         }
     }
 }
