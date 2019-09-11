@@ -3,7 +3,6 @@ package com.github.luoyemyy.aclin.image.crop
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Canvas
-import android.graphics.drawable.Drawable
 import android.util.AttributeSet
 import android.view.MotionEvent
 import android.widget.ImageView
@@ -15,6 +14,11 @@ class CropImageView(context: Context, attributeSet: AttributeSet?, defStyleAttr:
     constructor(context: Context) : this(context, null, 0, 0)
 
     private val mHelp: CropHelper = CropHelper(this)
+
+    override fun setImageBitmap(bm: Bitmap?) {
+        scaleType = ScaleType.CENTER_INSIDE
+        super.setImageBitmap(bm)
+    }
 
     override fun onTouchEvent(event: MotionEvent?): Boolean {
         return mHelp.onTouchEvent(event)

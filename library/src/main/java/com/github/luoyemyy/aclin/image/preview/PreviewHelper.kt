@@ -38,10 +38,6 @@ open class PreviewHelper(private val mImageView: ImageView) {
         }
     }
 
-    fun resetMatix(): Matrix {
-        return mResetMatrix
-    }
-
     private fun setMatrixType() {
         val dWidth = mImageView.drawable?.intrinsicWidth ?: 0
         val dHeight = mImageView.drawable?.intrinsicHeight ?: 0
