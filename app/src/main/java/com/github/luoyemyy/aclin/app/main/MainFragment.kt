@@ -61,6 +61,7 @@ class MainFragment : Fragment(), BusResult {
                 "permission" -> findNavController().navigate(R.id.action_mainFragment_to_permissionFragment)
                 "image" -> findNavController().navigate(R.id.action_mainFragment_to_pickerFragment)
                 "logger" -> findNavController().navigate(R.id.action_mainFragment_to_aclin_logger)
+                "qrcode" -> findNavController().navigate(R.id.action_mainFragment_to_qrCodeFragment)
             }
         }
     }
@@ -74,7 +75,8 @@ class MainFragment : Fragment(), BusResult {
                 TextItem("profile:${Profile.active().desc}"),
                 TextItem("permission"),
                 TextItem("image"),
-                TextItem("logger")
+                TextItem("logger"),
+                TextItem("qrcode")
             )
         }
 

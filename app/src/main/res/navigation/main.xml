@@ -26,6 +26,9 @@
         <action
             android:id="@+id/action_mainFragment_to_reversedFragment"
             app:destination="@id/reversedFragment" />
+        <action
+            android:id="@+id/action_mainFragment_to_qrCodeFragment"
+            app:destination="@id/qrCodeFragment" />
 
     </fragment>
     <fragment
@@ -63,5 +66,9 @@
         android:id="@+id/cropFragment"
         android:name="com.github.luoyemyy.aclin.image.crop.CropFragment"
         android:label="CropFragment" />
+    <fragment
+        android:id="@+id/qrCodeFragment"
+        android:name="com.github.luoyemyy.aclin.scan.QrCodeFragment"
+        android:label="QrCodeFragment" />
 
 </navigation>
