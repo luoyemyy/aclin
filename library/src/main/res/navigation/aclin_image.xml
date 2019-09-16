@@ -10,9 +10,16 @@
         <action
             android:id="@+id/action_galleryFragment_to_previewFragment"
             app:destination="@id/previewFragment" />
+        <action
+            android:id="@+id/action_galleryFragment_to_cropFragment"
+            app:destination="@id/cropFragment" />
     </fragment>
     <fragment
         android:id="@+id/previewFragment"
         android:name="com.github.luoyemyy.aclin.image.preview.PreviewFragment"
         android:label="" />
+    <fragment
+        android:id="@+id/cropFragment"
+        android:name="com.github.luoyemyy.aclin.image.crop.CropFragment"
+        android:label="CropFragment" />
 </navigation>

@@ -79,7 +79,7 @@ class GalleryFragment : OverrideMenuFragment() {
         }
         requestPermission(this, requireContext().getString(R.string.aclin_image_picker_gallery_permission_request))
                 .granted {
-                    mPresenter.bucketsLiveData.loadInit(null)
+                    mPresenter.bucketsLiveData.loadInit(arguments)
                 }
                 .denied {
                     PermissionManager.toSetting(this, requireContext().getString(R.string.aclin_image_picker_gallery_permission_failure))

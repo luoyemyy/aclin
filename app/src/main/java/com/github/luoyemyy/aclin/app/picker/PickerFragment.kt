@@ -43,7 +43,8 @@ class PickerFragment : OverrideMenuFragment() {
                     requireContext().toast(it.joinToString(","))
                     findNavController().navigate(R.id.action_pickerFragment_to_cropFragment, bundleOf("path" to it[0]))
                 }
-                .buildAndPicker(R.id.action_pickerFragment_to_aclin_image)
+                .action(R.id.action_pickerFragment_to_aclin_image)
+                .buildAndPicker()
     }
 
     private fun camera() {

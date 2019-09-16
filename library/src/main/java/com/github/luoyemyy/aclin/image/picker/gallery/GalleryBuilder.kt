@@ -19,16 +19,16 @@ class GalleryBuilder private constructor() {
                 GalleryArgs(
                     it.getInt(MIN_SELECT, 1),
                     it.getInt(MAX_SELECT, 9)
-                )
+                           )
             } ?: GalleryArgs(1, 9)
         }
     }
 
     private lateinit var mFragment: Fragment
     private var mGalleryCallback: GalleryCallback? = null
-    private var mActionId: Int = 0
     private var mMin = 1
     private var mMax = 9
+    private var mActionId = 0
 
     constructor(fragment: Fragment) : this() {
         mFragment = fragment
@@ -39,14 +39,18 @@ class GalleryBuilder private constructor() {
         return this
     }
 
+    fun action(actionId: Int): GalleryBuilder {
+        mActionId = actionId
+        return this
+    }
+
     fun selectCount(min: Int, max: Int): GalleryBuilder {
         mMin = min
         mMax = max
         return this
     }
 
-    fun buildAndPicker(actionId: Int) {
-        mActionId = actionId
+    fun buildAndPicker() {
         setBus(mFragment, PICKER_RESULT, BusResult {
             it.extra?.getStringArrayList(PICKER_RESULT)?.apply {
                 mGalleryCallback?.invoke(this)

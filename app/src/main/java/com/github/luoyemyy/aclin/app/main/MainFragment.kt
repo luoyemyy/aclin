@@ -63,9 +63,10 @@ class MainFragment : Fragment(), BusResult {
                 "permission" -> findNavController().navigate(R.id.action_mainFragment_to_permissionFragment)
                 "image" -> findNavController().navigate(R.id.action_mainFragment_to_pickerFragment)
                 "logger" -> findNavController().navigate(R.id.action_mainFragment_to_aclin_logger)
-                "qrcode" -> QrCodeBuilder(this@MainFragment).callback {
-                    requireContext().toast(it)
-                }.buildAndScan(R.id.action_mainFragment_to_qrCodeFragment)
+                "qrcode" -> QrCodeBuilder(this@MainFragment)
+                        .callback { requireContext().toast(it) }
+                        .action(R.id.action_mainFragment_to_qrCodeFragment)
+                        .buildAndScan()
             }
         }
     }

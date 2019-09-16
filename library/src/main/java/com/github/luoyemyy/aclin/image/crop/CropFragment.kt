@@ -4,16 +4,12 @@ import android.app.Application
 import android.os.Bundle
 import android.view.*
 import androidx.appcompat.app.AlertDialog
-import androidx.core.os.bundleOf
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
-import androidx.navigation.fragment.findNavController
 import com.github.luoyemyy.aclin.R
-import com.github.luoyemyy.aclin.bus.postBus
 import com.github.luoyemyy.aclin.databinding.AclinImageCropBinding
 import com.github.luoyemyy.aclin.databinding.AclinImageCropRatioCustomBinding
 import com.github.luoyemyy.aclin.fragment.OverrideMenuFragment
-import com.github.luoyemyy.aclin.image.picker.gallery.GalleryBuilder
 import com.github.luoyemyy.aclin.mvp.AbsPresenter
 import com.github.luoyemyy.aclin.mvp.getPresenter
 
@@ -52,8 +48,8 @@ class CropFragment : OverrideMenuFragment(), View.OnClickListener {
         mPresenter.ratio.observe(this, Observer {
             mBinding.cropView.setMaskRatio(it)
         })
-        mPresenter.canOp.observe(this, Observer {
-            mBinding.canOp = it
+        mPresenter.fixed.observe(this, Observer {
+            mBinding.fixed = it
         })
         mBinding.apply {
             chip00.setOnClickListener(this@CropFragment)
@@ -99,12 +95,16 @@ class CropFragment : OverrideMenuFragment(), View.OnClickListener {
         val image = MutableLiveData<String>()
         val custom = MutableLiveData<String>()
         val ratio = MutableLiveData<Float>()
-        val canOp = MutableLiveData<Boolean>()
+        val fixed = MutableLiveData<Boolean>()
+
+        private lateinit var mCropArgs: CropArgs
 
         override fun loadData(bundle: Bundle?) {
-            image.value = bundle?.getString("path")
+            mCropArgs = CropBuilder.parseCropArgs(bundle)
+
+            image.value = null
             ratio.value = bundle?.getFloat("ratio", 1f)
-            canOp.value = bundle?.getBoolean("canOp", true)
+            fixed.value = mCropArgs.fixedRatio
             custom.value = mApp.getString(R.string.aclin_image_crop_ratio_0_0)
         }
 

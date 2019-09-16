@@ -11,4 +11,11 @@ object GalleryBindingAdapter {
     fun imageUrl(imageView: ImageView, url: String?) {
         Glide.with(imageView).load(url).into(imageView)
     }
+
+    @JvmStatic
+    @BindingAdapter("aclin_image_url_inside")
+    fun imageUrl2(imageView: ImageView, url: String?) {
+        imageView.scaleType = ImageView.ScaleType.CENTER_INSIDE
+        Glide.with(imageView).load(url).into(imageView)
+    }
 }
