@@ -6,8 +6,6 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.core.os.bundleOf
-import androidx.navigation.fragment.findNavController
 import com.github.luoyemyy.aclin.app.R
 import com.github.luoyemyy.aclin.app.databinding.FragmentListBinding
 import com.github.luoyemyy.aclin.app.databinding.FragmentListItemBinding
@@ -15,6 +13,7 @@ import com.github.luoyemyy.aclin.ext.items
 import com.github.luoyemyy.aclin.ext.popupMenu
 import com.github.luoyemyy.aclin.ext.toast
 import com.github.luoyemyy.aclin.fragment.OverrideMenuFragment
+import com.github.luoyemyy.aclin.image.crop.CropBuilder
 import com.github.luoyemyy.aclin.image.picker.camera.CameraBuilder
 import com.github.luoyemyy.aclin.image.picker.gallery.GalleryBuilder
 import com.github.luoyemyy.aclin.mvp.*
@@ -41,7 +40,11 @@ class PickerFragment : OverrideMenuFragment() {
         GalleryBuilder(this)
                 .callback {
                     requireContext().toast(it.joinToString(","))
-                    findNavController().navigate(R.id.action_pickerFragment_to_cropFragment, bundleOf("path" to it[0]))
+                    CropBuilder(this)
+                            .ratio(true, 1f)
+                            .paths(it)
+                            .action(R.id.action_pickerFragment_to_cropFragment)
+                            .buildAndCrop()
                 }
                 .action(R.id.action_pickerFragment_to_aclin_image)
                 .buildAndPicker()

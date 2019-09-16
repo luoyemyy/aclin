@@ -1,6 +1,7 @@
 package com.github.luoyemyy.aclin.image.crop
 
 import android.app.Application
+import android.graphics.Bitmap
 import android.os.Bundle
 import android.view.*
 import androidx.appcompat.app.AlertDialog
@@ -8,10 +9,13 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
 import com.github.luoyemyy.aclin.R
 import com.github.luoyemyy.aclin.databinding.AclinImageCropBinding
+import com.github.luoyemyy.aclin.databinding.AclinImageCropImageBinding
 import com.github.luoyemyy.aclin.databinding.AclinImageCropRatioCustomBinding
+import com.github.luoyemyy.aclin.ext.runOnMain
+import com.github.luoyemyy.aclin.file.FileManager
 import com.github.luoyemyy.aclin.fragment.OverrideMenuFragment
-import com.github.luoyemyy.aclin.mvp.AbsPresenter
-import com.github.luoyemyy.aclin.mvp.getPresenter
+import com.github.luoyemyy.aclin.mvp.*
+import java.io.FileOutputStream
 
 class CropFragment : OverrideMenuFragment(), View.OnClickListener {
 
@@ -30,7 +34,7 @@ class CropFragment : OverrideMenuFragment(), View.OnClickListener {
         when (item.itemId) {
             R.id.yes -> {
                 mBinding.cropView.crop {
-
+                    mPresenter.saveCrop(it)
                 }
             }
         }
@@ -58,6 +62,8 @@ class CropFragment : OverrideMenuFragment(), View.OnClickListener {
             chip34.setOnClickListener(this@CropFragment)
             chip43.setOnClickListener(this@CropFragment)
             chip916.setOnClickListener(this@CropFragment)
+            recyclerView.setupLinear(Adapter(), false)
+            recyclerView.setHasFixedSize(true)
         }
         mPresenter.loadInit(arguments)
     }
@@ -91,31 +97,75 @@ class CropFragment : OverrideMenuFragment(), View.OnClickListener {
         }
     }
 
-    class Presenter(var mApp: Application) : AbsPresenter(mApp) {
+    inner class Adapter : FixedAdapter<CropImage, AclinImageCropImageBinding>(this, mPresenter.listLiveData) {
+        override fun getContentLayoutId(viewType: Int): Int {
+            return R.layout.aclin_image_crop_image
+        }
+
+        override fun onItemViewClick(binding: AclinImageCropImageBinding, vh: VH<*>, view: View) {
+            (getItem(vh.adapterPosition) as? CropImage)?.apply {
+                mPresenter.setCropImage(this)
+            }
+        }
+    }
+
+    class Presenter(var mApp: Application) : AbsListPresenter(mApp) {
         val image = MutableLiveData<String>()
         val custom = MutableLiveData<String>()
         val ratio = MutableLiveData<Float>()
         val fixed = MutableLiveData<Boolean>()
 
         private lateinit var mCropArgs: CropArgs
+        private lateinit var mCropImage: CropImage
 
-        override fun loadData(bundle: Bundle?) {
+        override fun loadData(bundle: Bundle?, paging: Paging, loadType: LoadType): List<DataItem>? {
             mCropArgs = CropBuilder.parseCropArgs(bundle)
+            runOnMain {
+                fixed.value = mCropArgs.fixedRatio
+                if (mCropArgs.images.isNotEmpty()) {
+                    setCropImage(mCropArgs.images[0])
+                }
+            }
+            return mCropArgs.images
+        }
 
-            image.value = null
-            ratio.value = bundle?.getFloat("ratio", 1f)
-            fixed.value = mCropArgs.fixedRatio
-            custom.value = mApp.getString(R.string.aclin_image_crop_ratio_0_0)
+        fun saveCrop(bitmap: Bitmap) {
+            FileManager.getInstance().image()?.apply {
+                FileOutputStream(this).use {
+                    bitmap.compress(Bitmap.CompressFormat.JPEG, 100, it)
+                    nextCropImage(absolutePath)
+                }
+            }
+        }
+
+        fun nextCropImage(cropPath: String) {
+            mCropImage.crop = true
+            mCropImage.cropPath = cropPath
+
+//            var nextImage = mCropA
+
+
+        }
+
+        fun setCropImage(cropImage: CropImage) {
+            mCropImage = cropImage
+            image.value = cropImage.path()
+            ratio.value = cropImage.ratio
+            custom.value = if (mCropImage.customRatio == null) mApp.getString(R.string.aclin_image_crop_ratio_0_0) else mApp.getString(R.string.aclin_image_crop_ratio_custom_0_0, mCropImage.customRatio)
         }
 
         fun fixedRatio(ratioValue: Float) {
+            mCropImage.ratio = ratioValue
+            mCropImage.customRatio = null
             ratio.value = ratioValue
             custom.value = mApp.getString(R.string.aclin_image_crop_ratio_0_0)
         }
 
         fun customRatio(w: Int, h: Int) {
-            ratio.value = w * 1f / h
-            custom.value = mApp.getString(R.string.aclin_image_crop_ratio_custom_0_0, w, h)
+            mCropImage.ratio = w * 1f / h
+            mCropImage.customRatio = "$w:$h"
+            ratio.value = mCropImage.ratio
+            custom.value = mApp.getString(R.string.aclin_image_crop_ratio_custom_0_0, mCropImage.customRatio)
         }
     }
 }

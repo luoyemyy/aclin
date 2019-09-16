@@ -4,8 +4,14 @@
 
     <item
         android:id="@+id/reset"
-        android:icon="@drawable/aclin_ic_check"
-        android:title="@android:string/ok"
+        android:icon="@drawable/aclin_ic_reset"
+        android:title="@string/aclin_image_crop_title"
+        app:showAsAction="always" />
+
+    <item
+        android:id="@+id/crop"
+        android:icon="@drawable/aclin_ic_crop"
+        android:title="@string/aclin_image_crop_title"
         app:showAsAction="always" />
 
     <item
