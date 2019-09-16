@@ -75,13 +75,6 @@ object PermissionManager {
             mRationale = rationale
         }
 
-        constructor(activity: FragmentActivity, rationale: String? = null) : this() {
-            mContext = activity
-            mOwner = activity
-            mActivity = activity
-            mRationale = rationale
-        }
-
         /**
          * 设置授权成功回调
          */

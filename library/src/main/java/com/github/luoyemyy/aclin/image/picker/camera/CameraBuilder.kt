@@ -30,12 +30,6 @@ class CameraBuilder private constructor() {
         mActivity = fragment.requireActivity()
     }
 
-    constructor(activity: FragmentActivity) : this() {
-        mContext = activity
-        mOwner = activity
-        mActivity = activity
-    }
-
     fun callback(callback: CameraCallback): CameraBuilder {
         mCameraCallback = callback
         return this
