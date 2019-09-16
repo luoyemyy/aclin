@@ -14,8 +14,10 @@ import com.github.luoyemyy.aclin.app.databinding.FragmentListItemBinding
 import com.github.luoyemyy.aclin.bus.BusMsg
 import com.github.luoyemyy.aclin.bus.BusResult
 import com.github.luoyemyy.aclin.bus.addBus
+import com.github.luoyemyy.aclin.ext.toast
 import com.github.luoyemyy.aclin.mvp.*
 import com.github.luoyemyy.aclin.profile.Profile
+import com.github.luoyemyy.aclin.scan.QrCodeBuilder
 
 class MainFragment : Fragment(), BusResult {
 
@@ -61,7 +63,9 @@ class MainFragment : Fragment(), BusResult {
                 "permission" -> findNavController().navigate(R.id.action_mainFragment_to_permissionFragment)
                 "image" -> findNavController().navigate(R.id.action_mainFragment_to_pickerFragment)
                 "logger" -> findNavController().navigate(R.id.action_mainFragment_to_aclin_logger)
-                "qrcode" -> findNavController().navigate(R.id.action_mainFragment_to_qrCodeFragment)
+                "qrcode" -> QrCodeBuilder(this@MainFragment).callback {
+                    requireContext().toast(it)
+                }.buildAndScan(R.id.action_mainFragment_to_qrCodeFragment)
             }
         }
     }
@@ -77,7 +81,7 @@ class MainFragment : Fragment(), BusResult {
                 TextItem("image"),
                 TextItem("logger"),
                 TextItem("qrcode")
-            )
+                         )
         }
 
         fun updateProfile() {

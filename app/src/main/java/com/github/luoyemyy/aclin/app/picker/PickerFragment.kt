@@ -39,12 +39,11 @@ class PickerFragment : OverrideMenuFragment() {
 
     private fun gallery() {
         GalleryBuilder(this)
-                .actionId(R.id.action_pickerFragment_to_aclin_image)
                 .callback {
                     requireContext().toast(it.joinToString(","))
                     findNavController().navigate(R.id.action_pickerFragment_to_cropFragment, bundleOf("path" to it[0]))
                 }
-                .buildAndPicker()
+                .buildAndPicker(R.id.action_pickerFragment_to_aclin_image)
     }
 
     private fun camera() {
@@ -98,7 +97,7 @@ class PickerFragment : OverrideMenuFragment() {
                 TextItem("gallery"),
                 TextItem("camera"),
                 TextItem("gallery/camera")
-            )
+                         )
         }
     }
 }
