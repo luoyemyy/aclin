@@ -8,7 +8,7 @@ import com.github.luoyemyy.aclin.bus.setBus
 class QrCodeBuilder private constructor() {
 
     companion object {
-        const val SCAN_PERCENT = 0.65f
+        const val SCAN_PERCENT = 0.75f
         const val QR_CODE_RESULT = "qr_code_result"
     }
 

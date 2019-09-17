@@ -5,9 +5,12 @@ import android.graphics.Bitmap
 import android.os.Bundle
 import android.view.*
 import androidx.appcompat.app.AlertDialog
+import androidx.core.os.bundleOf
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
+import androidx.navigation.fragment.findNavController
 import com.github.luoyemyy.aclin.R
+import com.github.luoyemyy.aclin.bus.postBus
 import com.github.luoyemyy.aclin.databinding.AclinImageCropBinding
 import com.github.luoyemyy.aclin.databinding.AclinImageCropImageBinding
 import com.github.luoyemyy.aclin.databinding.AclinImageCropRatioCustomBinding
@@ -33,7 +36,8 @@ class CropFragment : OverrideMenuFragment(), View.OnClickListener {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             R.id.yes -> {
-
+                postBus(CropBuilder.CROP_RESULT, extra = bundleOf(CropBuilder.CROP_RESULT to mPresenter.allCropPaths()))
+                findNavController().navigateUp()
             }
             R.id.crop -> {
                 mBinding.cropView.crop {
@@ -48,7 +52,7 @@ class CropFragment : OverrideMenuFragment(), View.OnClickListener {
     }
 
     override fun onPrepareOptionsMenu(menu: Menu) {
-        menu.findItem(R.id.yes).isVisible = mPresenter.allCrop()
+        menu.findItem(R.id.yes).isVisible = mPresenter.isAllCrop()
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -152,6 +156,10 @@ class CropFragment : OverrideMenuFragment(), View.OnClickListener {
             return mCropArgs.images
         }
 
+        fun allCropPaths(): ArrayList<String> {
+            return mCropArgs.images.mapTo(arrayListOf()) { it.cropPath!! }
+        }
+
         fun reset() {
             menu.value = true
             mCropImage.crop = false
@@ -168,7 +176,7 @@ class CropFragment : OverrideMenuFragment(), View.OnClickListener {
             }
         }
 
-        fun allCrop(): Boolean {
+        fun isAllCrop(): Boolean {
             return if (this::mCropImage.isInitialized) {
                 mCropArgs.images.all { it.crop }
             } else false
