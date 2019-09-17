@@ -18,6 +18,7 @@
         android:id="@+id/yes"
         android:icon="@drawable/aclin_ic_check"
         android:title="@android:string/yes"
+        android:visible="false"
         app:showAsAction="always" />
 
 </menu>

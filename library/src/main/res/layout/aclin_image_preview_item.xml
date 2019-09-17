@@ -9,7 +9,7 @@
     </data>
 
     <com.github.luoyemyy.aclin.image.preview.PreviewImageView
-        aclin_image_url_inside="@{entity.text}"
+        aclin_image_url_preview="@{entity.text}"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 </layout>

@@ -150,7 +150,7 @@ class CropHelper(private val mImageView: ImageView) : PreviewHelper(mImageView) 
             } finally {
                 runOnMain {
                     cropBitmap?.apply {
-                        mImageView.setImageBitmap(this)
+//                        mImageView.setImageBitmap(this)
                         success(this)
                     } ?: let { failure?.invoke(null) }
                 }

@@ -23,7 +23,7 @@ abstract class AbsListPresenter(app: Application) : AbsPresenter(app) {
         return null
     }
 
-    final override fun loadData(bundle: Bundle?) {
+    override fun loadData(bundle: Bundle?) {
         listLiveData.loadInit(bundle)
     }
 

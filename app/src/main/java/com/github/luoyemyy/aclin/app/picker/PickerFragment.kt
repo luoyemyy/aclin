@@ -41,7 +41,7 @@ class PickerFragment : OverrideMenuFragment() {
                 .callback {
                     requireContext().toast(it.joinToString(","))
                     CropBuilder(this)
-                            .ratio(true, 1f)
+                            .ratio(false, 1f)
                             .paths(it)
                             .action(R.id.action_pickerFragment_to_cropFragment)
                             .buildAndCrop()

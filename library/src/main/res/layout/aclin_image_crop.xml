@@ -26,7 +26,7 @@
 
         <com.github.luoyemyy.aclin.image.crop.CropImageView
             android:id="@+id/cropView"
-            aclin_image_url="@{path}"
+            aclin_image_url_crop="@{path}"
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:scaleType="centerInside"
@@ -45,7 +45,7 @@
             app:layout_constraintBottom_toTopOf="@id/recyclerView"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
-            tools:visibility="gone">
+            tools:visibility="visible">
 
             <LinearLayout
                 android:id="@+id/chipGroup"
@@ -104,6 +104,7 @@
             android:id="@+id/recyclerView"
             android:layout_width="match_parent"
             android:layout_height="100dp"
+            android:visibility="gone"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintLeft_toLeftOf="parent" />
     </androidx.constraintlayout.widget.ConstraintLayout>
