@@ -51,7 +51,7 @@ class ListFragment : OverrideMenuFragment() {
 
     class Presenter(private var mApp: Application) : AbsListPresenter(mApp) {
 
-        override fun loadData(bundle: Bundle?, paging: Paging, loadType: LoadType): List<DataItem>? {
+        override fun loadListData(bundle: Bundle?, paging: Paging, loadType: LoadType): List<DataItem>? {
             var random = Random.nextInt(9)
             if (random > 3) {
                 random = 9

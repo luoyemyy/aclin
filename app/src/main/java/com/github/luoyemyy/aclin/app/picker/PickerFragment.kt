@@ -96,7 +96,7 @@ class PickerFragment : OverrideMenuFragment() {
 
     class Presenter(private var mApp: Application) : AbsListPresenter(mApp) {
 
-        override fun loadData(bundle: Bundle?, paging: Paging, loadType: LoadType): List<DataItem>? {
+        override fun loadListData(bundle: Bundle?, paging: Paging, loadType: LoadType): List<DataItem>? {
             return listOf(
                 TextItem("gallery"),
                 TextItem("camera"),

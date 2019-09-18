@@ -54,7 +54,7 @@ class PreviewFragment : OverrideMenuFragment() {
         var defaultPosition: Int = 0
         var count: Int = 0
 
-        override fun loadData(bundle: Bundle?, paging: Paging, loadType: LoadType): List<DataItem>? {
+        override fun loadListData(bundle: Bundle?, paging: Paging, loadType: LoadType): List<DataItem>? {
             defaultPosition = bundle?.getInt("current", 0) ?: 0
             return bundle?.getStringArrayList("paths")?.map { TextItem(it) }?.apply {
                 count = size

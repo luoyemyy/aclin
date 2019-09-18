@@ -152,7 +152,7 @@ class CropFragment : OverrideMenuFragment(), View.OnClickListener {
             }
         }
 
-        override fun loadData(bundle: Bundle?, paging: Paging, loadType: LoadType): List<DataItem>? {
+        override fun loadListData(bundle: Bundle?, paging: Paging, loadType: LoadType): List<DataItem>? {
             return mCropArgs.images
         }
 

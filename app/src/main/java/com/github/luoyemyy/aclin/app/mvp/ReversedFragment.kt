@@ -44,7 +44,7 @@ class ReversedFragment : OverrideMenuFragment() {
 
     class Presenter(private var mApp: Application) : AbsListPresenter(mApp) {
 
-        override fun loadData(bundle: Bundle?, paging: Paging, loadType: LoadType): List<DataItem>? {
+        override fun loadListData(bundle: Bundle?, paging: Paging, loadType: LoadType): List<DataItem>? {
             val length = if (paging.current() < 3L) 10 else 4
             return (0 until length).map { TextItem(Random.nextDouble().toString()) }
         }
