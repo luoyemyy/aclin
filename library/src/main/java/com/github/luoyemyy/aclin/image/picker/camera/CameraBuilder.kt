@@ -18,8 +18,6 @@ class CameraBuilder private constructor() {
         private var mRequestCode = 1
     }
 
-    private var mCameraCallback: CameraCallback? = null
-
     private lateinit var mContext: Context
     private lateinit var mOwner: LifecycleOwner
     private lateinit var mActivity: FragmentActivity
@@ -30,18 +28,13 @@ class CameraBuilder private constructor() {
         mActivity = fragment.requireActivity()
     }
 
-    fun callback(callback: CameraCallback): CameraBuilder {
-        mCameraCallback = callback
-        return this
-    }
-
-    fun buildAndCapture() {
+    fun buildAndCapture(callback: CameraCallback) {
 
         FileManager.getInstance().image("image_${Date().time}")?.apply {
             mRequestCode++
             CameraFragment.injectIfNeededIn(mActivity)
             mActivity.getPresenter<CameraPresenter>().apply {
-                response.observe(mOwner, ResponseObserver(mRequestCode, response, mCameraCallback ?: {}))
+                response.observe(mOwner, ResponseObserver(mRequestCode, response, callback))
                 request.postValue(Request(mRequestCode, absolutePath))
             }
         } ?: run {

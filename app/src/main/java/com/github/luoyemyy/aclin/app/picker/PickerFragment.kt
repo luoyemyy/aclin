@@ -38,7 +38,8 @@ class PickerFragment : OverrideMenuFragment() {
 
     private fun gallery() {
         GalleryBuilder(this)
-                .callback {
+                .action(R.id.action_pickerFragment_to_aclin_image)
+                .buildAndPicker {
                     requireContext().toast(it.joinToString(","))
                     CropBuilder(this)
                             .ratio(false, 1f)
@@ -46,16 +47,13 @@ class PickerFragment : OverrideMenuFragment() {
                             .action(R.id.action_pickerFragment_to_cropFragment)
                             .buildAndCrop()
                 }
-                .action(R.id.action_pickerFragment_to_aclin_image)
-                .buildAndPicker()
     }
 
     private fun camera() {
         CameraBuilder(this)
-                .callback {
+                .buildAndCapture {
                     requireContext().toast(it)
                 }
-                .buildAndCapture()
     }
 
     inner class Adapter(private var context: Context) : FixedAdapter<TextItem, FragmentListItemBinding>(this, mPresenter.listLiveData) {

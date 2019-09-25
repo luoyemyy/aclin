@@ -25,18 +25,12 @@ class GalleryBuilder private constructor() {
     }
 
     private lateinit var mFragment: Fragment
-    private var mGalleryCallback: GalleryCallback? = null
     private var mMin = 1
     private var mMax = 9
     private var mActionId = 0
 
     constructor(fragment: Fragment) : this() {
         mFragment = fragment
-    }
-
-    fun callback(callback: GalleryCallback): GalleryBuilder {
-        mGalleryCallback = callback
-        return this
     }
 
     fun action(actionId: Int): GalleryBuilder {
@@ -50,10 +44,10 @@ class GalleryBuilder private constructor() {
         return this
     }
 
-    fun buildAndPicker() {
+    fun buildAndPicker(callback: GalleryCallback) {
         setBus(mFragment, PICKER_RESULT, BusResult {
             it.extra?.getStringArrayList(PICKER_RESULT)?.apply {
-                mGalleryCallback?.invoke(this)
+                callback(this)
             }
         })
         mFragment.findNavController().navigate(mActionId, bundleOf(MIN_SELECT to mMin, MAX_SELECT to mMax))

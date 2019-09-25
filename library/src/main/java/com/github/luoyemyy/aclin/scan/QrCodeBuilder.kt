@@ -13,27 +13,22 @@ class QrCodeBuilder private constructor() {
     }
 
     private lateinit var mFragment: Fragment
-    private var mQrCodeCallback: QrCodeCallback? = null
     private var mActionId = 0
 
     constructor(fragment: Fragment) : this() {
         mFragment = fragment
     }
 
-    fun callback(callback: QrCodeCallback): QrCodeBuilder {
-        mQrCodeCallback = callback
-        return this
-    }
 
     fun action(actionId: Int): QrCodeBuilder {
         mActionId = actionId
         return this
     }
 
-    fun buildAndScan() {
+    fun buildAndScan(callback: QrCodeCallback) {
         setBus(mFragment, QR_CODE_RESULT, BusResult {
             it.extra?.getString(QR_CODE_RESULT)?.apply {
-                mQrCodeCallback?.invoke(this)
+                callback(this)
             }
         })
         mFragment.findNavController().navigate(mActionId)
