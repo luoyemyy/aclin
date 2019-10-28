@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.arch.core.executor.ArchTaskExecutor
 import androidx.camera.core.*
 import androidx.core.os.bundleOf
 import androidx.navigation.fragment.findNavController
@@ -30,8 +31,8 @@ class QrCodeFragment : OverrideMenuFragment(), ImageAnalysis.Analyzer, Preview.O
         val preview = Preview(PreviewConfig.Builder().build())
         val analysis = ImageAnalysis(ImageAnalysisConfig.Builder().build())
 
-        preview.onPreviewOutputUpdateListener = this
-        analysis.analyzer = this
+        preview.setOnPreviewOutputUpdateListener(this)
+        analysis.setAnalyzer(ArchTaskExecutor.getIOThreadExecutor(), this)
 
         CameraX.bindToLifecycle(this, preview, analysis)
 
@@ -49,8 +50,8 @@ class QrCodeFragment : OverrideMenuFragment(), ImageAnalysis.Analyzer, Preview.O
         }
     }
 
-    override fun onUpdated(output: Preview.PreviewOutput?) {
-        mBinding.cameraView.surfaceTexture = output?.surfaceTexture
+    override fun onUpdated(output: Preview.PreviewOutput) {
+        mBinding.cameraView.surfaceTexture = output.surfaceTexture
     }
 
     class Presenter(private var mApp: Application) : AbsPresenter(mApp) {

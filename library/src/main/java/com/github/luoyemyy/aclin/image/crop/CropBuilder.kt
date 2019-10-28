@@ -20,8 +20,8 @@ class CropBuilder private constructor() {
         const val RATIO = "ratio"
         const val CROP_RESULT = "crop_result"
 
-        internal fun parseCropArgs(bundle: Bundle?): CropArgs {
-            return bundle?.let { bundle ->
+        internal fun parseCropArgs(args: Bundle?): CropArgs {
+            return args?.let { bundle ->
                 val ratio = bundle.getFloat(RATIO, 1f)
                 val fixed = bundle.getBoolean(RATIO_FIXED, false)
                 val images = bundle.getStringArrayList(PATHS)?.map { CropImage(it, ratio) } ?: listOf()

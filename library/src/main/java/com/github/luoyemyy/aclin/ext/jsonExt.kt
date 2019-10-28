@@ -15,11 +15,11 @@ import java.util.*
 //*************************************************************************************/
 
 fun String?.stringToJsonObject(): JsonObject? {
-    return if (this.isNullOrEmpty()) null else JsonExt.jsonParser.parse(this).asJsonObject
+    return if (this.isNullOrEmpty()) null else JsonParser.parseString(this).asJsonObject
 }
 
 fun String?.toJsonArray(): JsonArray? {
-    return if (this.isNullOrEmpty()) null else JsonExt.jsonParser.parse(this).asJsonArray
+    return if (this.isNullOrEmpty()) null else JsonParser.parseString(this).asJsonArray
 }
 
 inline fun <reified T> String?.toObject(): T? {
@@ -28,12 +28,12 @@ inline fun <reified T> String?.toObject(): T? {
 
 inline fun <reified T> String?.toList(): List<T>? {
     return if (this.isNullOrEmpty()) null
-    else JsonExt.json.fromJson<List<T>>(JsonExt.jsonParser.parse(this), JsonExt.ArrayListType(T::class.java))
+    else JsonExt.json.fromJson<List<T>>(JsonParser.parseString(this), JsonExt.ArrayListType(T::class.java))
 }
 
 inline fun <reified T> String?.toLinkedList(): List<T>? {
     return if (this.isNullOrEmpty()) null
-    else JsonExt.json.fromJson<List<T>>(JsonExt.jsonParser.parse(this), JsonExt.LinkedListType(T::class.java))
+    else JsonExt.json.fromJson<List<T>>(JsonParser.parseString(this), JsonExt.LinkedListType(T::class.java))
 }
 
 //*************************************************************************************/
@@ -75,7 +75,6 @@ fun JsonObject.addArray(key: String, list: List<*>): JsonObject {
 object JsonExt {
 
     val json: Gson = GsonBuilder().setDateFormat("yyyy-MM-dd HH:mm:ss").create()
-    val jsonParser = JsonParser()
 
     class ArrayListType constructor(private val clazz: Class<*>) : ParameterizedType {
 
