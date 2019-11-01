@@ -29,9 +29,9 @@ fun <T : DataItem> getDiffCallback() = object : DiffUtil.ItemCallback<T>() {
     }
 }
 
-inline fun <reified T : AndroidViewModel> FragmentActivity.getPresenter(): T = defaultViewModelProviderFactory.create(T::class.java)
+inline fun <reified T : AndroidViewModel> FragmentActivity.getPresenter(): T = ViewModelProviders.of(this).get(T::class.java)
 
-inline fun <reified T : AndroidViewModel> Fragment.getPresenter(): T = defaultViewModelProviderFactory.create(T::class.java)
+inline fun <reified T : AndroidViewModel> Fragment.getPresenter(): T = ViewModelProviders.of(this).get(T::class.java)
 
 fun RecyclerView.setupLinear(adapter: RecyclerView.Adapter<*>,
                              vertical: Boolean = true,
