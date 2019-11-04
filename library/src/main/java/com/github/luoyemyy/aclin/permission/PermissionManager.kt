@@ -119,6 +119,8 @@ object PermissionManager {
             mRationale?.apply {
                 mActivity.confirm(title = mActivity.getString(R.string.aclin_permission_request_title), message = this, ok = {
                     request(allPerms, notGrantedPerms)
+                }, cancel = {
+                    mDeniedCallback?.invoke(notGrantedPerms)
                 })
             }
         }

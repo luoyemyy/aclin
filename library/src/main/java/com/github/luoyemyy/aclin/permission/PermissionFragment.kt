@@ -15,7 +15,7 @@ class PermissionFragment : Fragment(), Observer<PermissionManager.Request> {
         fun injectIfNeededIn(activity: FragmentActivity) {
             val manager = activity.supportFragmentManager
             if (manager.findFragmentByTag(PERMISSION_FRAGMENT_TAG) == null) {
-                manager.beginTransaction().add(PermissionFragment(), PERMISSION_FRAGMENT_TAG).commit()
+                manager.beginTransaction().add(com.github.luoyemyy.aclin.permission.PermissionFragment(), PERMISSION_FRAGMENT_TAG).commit()
                 manager.executePendingTransactions()
             }
         }
@@ -32,7 +32,7 @@ class PermissionFragment : Fragment(), Observer<PermissionManager.Request> {
     override fun onChanged(value: PermissionManager.Request?) {
         value?.apply {
             if (!notGrantedPerms.isNullOrEmpty()) {
-                requestPermissions(notGrantedPerms, id)
+                requestPermissions(notGrantedPerms, requestCode)
             }
         }
     }
