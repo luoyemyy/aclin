@@ -24,9 +24,9 @@ object PermissionManager {
 
     fun toSetting(activity: FragmentActivity, msg: String) {
         activity.apply {
-            confirm(getString(R.string.aclin_permission_failure_title), msg, R.string.aclin_permission_to_setting) {
+            confirm(title = getString(R.string.aclin_permission_failure_title), message = msg, okText = R.string.aclin_permission_to_setting, ok = {
                 toSetting(this)
-            }
+            })
         }
     }
 
