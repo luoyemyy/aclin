@@ -117,9 +117,9 @@ object PermissionManager {
 
         private fun confirmRequest(allPerms: Array<String>, notGrantedPerms: Array<String>) {
             mRationale?.apply {
-                mActivity.confirm(mActivity.getString(R.string.aclin_permission_request_title), this) {
+                mActivity.confirm(title = mActivity.getString(R.string.aclin_permission_request_title), message = this, ok = {
                     request(allPerms, notGrantedPerms)
-                }
+                })
             }
         }
 
