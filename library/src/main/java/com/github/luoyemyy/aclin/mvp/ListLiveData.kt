@@ -6,10 +6,7 @@ import androidx.annotation.WorkerThread
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
-import io.reactivex.Single
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.disposables.Disposable
-import io.reactivex.schedulers.Schedulers
+import com.github.luoyemyy.aclin.ext.runOnThread
 
 open class ListLiveData : MutableLiveData<DataItemChange>() {
 
@@ -18,7 +15,6 @@ open class ListLiveData : MutableLiveData<DataItemChange>() {
     private val mDataSet by lazy { DataSet() }
     private val mPaging by lazy { Paging.Page() }
     private val mLoadType = LoadType()
-    private var mDisposable: Disposable? = null
 
     internal fun observeRefresh(owner: LifecycleOwner, observer: Observer<Boolean>) {
         refreshLiveData.removeObservers(owner)
@@ -136,29 +132,21 @@ open class ListLiveData : MutableLiveData<DataItemChange>() {
     }
 
     private fun loadDataBase(bundle: Bundle? = null) {
-        if (loadData(bundle, mPaging, mLoadType) { ok, items -> loadDataAfter(ok, items) }) {
-            return
+        runOnThread {
+            try {
+                loadDataAfter(true, loadData(bundle, mPaging, mLoadType) ?: listOf())
+            } catch (error: Throwable) {
+                loadDataAfter(true, listOf())
+            }
         }
-        mDisposable = Single
-                .create<List<DataItem>> {
-                    it.onSuccess(loadData(bundle, mPaging, mLoadType) ?: listOf())
-                }
-                .subscribeOn(Schedulers.newThread())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe { items, error ->
-                    loadDataAfter(error == null, items)
-                }
     }
-
-    @MainThread
-    open fun loadData(bundle: Bundle? = null, paging: Paging, loadType: LoadType, loadDataAfter: LoadDataAfter<DataItem>): Boolean = false
 
     @WorkerThread
     open fun loadData(bundle: Bundle? = null, paging: Paging, loadType: LoadType): List<DataItem>? = null
 
     fun itemSortMove(start: Int, end: Int): Boolean {
         return value?.data?.let {
-            val range = 0 until it.size
+            val range = it.indices
             val startItem = if (start in range) it[start] else null
             val endItem = if (end in range) it[end] else null
             mDataSet.move(startItem, endItem)?.let { list ->

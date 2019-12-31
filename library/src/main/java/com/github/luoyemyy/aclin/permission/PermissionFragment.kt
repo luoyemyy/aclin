@@ -15,7 +15,7 @@ class PermissionFragment : Fragment(), Observer<PermissionManager.Request> {
         fun injectIfNeededIn(activity: FragmentActivity) {
             val manager = activity.supportFragmentManager
             if (manager.findFragmentByTag(PERMISSION_FRAGMENT_TAG) == null) {
-                manager.beginTransaction().add(com.github.luoyemyy.aclin.permission.PermissionFragment(), PERMISSION_FRAGMENT_TAG).commit()
+                manager.beginTransaction().add(PermissionFragment(), PERMISSION_FRAGMENT_TAG).commit()
                 manager.executePendingTransactions()
             }
         }

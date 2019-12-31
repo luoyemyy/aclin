@@ -1,9 +1,8 @@
 package com.github.luoyemyy.aclin.bus
 
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
 import androidx.annotation.MainThread
+import com.github.luoyemyy.aclin.ext.runImmediate
 
 /**
  *
@@ -11,7 +10,6 @@ import androidx.annotation.MainThread
 object Bus {
 
     private val mCallbacks = mutableListOf<Callback>()
-    private val mHandler = Handler(Looper.getMainLooper())
 
     private val mDebugListeners = mutableListOf<BusDebugListener>()
 
@@ -57,7 +55,7 @@ object Bus {
      * 派发消息
      */
     fun post(event: String, intValue: Int = 0, longValue: Long = 0L, boolValue: Boolean = false, stringValue: String? = null, extra: Bundle? = null) {
-        mHandler.post {
+        runImmediate {
             BusMsg(event, intValue, longValue, boolValue, stringValue, extra).apply {
                 mCallbacks.filter { it.interceptEvent() == event }.apply { debugOnPost(event, this) }.forEach { it.busResult(this) }
             }

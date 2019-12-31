@@ -12,7 +12,7 @@ import java.lang.Boolean.TRUE
 
 typealias QrCodeCallback = (String) -> Unit
 
-internal fun parse(image: ImageProxy?): String? {
+internal fun parseQrCode(image: ImageProxy?): String? {
     if (image != null && image.planes != null && image.planes.isNotEmpty()) {
         val y = image.planes[0].buffer
         val ya = ByteArray(y.limit() - y.position())

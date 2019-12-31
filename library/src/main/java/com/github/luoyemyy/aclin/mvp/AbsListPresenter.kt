@@ -10,14 +10,8 @@ abstract class AbsListPresenter(app: Application) : AbsPresenter(app) {
             override fun loadData(bundle: Bundle?, paging: Paging, loadType: LoadType): List<DataItem>? {
                 return loadListData(bundle, paging, loadType)
             }
-
-            override fun loadData(bundle: Bundle?, paging: Paging, loadType: LoadType, loadDataAfter: LoadDataAfter<DataItem>): Boolean {
-                return loadListData(bundle, paging, loadType, loadDataAfter)
-            }
         }
     }
-
-    open fun loadListData(bundle: Bundle?, paging: Paging, loadType: LoadType, loadDataAfter: LoadDataAfter<DataItem>): Boolean = false
 
     open fun loadListData(bundle: Bundle?, paging: Paging, loadType: LoadType): List<DataItem>? {
         return null

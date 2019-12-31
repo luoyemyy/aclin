@@ -5,7 +5,6 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.arch.core.executor.ArchTaskExecutor
 import androidx.camera.core.*
 import androidx.core.os.bundleOf
 import androidx.navigation.fragment.findNavController
@@ -31,8 +30,8 @@ class QrCodeFragment : OverrideMenuFragment(), ImageAnalysis.Analyzer, Preview.O
         val preview = Preview(PreviewConfig.Builder().build())
         val analysis = ImageAnalysis(ImageAnalysisConfig.Builder().build())
 
-        preview.setOnPreviewOutputUpdateListener(this)
-        analysis.setAnalyzer(ArchTaskExecutor.getIOThreadExecutor(), this)
+        preview.onPreviewOutputUpdateListener = this
+        analysis.analyzer = this
 
         CameraX.bindToLifecycle(this, preview, analysis)
 
@@ -41,7 +40,7 @@ class QrCodeFragment : OverrideMenuFragment(), ImageAnalysis.Analyzer, Preview.O
 
     override fun analyze(image: ImageProxy?, rotationDegrees: Int) {
         if (mPresenter.nextAnalyze()) {
-            val content = parse(image)
+            val content = parseQrCode(image)
             if (content != null) {
                 logd("QrCodeFragment", content)
                 postBus(QrCodeBuilder.QR_CODE_RESULT, extra = bundleOf(QrCodeBuilder.QR_CODE_RESULT to content))

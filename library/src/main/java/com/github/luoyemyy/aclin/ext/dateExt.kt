@@ -5,13 +5,9 @@ package com.github.luoyemyy.aclin.ext
 import java.text.SimpleDateFormat
 import java.util.*
 
-/**
- * date
- */
-
 fun Date?.formatDate(sdf: SimpleDateFormat = DateExt.sdfymd()): String? = if (this == null) null else sdf.format(this)
 
-fun Date?.formatDateTime(): String? = this.formatDate(DateExt.sdfymdhms())
+fun Date?.formatDateTime(): String? = this?.formatDate(DateExt.sdfymdhms())
 
 fun String?.parseDate(sdf: SimpleDateFormat = DateExt.sdfymd()): Date? = if (this.isNullOrEmpty()) null else sdf.parse(this)
 
