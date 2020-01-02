@@ -1,7 +1,11 @@
 package com.github.luoyemyy.aclin.mvp2
 
 
-class DataItem<T>() {
+open class DataItem<T>() {
+
+    constructor(data: T?) : this() {
+        this.data = data
+    }
 
     var type: Int = 0
     var data: T? = null
@@ -20,22 +24,20 @@ class DataItem<T>() {
         mUsePayload = true
     }
 
-    fun areItemsTheSame(oldData: T): Boolean {
-        return this.data == oldData
+    fun areItemsTheSame(oldItem: DataItem<T>): Boolean {
+        return this.type == oldItem.type && this.data == oldItem.data
     }
 
-    fun areContentsTheSame(oldData: T): Boolean {
+    fun areContentsTheSame(oldItem: DataItem<T>): Boolean {
         return !mUsePayload
     }
 
-    fun getChangePayload(oldData: T): Any? {
+    fun getChangePayload(oldItem: DataItem<T>): Any? {
         return if (mUsePayload) {
             mUsePayload = false
             Any()
         } else null
     }
-
-
 
 }
 

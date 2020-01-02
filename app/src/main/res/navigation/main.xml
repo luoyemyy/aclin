@@ -29,6 +29,9 @@
         <action
             android:id="@+id/action_mainFragment_to_qrCodeFragment"
             app:destination="@id/qrCodeFragment" />
+        <action
+            android:id="@+id/action_mainFragment_to_pagingFragment"
+            app:destination="@id/pagingFragment" />
 
     </fragment>
     <fragment
@@ -70,5 +73,9 @@
         android:id="@+id/qrCodeFragment"
         android:name="com.github.luoyemyy.aclin.scan.QrCodeFragment"
         android:label="QrCodeFragment" />
+    <fragment
+        android:id="@+id/pagingFragment"
+        android:name="com.github.luoyemyy.aclin.app.paging.PagingFragment"
+        android:label="PagingFragment" />
 
 </navigation>

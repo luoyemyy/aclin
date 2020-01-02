@@ -57,12 +57,13 @@ class MainFragment : Fragment(), BusResult {
         override fun onItemViewClick(binding: FragmentListItemBinding, vh: VH<*>, view: View) {
             val item = getItem(vh.adapterPosition) as? TextItem ?: return
             when (item.text.split(":")[0]) {
-                "list" -> findNavController().navigate(R.id.action_mainFragment_to_mvpFragment)
-                "list-reversed" -> findNavController().navigate(R.id.action_mainFragment_to_reversedFragment)
+                "itemList" -> findNavController().navigate(R.id.action_mainFragment_to_mvpFragment)
+                "itemList-reversed" -> findNavController().navigate(R.id.action_mainFragment_to_reversedFragment)
                 "profile" -> findNavController().navigate(R.id.action_mainFragment_to_profileFragment)
                 "permission" -> findNavController().navigate(R.id.action_mainFragment_to_permissionFragment)
                 "image" -> findNavController().navigate(R.id.action_mainFragment_to_pickerFragment)
                 "logger" -> findNavController().navigate(R.id.action_mainFragment_to_aclin_logger)
+                "paging" -> findNavController().navigate(R.id.action_mainFragment_to_pagingFragment)
                 "qrcode" -> QrCodeBuilder(this@MainFragment)
                         .action(R.id.action_mainFragment_to_qrCodeFragment)
                         .buildAndScan { requireContext().toast(it) }
@@ -74,12 +75,13 @@ class MainFragment : Fragment(), BusResult {
 
         override fun loadListData(bundle: Bundle?, paging: Paging, loadType: LoadType): List<DataItem>? {
             return listOf(
-                TextItem("list"),
-                TextItem("list-reversed"),
+                TextItem("itemList"),
+                TextItem("itemList-reversed"),
                 TextItem("profile:${Profile.active().desc}"),
                 TextItem("permission"),
                 TextItem("image"),
                 TextItem("logger"),
+                TextItem("paging"),
                 TextItem("qrcode")
                          )
         }
