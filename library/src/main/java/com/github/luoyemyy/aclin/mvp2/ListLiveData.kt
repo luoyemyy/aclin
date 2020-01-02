@@ -43,7 +43,7 @@ open class ListLiveData<T>(transform: (T) -> DataItem<T>) : MutableLiveData<List
 
     @MainThread
     fun loadMore() {
-        if (mDataSet.isMoreEnd()) {
+        if (mInitiated.get() && mDataSet.isMoreEnd()) {
             return
         }
         if (mLoading.compareAndSet(false, true)) {

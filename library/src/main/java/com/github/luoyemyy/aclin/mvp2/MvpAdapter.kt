@@ -5,7 +5,9 @@ import android.view.ViewGroup
 import androidx.databinding.ViewDataBinding
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.Observer
+import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import com.github.luoyemyy.aclin.databinding.*
 import com.github.luoyemyy.aclin.mvp.VH
 
@@ -13,6 +15,7 @@ abstract class MvpAdapter<T, BIND : ViewDataBinding>(owner: LifecycleOwner, priv
 
     private var mEnableMore: Boolean = true
     private var mReversed: Boolean = false
+    private var mRecyclerView: RecyclerView? = null
     private val mDiffer: MvpDiffer<T> = MvpDiffer(this)
     private val mUpdateListener: MvpDiffer.UpdateListener<T> = object : MvpDiffer.UpdateListener<T> {
         override fun onCurrentListChanged(oldList: List<DataItem<T>>?, newList: List<DataItem<T>>?) {
@@ -32,6 +35,14 @@ abstract class MvpAdapter<T, BIND : ViewDataBinding>(owner: LifecycleOwner, priv
         } else {
             VH(getContentBinding(viewType, parent))
         }
+    }
+
+    override fun onAttachedToRecyclerView(recyclerView: RecyclerView) {
+        mRecyclerView = recyclerView
+    }
+
+    override fun onDetachedFromRecyclerView(recyclerView: RecyclerView) {
+        mRecyclerView = null
     }
 
     override fun onBindViewHolder(holder: VH<ViewDataBinding>, position: Int) {
@@ -59,12 +70,20 @@ abstract class MvpAdapter<T, BIND : ViewDataBinding>(owner: LifecycleOwner, priv
 
     private fun tryLoadMore() {
         if (mEnableMore) {
-
-//            if (mReversed && position == 0) {
-//                mLiveData.loadMore()
-//            } else if (!mReversed && position == itemCount - 1) {
-//                mLiveData.loadMore()
-//            }
+            val position = mRecyclerView?.layoutManager.let {
+                when (it) {
+                    is LinearLayoutManager -> if (mReversed) it.findFirstVisibleItemPosition() else it.findLastVisibleItemPosition()
+                    is StaggeredGridLayoutManager -> IntArray(it.spanCount).let { array ->
+                        if (mReversed) it.findFirstVisibleItemPositions(array).firstOrNull() ?: -1 else it.findLastVisibleItemPositions(array).lastOrNull() ?: -1
+                    }
+                    else -> -1
+                }
+            }
+            if (mReversed && position == 0) {
+                mLiveData.loadMore()
+            } else if (!mReversed && position == itemCount - 1) {
+                mLiveData.loadMore()
+            }
         }
     }
 
