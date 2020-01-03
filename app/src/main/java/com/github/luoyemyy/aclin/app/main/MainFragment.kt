@@ -35,7 +35,7 @@ class MainFragment : Fragment(), BusResult {
             swipeRefreshLayout.setup(mPresenter.listLiveData)
         }
         addBus(this, BusEvent.PROFILE_CHANGE, this)
-        mPresenter.listLiveData.loadInit(arguments)
+        mPresenter.loadInit(arguments)
     }
 
     override fun busResult(msg: BusMsg) {
@@ -44,19 +44,22 @@ class MainFragment : Fragment(), BusResult {
         }
     }
 
-    inner class Adapter : FixedAdapter<TextItem, FragmentListItemBinding>(this, mPresenter.listLiveData) {
+    inner class Adapter : FixedAdapter<String, FragmentListItemBinding>(this, mPresenter.listLiveData) {
 
-        override fun getContentLayoutId(viewType: Int): Int {
-            return R.layout.fragment_list_item
+        override fun getContentBinding(viewType: Int, parent: ViewGroup): FragmentListItemBinding {
+            return FragmentListItemBinding.inflate(layoutInflater, parent, false)
         }
 
-        override fun setRefreshState(refreshing: Boolean) {
-            mBinding.swipeRefreshLayout.isRefreshing = refreshing
+        override fun bindContentViewHolder(binding: FragmentListItemBinding, data: String?, viewType: Int, position: Int) {
+            binding.apply {
+                entity = data
+                executePendingBindings()
+            }
         }
 
         override fun onItemViewClick(binding: FragmentListItemBinding, vh: VH<*>, view: View) {
-            val item = getItem(vh.adapterPosition) as? TextItem ?: return
-            when (item.text.split(":")[0]) {
+            val text = getItem(vh.adapterPosition) ?: return
+            when (text.split(":")[0]) {
                 "itemList" -> findNavController().navigate(R.id.action_mainFragment_to_mvpFragment)
                 "itemList-reversed" -> findNavController().navigate(R.id.action_mainFragment_to_reversedFragment)
                 "profile" -> findNavController().navigate(R.id.action_mainFragment_to_profileFragment)
@@ -71,26 +74,29 @@ class MainFragment : Fragment(), BusResult {
         }
     }
 
-    class Presenter(private var mApp: Application) : AbsListPresenter(mApp) {
+    class Presenter(app: Application) : MvpPresenter(app) {
 
-        override fun loadListData(bundle: Bundle?, paging: Paging, loadType: LoadType): List<DataItem>? {
-            return listOf(
-                TextItem("itemList"),
-                TextItem("itemList-reversed"),
-                TextItem("profile:${Profile.active().desc}"),
-                TextItem("permission"),
-                TextItem("image"),
-                TextItem("logger"),
-                TextItem("paging"),
-                TextItem("qrcode")
-                         )
+        val listLiveData = ListLiveData<String> { DataItem(it) }
+
+        override fun loadData(bundle: Bundle?) {
+            val list = listOf(
+                "itemList",
+                "itemList-reversed",
+                "profile:${Profile.active().desc}",
+                "permission",
+                "image",
+                "logger",
+                "paging",
+                "qrcode"
+                             )
+            listLiveData.loadStart(list)
         }
 
         fun updateProfile() {
             listLiveData.itemChange { items, _ ->
                 items?.forEach {
-                    if (it is TextItem && it.text.startsWith("profile")) {
-                        it.text = "profile:${Profile.active().desc}"
+                    if (it.data?.startsWith("profile") == true) {
+                        it.data = "profile:${Profile.active().desc}"
                         it.hasPayload()
                     }
                 }

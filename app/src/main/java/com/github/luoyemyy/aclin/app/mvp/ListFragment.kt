@@ -1,7 +1,6 @@
 package com.github.luoyemyy.aclin.app.mvp
 
 import android.app.Application
-import android.content.Context
 import android.os.Bundle
 import android.view.*
 import com.github.luoyemyy.aclin.app.R
@@ -23,10 +22,10 @@ class ListFragment : OverrideMenuFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         mPresenter = getPresenter()
         mBinding.apply {
-            recyclerView.setupLinear(Adapter(requireContext()))
+            recyclerView.setupLinear(Adapter())
             swipeRefreshLayout.setup(mPresenter.listLiveData)
         }
-        mPresenter.listLiveData.loadInit(arguments)
+        mPresenter.loadInit(arguments)
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
@@ -34,29 +33,46 @@ class ListFragment : OverrideMenuFragment() {
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        mPresenter.listLiveData.loadSearch(null)
+        mPresenter.listLiveData.loadStart(forceLoad = true)
         return super.onOptionsItemSelected(item)
     }
 
-    inner class Adapter(private var context: Context) : AbsAdapter<TextItem, FragmentListItemBinding>(this, mPresenter.listLiveData) {
+    inner class Adapter : MvpAdapter<String, FragmentListItemBinding>(this, mPresenter.listLiveData) {
 
-        override fun getContentLayoutId(viewType: Int): Int {
-            return R.layout.fragment_list_item
+        override fun getContentBinding(viewType: Int, parent: ViewGroup): FragmentListItemBinding {
+            return FragmentListItemBinding.inflate(layoutInflater, parent, false)
         }
 
-        override fun setRefreshState(refreshing: Boolean) {
-            mBinding.swipeRefreshLayout.isRefreshing = refreshing
+        override fun bindContentViewHolder(binding: FragmentListItemBinding, data: String?, viewType: Int, position: Int) {
+            binding.apply {
+                entity = data
+                executePendingBindings()
+            }
         }
     }
 
-    class Presenter(private var mApp: Application) : AbsListPresenter(mApp) {
+    class Presenter(app: Application) : MvpPresenter(app) {
 
-        override fun loadListData(bundle: Bundle?, paging: Paging, loadType: LoadType): List<DataItem>? {
-            var random = Random.nextInt(9)
-            if (random > 3) {
-                random = 9
+        val listLiveData = object : ListLiveData<String>({ DataItem(it) }) {
+            override fun getStartData(): List<String>? {
+                var random = Random.nextInt(9)
+                if (random > 3) {
+                    random = 9
+                }
+                return (0..random).map { Random.nextDouble().toString() }
             }
-            return (0..random).map { TextItem(Random.nextDouble().toString()) }
+
+            override fun getMoreData(): List<String>? {
+                var random = Random.nextInt(9)
+                if (random > 3) {
+                    random = 9
+                }
+                return (0..random).map { Random.nextDouble().toString() }
+            }
+        }
+
+        override fun loadData(bundle: Bundle?) {
+            listLiveData.loadStart()
         }
     }
 }

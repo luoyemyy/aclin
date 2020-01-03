@@ -1,175 +1,99 @@
 package com.github.luoyemyy.aclin.mvp
 
-import android.os.Bundle
 import androidx.annotation.MainThread
 import androidx.annotation.WorkerThread
-import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.Observer
 import com.github.luoyemyy.aclin.ext.runOnThread
+import java.util.concurrent.atomic.AtomicBoolean
 
-open class ListLiveData : MutableLiveData<DataItemChange>() {
+open class ListLiveData<T>(transform: (T) -> DataItem<T>) : MutableLiveData<List<DataItem<T>>>() {
 
-    private val refreshLiveData = MutableLiveData<Boolean>()
+    private val mDataSet = DataSet(transform)
+    private val mLoadStart = AtomicBoolean(false)
+    private val mLoading = AtomicBoolean(false)
 
-    private val mDataSet by lazy { DataSet() }
-    private val mPaging by lazy { Paging.Page() }
-    private val mLoadType = LoadType()
-
-    internal fun observeRefresh(owner: LifecycleOwner, observer: Observer<Boolean>) {
-        refreshLiveData.removeObservers(owner)
-        refreshLiveData.observe(owner, observer)
+    init {
+        value = mDataSet.itemList()
     }
 
-    internal fun observeChange(owner: LifecycleOwner, observer: Observer<DataItemChange>) {
-        removeObservers(owner)
-        observe(owner, observer)
-    }
-
-    internal fun configDataSet(callback: (dataSet: DataSet) -> Unit) {
-        callback(mDataSet)
-    }
-
-    internal fun configPaging(callback: (paging: Paging) -> Unit) {
-        callback(mPaging)
-    }
-
-    open fun loadInitBefore(bundle: Bundle?) {
-        postValue(DataItemChange(mDataSet.setDataLoading(), true))
-        mPaging.reset()
-    }
-
-    open fun loadRefreshBefore(refreshStyle: Boolean) {
-        refreshLiveData.value = refreshStyle
-        mPaging.reset()
-    }
-
-    open fun loadSearchBefore(search: Bundle?) {
-        postValue(DataItemChange(mDataSet.setDataLoading(), true))
-        mPaging.reset()
-    }
-
-    open fun loadMoreBefore() {
-        mPaging.next()
-    }
-
-    @MainThread
-    fun loadInit(bundle: Bundle? = null) {
-        if (mDataSet.canLoadInit() && mLoadType.init()) {
-            loadInitBefore(bundle)
-            loadDataBase(bundle)
+    fun config(enableMore: Boolean, reversed: Boolean) {
+        mDataSet.also {
+            it.enableMore = enableMore
+            it.reversed = reversed
         }
     }
 
     @MainThread
-    fun loadRefresh(refreshStyle: Boolean = true) {
-        if (mLoadType.refresh()) {
-            loadRefreshBefore(refreshStyle)
-            loadDataBase()
-        } else {
-            refreshLiveData.value = false
-        }
-    }
-
-    @MainThread
-    fun loadSearch(search: Bundle? = null) {
-        if (mLoadType.search()) {
-            loadSearchBefore(search)
-            loadDataBase(search)
+    fun loadStart(startData: List<T>? = null, forceLoad: Boolean = false) {
+        if (mLoadStart.compareAndSet(false, true) || forceLoad) {
+            if (mLoading.compareAndSet(false, true)) {
+                if (!startData.isNullOrEmpty()) {
+                    postValue(mDataSet.addStartData(startData))
+                    mLoading.set(false)
+                } else {
+                    runOnThread {
+                        try {
+                            postValue(mDataSet.addStartData(getStartData()))
+                        } catch (e: Throwable) {
+                            postValue(mDataSet.setStartFail())
+                        } finally {
+                            mLoading.set(false)
+                        }
+                    }
+                }
+            }
         }
     }
 
     @MainThread
     fun loadMore() {
-        if (mDataSet.canLoadMore() && mLoadType.more()) {
-            loadMoreBefore()
-            loadDataBase()
+        if (!mLoadStart.get() || mDataSet.isMoreEnd()) { //没有加载过第一页数据 或者 已加载全部数据 ，则跳过
+            return
         }
-    }
-
-    open fun loadInitAfter(ok: Boolean, items: List<DataItem>): List<DataItem> {
-        return if (ok) {
-            mDataSet.setDataSuccess(items)
-        } else {
-            mDataSet.setDataFailure()
-        }
-    }
-
-    open fun loadRefreshAfter(ok: Boolean, items: List<DataItem>): List<DataItem> {
-        refreshLiveData.value = false
-        return if (ok) {
-            mDataSet.setDataSuccess(items)
-        } else {
-            mDataSet.setDataFailure()
-        }
-    }
-
-    open fun loadSearchAfter(ok: Boolean, items: List<DataItem>): List<DataItem> {
-        return if (ok) {
-            mDataSet.setDataSuccess(items)
-        } else {
-            mDataSet.setDataFailure()
-        }
-    }
-
-    open fun loadMoreAfter(ok: Boolean, items: List<DataItem>): List<DataItem> {
-        return if (ok) {
-            mDataSet.addDataSuccess(items)
-        } else {
-            mPaging.errorBack()
-            mDataSet.addDataFailure()
-        }
-    }
-
-    open fun loadDataAfter(ok: Boolean, items: List<DataItem>) {
-        when {
-            mLoadType.isInit() -> postValue(DataItemChange(loadInitAfter(ok, items), true))
-            mLoadType.isRefresh() -> postValue(DataItemChange(loadRefreshAfter(ok, items), true))
-            mLoadType.isSearch() -> postValue(DataItemChange(loadSearchAfter(ok, items), true))
-            mLoadType.isMore() -> postValue(DataItemChange(loadMoreAfter(ok, items), false))
-        }
-        mLoadType.complete()
-    }
-
-    private fun loadDataBase(bundle: Bundle? = null) {
-        runOnThread {
-            try {
-                loadDataAfter(true, loadData(bundle, mPaging, mLoadType) ?: listOf())
-            } catch (error: Throwable) {
-                loadDataAfter(true, listOf())
+        if (mLoading.compareAndSet(false, true)) {
+            runOnThread {
+                try {
+                    postValue(mDataSet.addMoreData(getMoreData()))
+                } catch (e: Throwable) {
+                    postValue(mDataSet.setMoreFail())
+                } finally {
+                    mLoading.set(false)
+                }
             }
         }
     }
 
     @WorkerThread
-    open fun loadData(bundle: Bundle? = null, paging: Paging, loadType: LoadType): List<DataItem>? = null
+    open fun getStartData(): List<T>? {
+        return null
+    }
+
+    @WorkerThread
+    open fun getMoreData(): List<T>? {
+        return null
+    }
 
     fun itemSortMove(start: Int, end: Int): Boolean {
-        return value?.data?.let {
-            val range = it.indices
-            val startItem = if (start in range) it[start] else null
-            val endItem = if (end in range) it[end] else null
-            mDataSet.move(startItem, endItem)?.let { list ->
-                postValue(DataItemChange(list))
-                true
-            } ?: false
+        return mDataSet.move(start, end)?.let {
+            postValue(it)
+            true
         } ?: false
     }
 
     open fun itemSortEnd() {}
 
-    fun itemChange(change: ItemCallback = { _, _ -> true }) {
-        itemUpdateBase(change)
+    fun itemList(): List<DataItem<T>>? {
+        return mDataSet.lastItemList
     }
 
-    fun itemDelete(delete: ItemCallback = { _, _ -> true }) {
-        itemUpdateBase(delete)
+    fun dataList(): MutableList<T> {
+        return mDataSet.dataList
     }
 
-    private fun itemUpdateBase(base: ItemCallback) {
-        val items = value?.data
-        if (base(items, mDataSet)) {
-            postValue(DataItemChange(mDataSet.getDataList()))
+    fun itemChange(callback: (itemList: List<DataItem<T>>?, dataList: MutableList<T>) -> Boolean) {
+        if (callback(itemList(), dataList())) {
+            postValue(mDataSet.itemList())
         }
     }
+
 }

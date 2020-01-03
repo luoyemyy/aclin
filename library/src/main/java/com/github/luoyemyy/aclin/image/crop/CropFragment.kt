@@ -76,7 +76,7 @@ class CropFragment : OverrideMenuFragment(), View.OnClickListener {
             mBinding.recyclerView.show()
             mBinding.recyclerView.setupLinear(Adapter(), false)
             mBinding.recyclerView.setHasFixedSize(true)
-            mPresenter.listLiveData.loadInit()
+            mPresenter.loadInit(arguments)
         })
         mBinding.apply {
             chip00.setOnClickListener(this@CropFragment)
@@ -119,8 +119,16 @@ class CropFragment : OverrideMenuFragment(), View.OnClickListener {
     }
 
     inner class Adapter : FixedAdapter<CropImage, AclinImageCropImageBinding>(this, mPresenter.listLiveData) {
-        override fun getContentLayoutId(viewType: Int): Int {
-            return R.layout.aclin_image_crop_image
+
+        override fun bindContentViewHolder(binding: AclinImageCropImageBinding, data: CropImage?, viewType: Int, position: Int) {
+            binding.apply {
+                entity = entity
+                executePendingBindings()
+            }
+        }
+
+        override fun getContentBinding(viewType: Int, parent: ViewGroup): AclinImageCropImageBinding {
+            return AclinImageCropImageBinding.inflate(layoutInflater, parent, false)
         }
 
         override fun onItemViewClick(binding: AclinImageCropImageBinding, vh: VH<*>, view: View) {
@@ -130,13 +138,15 @@ class CropFragment : OverrideMenuFragment(), View.OnClickListener {
         }
     }
 
-    class Presenter(var mApp: Application) : AbsListPresenter(mApp) {
+    class Presenter(var mApp: Application) : MvpPresenter(mApp) {
         val image = MutableLiveData<String>()
         val custom = MutableLiveData<String>()
         val ratio = MutableLiveData<Float>()
         val fixed = MutableLiveData<Boolean>()
         val menu = MutableLiveData<Boolean>()
         val list = MutableLiveData<Boolean>()
+
+        val listLiveData = ListLiveData<CropImage>({ DataItem(it) })
 
         private lateinit var mCropArgs: CropArgs
         private lateinit var mCropImage: CropImage
@@ -150,10 +160,7 @@ class CropFragment : OverrideMenuFragment(), View.OnClickListener {
             if (mCropArgs.images.size > 1) {
                 list.value = true
             }
-        }
-
-        override fun loadListData(bundle: Bundle?, paging: Paging, loadType: LoadType): List<DataItem>? {
-            return mCropArgs.images
+            listLiveData.loadStart(mCropArgs.images)
         }
 
         fun allCropPaths(): ArrayList<String> {

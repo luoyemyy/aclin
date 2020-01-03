@@ -3,17 +3,18 @@ package com.github.luoyemyy.aclin.mvp
 import android.app.Application
 import android.os.Bundle
 import androidx.lifecycle.AndroidViewModel
+import java.util.concurrent.atomic.AtomicBoolean
 
-abstract class AbsPresenter(app: Application) : AndroidViewModel(app) {
+abstract class MvpPresenter(app: Application) : AndroidViewModel(app) {
 
-    private var mInitialized: Boolean = false
+    private val mInit = AtomicBoolean(false)
 
     fun loadInit(bundle: Bundle?) {
-        if (!mInitialized) {
-            mInitialized = true
+        if (mInit.compareAndSet(false, true)) {
             loadData(bundle)
         }
     }
 
     protected abstract fun loadData(bundle: Bundle?)
+
 }

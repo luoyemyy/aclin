@@ -12,7 +12,7 @@ import com.github.luoyemyy.aclin.bus.postBus
 import com.github.luoyemyy.aclin.databinding.AclinScanBinding
 import com.github.luoyemyy.aclin.fragment.OverrideMenuFragment
 import com.github.luoyemyy.aclin.logger.logd
-import com.github.luoyemyy.aclin.mvp.AbsPresenter
+import com.github.luoyemyy.aclin.mvp.MvpPresenter
 import com.github.luoyemyy.aclin.mvp.getPresenter
 
 class QrCodeFragment : OverrideMenuFragment(), ImageAnalysis.Analyzer, Preview.OnPreviewOutputUpdateListener {
@@ -53,7 +53,7 @@ class QrCodeFragment : OverrideMenuFragment(), ImageAnalysis.Analyzer, Preview.O
         mBinding.cameraView.surfaceTexture = output.surfaceTexture
     }
 
-    class Presenter(private var mApp: Application) : AbsPresenter(mApp) {
+    class Presenter(app: Application) : MvpPresenter(app) {
 
         private var mLastAnalyzeTime = System.currentTimeMillis()
 

@@ -1,8 +1,6 @@
 package com.github.luoyemyy.aclin.image.crop
 
-import com.github.luoyemyy.aclin.mvp.DataItem
-
-class CropImage(val srcPath: String, var ratio: Float = 1f, var customRatio: String? = null, var cropPath: String? = null, var crop: Boolean = false) : DataItem() {
+class CropImage(val srcPath: String, var ratio: Float = 1f, var customRatio: String? = null, var cropPath: String? = null, var crop: Boolean = false) {
 
     fun path(): String? {
         return if (crop) cropPath else srcPath

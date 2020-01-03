@@ -5,11 +5,11 @@
 
         <variable
             name="entity"
-            type="com.github.luoyemyy.aclin.mvp.TextItem" />
+            type="String" />
     </data>
 
     <com.github.luoyemyy.aclin.image.preview.PreviewImageView
-        aclin_image_url_preview="@{entity.text}"
+        aclin_image_url_preview="@{entity}"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 </layout>

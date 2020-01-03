@@ -11,11 +11,9 @@ import com.github.luoyemyy.aclin.ext.runOnMain
 import com.github.luoyemyy.aclin.ext.toast
 import com.github.luoyemyy.aclin.mvp.DataItem
 import com.github.luoyemyy.aclin.mvp.ListLiveData
-import com.github.luoyemyy.aclin.mvp.LoadType
-import com.github.luoyemyy.aclin.mvp.Paging
 import java.io.File
 
-class BucketLiveData(private val mApp: Application) : ListLiveData() {
+class BucketLiveData(private val mApp: Application) : ListLiveData<Bucket>({ DataItem(it) }) {
 
     companion object {
         const val BUCKET_ALL = "bucketAll"
@@ -24,21 +22,21 @@ class BucketLiveData(private val mApp: Application) : ListLiveData() {
 
     private var mBuckets: MutableList<Bucket> = mutableListOf()
     private var mBucketMap: MutableMap<String, Bucket> = mutableMapOf()
-    private var mGalleryArgs = GalleryBuilder.parseGalleryArgs(null)
+    private lateinit var mGalleryArgs: GalleryArgs
 
     val menuLiveData = MutableLiveData<Boolean>()
     val selectBucketLiveData = MutableLiveData<Bucket>()
 
-    val imageLiveData = object : ListLiveData() {
-        override fun loadData(bundle: Bundle?, paging: Paging, loadType: LoadType): List<DataItem>? {
-            return selectBucketLiveData.value?.let { mBucketMap[it.id]?.images }
-        }
-    }
+    val imageLiveData = ListLiveData<Image> { DataItem(it) }
 
     private val mContentObserver = object : ContentObserver(Handler()) {
         override fun onChange(selfChange: Boolean) {
-            loadRefresh()
+            loadStart(forceLoad = true)
         }
+    }
+
+    fun setArgs(bundle: Bundle?) {
+        mGalleryArgs = GalleryBuilder.parseGalleryArgs(bundle)
     }
 
     override fun onActive() {
@@ -49,10 +47,7 @@ class BucketLiveData(private val mApp: Application) : ListLiveData() {
         mApp.contentResolver.unregisterContentObserver(mContentObserver)
     }
 
-    override fun loadData(bundle: Bundle?, paging: Paging, loadType: LoadType): List<DataItem>? {
-        if (loadType.isInit()) {
-            mGalleryArgs = GalleryBuilder.parseGalleryArgs(bundle)
-        }
+    override fun getStartData(): List<Bucket>? {
         load()
         return mBuckets
     }
@@ -99,8 +94,12 @@ class BucketLiveData(private val mApp: Application) : ListLiveData() {
 
     private fun updateSelectImages() {
         mBucketMap[BUCKET_SELECT]?.images = mBucketMap[BUCKET_ALL]?.images?.filterTo(mutableListOf()) { it.select } ?: mutableListOf()
-        itemChange { _, _ ->
-            mBucketMap[BUCKET_SELECT]?.hasPayload()
+        itemChange { items, _ ->
+            items?.forEach {
+                if (it.data == mBucketMap[BUCKET_SELECT]) {
+                    it.hasPayload()
+                }
+            }
             true
         }
     }
@@ -111,24 +110,26 @@ class BucketLiveData(private val mApp: Application) : ListLiveData() {
      */
     fun selectBucket(bucket: Bucket?, updateBuckets: Boolean = true) {
         var select = bucket ?: mBucketMap[BUCKET_ALL] ?: return
-        itemChange { _, _ ->
-            mBuckets.forEach {
-                if (it.id == select.id) {
-                    select = it
-                    if (!it.select) {
-                        it.select = true
+        itemChange { itemList, _ ->
+            itemList?.forEach {
+                it.data?.apply {
+                    if (this.id == select.id) {
+                        select = this
+                        if (!this.select) {
+                            this.select = true
+                            it.hasPayload()
+                        }
+                    } else if (this.id != select.id && this.select) {
+                        this.select = false
                         it.hasPayload()
                     }
-                } else if (it.id != select.id && it.select) {
-                    it.select = false
-                    it.hasPayload()
                 }
             }
             updateBuckets
         }
         selectBucketLiveData.postValue(select)
         runOnMain {
-            imageLiveData.loadRefresh()
+            imageLiveData.loadStart(select.images, forceLoad = true)
         }
     }
 
@@ -140,7 +141,7 @@ class BucketLiveData(private val mApp: Application) : ListLiveData() {
             "mime_type like '%image/jp%' and _size > 0 ",
             null,
             "date_added DESC"
-        )
+                                             )
 
         val buckets = mutableListOf<Bucket>()
         val bucketMap = mutableMapOf<String, Bucket>()

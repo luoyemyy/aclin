@@ -6,7 +6,6 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import com.github.luoyemyy.aclin.app.R
 import com.github.luoyemyy.aclin.app.databinding.FragmentListBinding
 import com.github.luoyemyy.aclin.app.databinding.FragmentListItemBinding
 import com.github.luoyemyy.aclin.fragment.OverrideMenuFragment
@@ -28,25 +27,37 @@ class ReversedFragment : OverrideMenuFragment() {
             recyclerView.setupLinear(Adapter(requireContext()))
             swipeRefreshLayout.isEnabled = false
         }
-        mPresenter.listLiveData.loadInit(arguments)
+        mPresenter.loadInit(arguments)
     }
 
-    inner class Adapter(private var context: Context) : ReversedAdapter<TextItem, FragmentListItemBinding>(this, mPresenter.listLiveData) {
+    inner class Adapter(private var context: Context) : ReversedAdapter<String, FragmentListItemBinding>(this, mPresenter.listLiveData) {
 
-        override fun getContentLayoutId(viewType: Int): Int {
-            return R.layout.fragment_list_item
+        override fun getContentBinding(viewType: Int, parent: ViewGroup): FragmentListItemBinding {
+            return FragmentListItemBinding.inflate(layoutInflater, parent, false)
         }
 
-        override fun setRefreshState(refreshing: Boolean) {
-            mBinding.swipeRefreshLayout.isRefreshing = refreshing
+        override fun bindContentViewHolder(binding: FragmentListItemBinding, data: String?, viewType: Int, position: Int) {
+            binding.apply {
+                entity = data
+                executePendingBindings()
+            }
         }
     }
 
-    class Presenter(private var mApp: Application) : AbsListPresenter(mApp) {
+    class Presenter(app: Application) : MvpPresenter(app) {
 
-        override fun loadListData(bundle: Bundle?, paging: Paging, loadType: LoadType): List<DataItem>? {
-            val length = if (paging.current() < 3L) 10 else 4
-            return (0 until length).map { TextItem(Random.nextDouble().toString()) }
+        val listLiveData = object : ListLiveData<String>({ DataItem(it) }) {
+            override fun getStartData(): List<String>? {
+                return (0 until 10).map { (Random.nextDouble().toString()) }
+            }
+
+            override fun getMoreData(): List<String>? {
+                return (0 until 5).map { (Random.nextDouble().toString()) }
+            }
+        }
+
+        override fun loadData(bundle: Bundle?) {
+            listLiveData.loadStart()
         }
     }
 }

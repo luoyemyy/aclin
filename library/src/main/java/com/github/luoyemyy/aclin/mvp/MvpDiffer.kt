@@ -1,4 +1,4 @@
-package com.github.luoyemyy.aclin.mvp2
+package com.github.luoyemyy.aclin.mvp
 
 import androidx.databinding.ViewDataBinding
 import androidx.recyclerview.widget.AdapterListUpdateCallback
@@ -7,7 +7,6 @@ import androidx.recyclerview.widget.ListUpdateCallback
 import androidx.recyclerview.widget.RecyclerView
 import com.github.luoyemyy.aclin.ext.runOnMain
 import com.github.luoyemyy.aclin.ext.runOnThread
-import com.github.luoyemyy.aclin.mvp.VH
 import java.util.concurrent.CopyOnWriteArrayList
 
 class MvpDiffer<T>(adapter: RecyclerView.Adapter<VH<ViewDataBinding>>) {

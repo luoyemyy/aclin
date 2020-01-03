@@ -5,9 +5,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.core.view.ViewCompat
 import androidx.viewpager2.widget.ViewPager2
-import com.github.luoyemyy.aclin.R
 import com.github.luoyemyy.aclin.databinding.AclinImagePreviewBinding
 import com.github.luoyemyy.aclin.databinding.AclinImagePreviewItemBinding
 import com.github.luoyemyy.aclin.ext.runOnMain
@@ -34,31 +32,39 @@ class PreviewFragment : OverrideMenuFragment() {
                 }
             })
         }
-        mPresenter.listLiveData.loadInit(arguments)
+        mPresenter.loadInit(arguments)
     }
 
-    inner class Adapter : FixedAdapter<TextItem, AclinImagePreviewItemBinding>(this, mPresenter.listLiveData) {
-        override fun getContentLayoutId(viewType: Int): Int {
-            return R.layout.aclin_image_preview_item
+    inner class Adapter : FixedAdapter<String, AclinImagePreviewItemBinding>(this, mPresenter.listLiveData) {
+        override fun bindContentViewHolder(binding: AclinImagePreviewItemBinding, data: String?, viewType: Int, position: Int) {
+            binding.apply {
+                entity = data
+                executePendingBindings()
+            }
         }
 
-        override fun onCurrentListChanged(previousList: MutableList<DataItem>, currentList: MutableList<DataItem>) {
+        override fun getContentBinding(viewType: Int, parent: ViewGroup): AclinImagePreviewItemBinding {
+            return AclinImagePreviewItemBinding.inflate(layoutInflater, parent, false)
+        }
+
+        override fun onCurrentListChanged(oldList: List<DataItem<String>>?, newList: List<DataItem<String>>?) {
             runOnMain {
                 mBinding.viewPager.setCurrentItem(mPresenter.defaultPosition, false)
             }
         }
     }
 
-    class Presenter(var mApp: Application) : AbsListPresenter(mApp) {
+    class Presenter(var mApp: Application) : MvpPresenter(mApp) {
 
-        var defaultPosition: Int = 0
         var count: Int = 0
+        var defaultPosition: Int = 0
+        val listLiveData = ListLiveData<String> { DataItem(it) }
 
-        override fun loadListData(bundle: Bundle?, paging: Paging, loadType: LoadType): List<DataItem>? {
+        override fun loadData(bundle: Bundle?) {
             defaultPosition = bundle?.getInt("current", 0) ?: 0
-            return bundle?.getStringArrayList("paths")?.map { TextItem(it) }?.apply {
+            listLiveData.loadStart(bundle?.getStringArrayList("paths")?.map { it }?.apply {
                 count = size
-            }
+            })
         }
     }
 }

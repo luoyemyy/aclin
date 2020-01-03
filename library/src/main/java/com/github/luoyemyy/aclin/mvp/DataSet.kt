@@ -1,141 +1,114 @@
+@file:Suppress("unused")
+
 package com.github.luoyemyy.aclin.mvp
 
 import java.util.*
 
-class DataSet(var pageSize: Int = 10,
-              var enableEmptyItem: Boolean = true,
-              var enableMoreItem: Boolean = true,
-              var enableMoreGone: Boolean = false,
-              var enableInitItem: Boolean = true,
-              var reversed: Boolean = false) {
+class DataSet<T>(private val transform: (T) -> DataItem<T>) {
 
     companion object {
-        const val INIT_LOADING = -1
-        const val INIT_FAILURE = -2
-        const val INIT_END = -3
-        const val EMPTY = -201
-        const val MORE_LOADING = -101
-        const val MORE_END = -102
-        const val MORE_FAILURE = -103
-        const val CONTENT = 1
+        const val INIT_LOADING = -101
+        const val INIT_FAILURE = -102
+        const val INIT_EMPTY = -103
+        const val INIT_END = -104
+        const val MORE_LOADING = -201
+        const val MORE_END = -202
+        const val MORE_FAILURE = -203
+    }
+
+    var enableMore: Boolean = true
+    var reversed: Boolean = false
+    val dataList: MutableList<T> = mutableListOf()
+    var lastItemList: List<DataItem<T>>? = null
+    private val mExtraItem by lazy {
+        DataItem<T>()
     }
 
     /**
-     * 内容列表
+     * state流程图
+     *
+     * init_loading ->  -init_failure   ->  -init_loading
+     *                  -init_empty
+     *                  -init_end       ->  -more_failure  ->  -more_loading
+     *                                      -more_loading
+     *                                      -more_end
      */
-    private val contentList: MutableList<DataItem> = mutableListOf()
-    private var mInitState = INIT_LOADING
-    private var mMoreState = MORE_LOADING
+    private var mState: Int = INIT_LOADING
 
-    fun canLoadInit() = mInitState != INIT_END
-
-    /**
-     * 判断是否可以加载更多
-     */
-    fun canLoadMore(): Boolean {
-        return enableMoreItem && mInitState == INIT_END && mMoreState in arrayOf(MORE_LOADING, MORE_FAILURE)
+    fun setStartFail(): List<DataItem<T>> {
+        mState = INIT_FAILURE
+        return itemList()
     }
 
-    private fun setLoadMoreState(list: List<DataItem>?) {
-        if (enableMoreItem) {
-            mMoreState = if (list.isNullOrEmpty() || list.size < pageSize) {
-                MORE_END
-            } else {
-                MORE_LOADING
-            }
+    fun addStartData(startData: List<T>?): List<DataItem<T>> {
+        dataList.clear()
+        mState = if (startData.isNullOrEmpty()) {
+            INIT_EMPTY
+        } else {
+            dataList.addAll(startData)
+            if (enableMore) MORE_LOADING else INIT_END
         }
+        return itemList()
     }
 
-    fun setDataLoading(): List<DataItem> {
-        mInitState = INIT_LOADING
-        return getDataList()
+    fun setMoreFail(): List<DataItem<T>> {
+        mState = MORE_FAILURE
+        return itemList()
     }
 
-    fun setDataFailure(): List<DataItem> {
-        mInitState = INIT_FAILURE
-        return getDataList()
-    }
-
-    fun setDataSuccess(list: List<DataItem>?): List<DataItem> {
-        contentList.clear()
-        if (!list.isNullOrEmpty()) {
-            contentList.addAll(list)
-        }
-        mInitState = INIT_END
-        setLoadMoreState(list)
-        return getDataList()
-    }
-
-    fun addDataFailure(): List<DataItem> {
-        mMoreState = MORE_FAILURE
-        return getDataList()
-    }
-
-    fun addDataSuccess(list: List<DataItem>?): List<DataItem> {
-        if (!list.isNullOrEmpty()) {
+    fun addMoreData(moreData: List<T>?): List<DataItem<T>> {
+        mState = if (moreData.isNullOrEmpty()) {
+            MORE_END
+        } else {
             if (reversed) {
-                contentList.addAll(0, list)
+                dataList.addAll(0, moreData)
             } else {
-                contentList.addAll(list)
+                dataList.addAll(moreData)
             }
+            MORE_LOADING
         }
-        setLoadMoreState(list)
-        return getDataList()
+        return itemList()
     }
 
-    fun move(start: DataItem?, end: DataItem?): List<DataItem>? {
-        if (start == null || end == null || start == end || start.type <= 0 || end.type <= 0) {
+    fun itemList(): List<DataItem<T>> {
+        val list = dataList.mapTo(mutableListOf(), transform)
+        if (mState != INIT_END) {
+            mExtraItem.type = mState
+            if (reversed) {
+                list.add(0, mExtraItem)
+            } else {
+                list.add(mExtraItem)
+            }
+        }
+        return Collections.unmodifiableList(list).apply {
+            lastItemList = this
+        }
+    }
+
+    fun isMoreEnd(): Boolean {
+        return mState == MORE_END
+    }
+
+    fun move(start: Int, end: Int): List<DataItem<T>>? {
+        if (start == end) {
             return null
         }
-        val startPosition = contentList.indexOf(start)
-        val endPosition = contentList.indexOf(end)
+        val startData = lastItemList?.getOrNull(start)?.data ?: return null
+        val endData = lastItemList?.getOrNull(end)?.data ?: return null
+        val startPosition = dataList.indexOf(startData)
+        val endPosition = dataList.indexOf(endData)
         if (startPosition <= -1 || endPosition <= -1) {
             return null
         }
         if (startPosition < endPosition) {
             (startPosition until endPosition).forEach {
-                Collections.swap(contentList, it, it + 1)
+                Collections.swap(dataList, it, it + 1)
             }
         } else if (startPosition > endPosition) {
             (startPosition downTo endPosition + 1).forEach {
-                Collections.swap(contentList, it, it - 1)
+                Collections.swap(dataList, it, it - 1)
             }
         }
-        return getDataList()
-    }
-
-
-    fun getContentList(): MutableList<DataItem> {
-        return contentList
-    }
-
-    fun getDataList(): List<DataItem> {
-        val list = mutableListOf<DataItem>()
-        when (mInitState) {
-            INIT_LOADING -> if (enableInitItem) list.add(DataItem(INIT_LOADING))
-            INIT_FAILURE -> if (enableInitItem) list.add(DataItem(INIT_FAILURE))
-            INIT_END -> {
-                contentList.size.also {
-                    if (it == 0) {
-                        if (enableEmptyItem) list.add(DataItem(EMPTY))
-                    } else {
-                        if (!reversed) {
-                            list.addAll(contentList)
-                        }
-                        if (enableMoreItem) {
-                            when (mMoreState) {
-                                MORE_LOADING -> list.add(DataItem(MORE_LOADING))
-                                MORE_FAILURE -> list.add(DataItem(MORE_FAILURE))
-                                MORE_END -> if (!enableMoreGone) list.add(DataItem(MORE_END))
-                            }
-                        }
-                        if (reversed) {
-                            list.addAll(contentList)
-                        }
-                    }
-                }
-            }
-        }
-        return list
+        return itemList()
     }
 }

@@ -11,9 +11,9 @@ import com.github.luoyemyy.aclin.app.R
 import com.github.luoyemyy.aclin.app.databinding.FragmentListBinding
 import com.github.luoyemyy.aclin.app.databinding.FragmentListItem2Binding
 import com.github.luoyemyy.aclin.fragment.OverrideMenuFragment
-import com.github.luoyemyy.aclin.mvp2.DataItem
-import com.github.luoyemyy.aclin.mvp2.ListLiveData
-import com.github.luoyemyy.aclin.mvp2.MvpAdapter
+import com.github.luoyemyy.aclin.mvp.DataItem
+import com.github.luoyemyy.aclin.mvp.ListLiveData
+import com.github.luoyemyy.aclin.mvp.MvpAdapter
 import java.util.*
 
 class PagingFragment : OverrideMenuFragment() {

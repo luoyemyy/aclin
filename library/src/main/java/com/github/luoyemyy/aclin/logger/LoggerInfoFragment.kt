@@ -10,7 +10,7 @@ import androidx.lifecycle.Observer
 import com.github.luoyemyy.aclin.databinding.AclinLoggerInfoBinding
 import com.github.luoyemyy.aclin.ext.runOnThread
 import com.github.luoyemyy.aclin.fragment.OverrideMenuFragment
-import com.github.luoyemyy.aclin.mvp.AbsPresenter
+import com.github.luoyemyy.aclin.mvp.MvpPresenter
 import com.github.luoyemyy.aclin.mvp.getPresenter
 import java.io.File
 import java.io.FileReader
@@ -32,7 +32,7 @@ class LoggerInfoFragment : OverrideMenuFragment() {
         mPresenter.loadInit(arguments)
     }
 
-    class Presenter(private var mApp: Application) : AbsPresenter(mApp) {
+    class Presenter(app: Application) : MvpPresenter(app) {
         val textLiveData = MutableLiveData<String>()
 
         override fun loadData(bundle: Bundle?) {

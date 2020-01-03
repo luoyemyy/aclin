@@ -1,29 +1,43 @@
 package com.github.luoyemyy.aclin.mvp
 
-open class DataItem(val type: Int = DataSet.CONTENT) {
 
+open class DataItem<T>() {
+
+    constructor(data: T?) : this() {
+        this.data = data
+    }
+
+    var type: Int = 0
+    var data: T? = null
     private var mUsePayload: Boolean = false
+
+    constructor(type: Int) : this() {
+        this.type = type
+    }
+
+    constructor(data: T, mapType: (T) -> Int) : this() {
+        this.type = mapType(data)
+        this.data = data
+    }
 
     fun hasPayload() {
         mUsePayload = true
     }
 
-    open fun areItemsTheSame(oldItem: DataItem): Boolean {
-        return this == oldItem
+    fun areItemsTheSame(oldItem: DataItem<T>): Boolean {
+        return this.type == oldItem.type && this.data == oldItem.data
     }
 
-    open fun areContentsTheSame(oldItem: DataItem): Boolean {
+    fun areContentsTheSame(oldItem: DataItem<T>): Boolean {
         return !mUsePayload
     }
 
-    open fun getChangePayload(oldItem: DataItem): Any? {
+    fun getChangePayload(oldItem: DataItem<T>): Any? {
         return if (mUsePayload) {
             mUsePayload = false
             Any()
         } else null
     }
+
 }
 
-class TextItem(var text: String) : DataItem()
-
-class DataItemChange(var data: List<DataItem>, var changeAll: Boolean = false)

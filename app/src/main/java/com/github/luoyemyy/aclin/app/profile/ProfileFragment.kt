@@ -7,7 +7,6 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import com.github.luoyemyy.aclin.api.refreshApi
-import com.github.luoyemyy.aclin.app.R
 import com.github.luoyemyy.aclin.app.common.util.BusEvent
 import com.github.luoyemyy.aclin.app.databinding.FragmentListBinding
 import com.github.luoyemyy.aclin.app.databinding.FragmentProfileItemBinding
@@ -30,27 +29,34 @@ class ProfileFragment : Fragment() {
             recyclerView.setupLinear(Adapter())
             swipeRefreshLayout.setup(mPresenter.listLiveData)
         }
-        mPresenter.listLiveData.loadInit(arguments)
+        mPresenter.loadInit(arguments)
     }
 
     inner class Adapter : FixedAdapter<ProfileItem, FragmentProfileItemBinding>(this, mPresenter.listLiveData) {
-        override fun getContentLayoutId(viewType: Int): Int {
-            return R.layout.fragment_profile_item
+
+        override fun getContentBinding(viewType: Int, parent: ViewGroup): FragmentProfileItemBinding {
+            return FragmentProfileItemBinding.inflate(layoutInflater, parent, false)
+        }
+
+        override fun bindContentViewHolder(binding: FragmentProfileItemBinding, data: ProfileItem?, viewType: Int, position: Int) {
+            binding.apply {
+                entity = data
+                executePendingBindings()
+            }
         }
 
         override fun onItemViewClick(binding: FragmentProfileItemBinding, vh: VH<*>, view: View) {
             mPresenter.changeActive(vh.adapterPosition)
         }
 
-        override fun setRefreshState(refreshing: Boolean) {
-            mBinding.swipeRefreshLayout.isRefreshing = refreshing
-        }
     }
 
-    class Presenter(private var mApp: Application) : AbsListPresenter(mApp) {
+    class Presenter(private var mApp: Application) : MvpPresenter(mApp) {
 
-        override fun loadListData(bundle: Bundle?, paging: Paging, loadType: LoadType): List<DataItem>? {
-            return Profile.allTypes().map { ProfileItem(it.desc, it.isActive()) }
+        val listLiveData = ListLiveData<ProfileItem> { DataItem(it) }
+
+        override fun loadData(bundle: Bundle?) {
+            listLiveData.loadStart(Profile.allTypes().map { ProfileItem(it.desc, it.isActive()) })
         }
 
         fun changeActive(selectPosition: Int) {
@@ -60,12 +66,12 @@ class ProfileFragment : Fragment() {
                     refreshApi()
                     postBus(BusEvent.PROFILE_CHANGE)
                     listLiveData.itemChange { items, _ ->
-                        (items?.get(activePosition)as? ProfileItem)?.apply {
-                            active = false
+                        (items?.get(activePosition))?.apply {
+                            data?.active = false
                             hasPayload()
                         }
-                        (items?.get(selectPosition) as? ProfileItem)?.apply {
-                            active = true
+                        (items?.get(selectPosition))?.apply {
+                            data?.active = true
                             hasPayload()
                         }
                         true

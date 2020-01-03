@@ -52,7 +52,7 @@ open class ApiManager {
 
     open fun converter(): Converter.Factory? = GsonConverterFactory.create()
 
-    open fun adapter(): CallAdapter.Factory? = LiveDataCallAdapterFactory()
+    open fun adapter(): CallAdapter.Factory? = null
 
     open fun createRetrofit(): Retrofit {
         return Retrofit.Builder().baseUrl(baseUrl()).client(client().build()).apply {

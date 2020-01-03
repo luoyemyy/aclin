@@ -4,30 +4,11 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.ViewModelProviders
-import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 
-typealias LoadDataAfter<T> = (ok: Boolean, items: List<T>) -> Unit
-
-typealias ItemCallback = (List<DataItem>?, DataSet) -> Boolean
-
-fun <T : DataItem> getDiffCallback() = object : DiffUtil.ItemCallback<T>() {
-
-    override fun areItemsTheSame(oldItem: T, newItem: T): Boolean {
-        return newItem.areItemsTheSame(oldItem)
-    }
-
-    override fun areContentsTheSame(oldItem: T, newItem: T): Boolean {
-        return newItem.areContentsTheSame(oldItem)
-    }
-
-    override fun getChangePayload(oldItem: T, newItem: T): Any? {
-        return newItem.getChangePayload(oldItem)
-    }
-}
 
 inline fun <reified T : AndroidViewModel> FragmentActivity.getPresenter(): T = ViewModelProviders.of(this).get(T::class.java)
 
@@ -50,8 +31,8 @@ fun RecyclerView.setupGrid(adapter: RecyclerView.Adapter<*>,
     this.addItemDecoration(decoration)
 }
 
-fun SwipeRefreshLayout.setup(listLiveData: ListLiveData) {
+fun <T> SwipeRefreshLayout.setup(listLiveData: ListLiveData<T>) {
     this.setOnRefreshListener {
-        listLiveData.loadRefresh()
+        listLiveData.loadStart()
     }
 }

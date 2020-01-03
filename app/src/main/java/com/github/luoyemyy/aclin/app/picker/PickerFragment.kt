@@ -30,10 +30,10 @@ class PickerFragment : OverrideMenuFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         mPresenter = getPresenter()
         mBinding.apply {
-            recyclerView.setupLinear(Adapter(requireContext()).apply { enablePopupMenu() })
+            recyclerView.setupLinear(Adapter(requireContext()).apply { enablePopupMenu = true })
             swipeRefreshLayout.setup(mPresenter.listLiveData)
         }
-        mPresenter.listLiveData.loadInit(arguments)
+        mPresenter.loadInit(arguments)
     }
 
     private fun gallery() {
@@ -56,14 +56,18 @@ class PickerFragment : OverrideMenuFragment() {
                 }
     }
 
-    inner class Adapter(private var context: Context) : FixedAdapter<TextItem, FragmentListItemBinding>(this, mPresenter.listLiveData) {
+    inner class Adapter(private var context: Context) : FixedAdapter<String, FragmentListItemBinding>(this, mPresenter.listLiveData) {
 
-        override fun getContentLayoutId(viewType: Int): Int {
-            return R.layout.fragment_list_item
+
+        override fun bindContentViewHolder(binding: FragmentListItemBinding, data: String?, viewType: Int, position: Int) {
+            binding.apply {
+                entity = getItem(position)
+                executePendingBindings()
+            }
         }
 
-        override fun setRefreshState(refreshing: Boolean) {
-            mBinding.swipeRefreshLayout.isRefreshing = refreshing
+        override fun getContentBinding(viewType: Int, parent: ViewGroup): FragmentListItemBinding {
+            return FragmentListItemBinding.inflate(layoutInflater, parent, false)
         }
 
         override fun bindItemEvents(binding: FragmentListItemBinding, vh: VH<*>) {
@@ -78,8 +82,7 @@ class PickerFragment : OverrideMenuFragment() {
         }
 
         override fun onItemViewClick(binding: FragmentListItemBinding, vh: VH<*>, view: View) {
-            val item = getItem(vh.adapterPosition) as? TextItem ?: return
-            when (item.text) {
+            when (getItem(vh.adapterPosition) ?: return) {
                 "gallery" -> gallery()
                 "camera" -> camera()
                 "gallery/camera" -> requireActivity().items(arrayOf("gallery", "camera")) {
@@ -92,14 +95,15 @@ class PickerFragment : OverrideMenuFragment() {
         }
     }
 
-    class Presenter(private var mApp: Application) : AbsListPresenter(mApp) {
+    class Presenter(private var mApp: Application) : MvpPresenter(mApp) {
 
-        override fun loadListData(bundle: Bundle?, paging: Paging, loadType: LoadType): List<DataItem>? {
-            return listOf(
-                TextItem("gallery"),
-                TextItem("camera"),
-                TextItem("gallery/camera")
-                         )
+        val listLiveData = ListLiveData<String> { DataItem(it) }
+
+        override fun loadData(bundle: Bundle?) {
+            listLiveData.loadStart(listOf(
+                "gallery",
+                "camera",
+                "gallery/camera"))
         }
     }
 }

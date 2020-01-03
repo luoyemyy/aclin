@@ -3,7 +3,7 @@ package com.github.luoyemyy.aclin.mvp
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
 
-class SortCallback(private val mLiveData: ListLiveData) :
+class SortCallback<T>(private val mLiveData: ListLiveData<T>) :
     ItemTouchHelper.SimpleCallback(ItemTouchHelper.DOWN or ItemTouchHelper.UP or ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT, 0) {
 
     override fun onMove(recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder, target: RecyclerView.ViewHolder): Boolean {

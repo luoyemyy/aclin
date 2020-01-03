@@ -26,8 +26,8 @@ class LoggerListFragment : OverrideMenuFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         mPresenter = getPresenter()
         mBinding.recyclerView.setupLinear(Adapter())
-        mBinding.swipeRefreshLayout.setup(mPresenter.listLiveData)
-        mPresenter.listLiveData.loadInit(arguments)
+        mBinding.swipeRefreshLayout.setup(mPresenter.liveData)
+        mPresenter.loadInit(arguments)
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
@@ -41,43 +41,51 @@ class LoggerListFragment : OverrideMenuFragment() {
                 requireContext().toast(R.string.aclin_logger_menu_select_tip)
             } else {
                 AlertDialog.Builder(requireContext())
-                    .setMessage(R.string.aclin_logger_menu_delete_tip)
-                    .setNegativeButton(android.R.string.cancel, null)
-                    .setPositiveButton(R.string.aclin_logger_menu_delete) { _, _ ->
-                        mPresenter.deleteSelect()
-                    }.show()
+                        .setMessage(R.string.aclin_logger_menu_delete_tip)
+                        .setNegativeButton(android.R.string.cancel, null)
+                        .setPositiveButton(R.string.aclin_logger_menu_delete) { _, _ ->
+                            mPresenter.deleteSelect()
+                        }.show()
             }
         }
         return super.onOptionsItemSelected(item)
     }
 
-    inner class Adapter : FixedAdapter<LoggerItem, AclinLoggerListItemBinding>(this, mPresenter.listLiveData) {
-
-        override fun getContentLayoutId(viewType: Int): Int {
-            return R.layout.aclin_logger_list_item
+    inner class Adapter : FixedAdapter<LoggerItem, AclinLoggerListItemBinding>(this, mPresenter.liveData) {
+        override fun bindContentViewHolder(binding: AclinLoggerListItemBinding, data: LoggerItem?, viewType: Int, position: Int) {
+            binding.apply {
+                entity = data
+                executePendingBindings()
+            }
         }
 
-        override fun setRefreshState(refreshing: Boolean) {
-            mBinding.swipeRefreshLayout.isRefreshing = refreshing
+        override fun getContentBinding(viewType: Int, parent: ViewGroup): AclinLoggerListItemBinding {
+            return AclinLoggerListItemBinding.inflate(layoutInflater, parent, false)
         }
 
         override fun bindItemEvents(binding: AclinLoggerListItemBinding, vh: VH<*>) {
             binding.checkbox.setOnCheckedChangeListener { _, b ->
-                getContentItem(vh.adapterPosition)?.select = b
+                getItem(vh.adapterPosition)?.select = b
             }
         }
 
         override fun onItemViewClick(binding: AclinLoggerListItemBinding, vh: VH<*>, view: View) {
-            (getItem(vh.adapterPosition) as? LoggerItem)?.apply {
+            getItem(vh.adapterPosition)?.apply {
                 findNavController().navigate(R.id.action_loggerListFragment_to_loggerPreviewFragment, bundleOf("path" to path))
             }
         }
     }
 
-    class Presenter(private var mApp: Application) : AbsListPresenter(mApp) {
+    class Presenter(private var mApp: Application) : MvpPresenter(mApp) {
 
-        override fun loadListData(bundle: Bundle?, paging: Paging, loadType: LoadType): List<DataItem>? {
-            return files()
+        val liveData = object : ListLiveData<LoggerItem>({ DataItem(it) }) {
+            override fun getStartData(): List<LoggerItem>? {
+                return files()
+            }
+        }
+
+        override fun loadData(bundle: Bundle?) {
+            liveData.loadStart()
         }
 
         private fun files(): List<LoggerItem>? {
@@ -89,11 +97,11 @@ class LoggerListFragment : OverrideMenuFragment() {
 
         fun selectAll() {
             val selectAll = countSelect() == 0
-            listLiveData.itemChange { items, _ ->
+            liveData.itemChange { items, _ ->
                 items?.forEach {
-                    (it as? LoggerItem)?.apply {
+                    it.data?.apply {
                         select = selectAll
-                        hasPayload()
+                        it.hasPayload()
                     }
                 }
                 true
@@ -101,16 +109,16 @@ class LoggerListFragment : OverrideMenuFragment() {
         }
 
         fun countSelect(): Int {
-            return listLiveData.value?.data?.count { it is LoggerItem && it.select } ?: 0
+            return liveData.dataList().count { it.select }
         }
 
         fun deleteSelect() {
-            listLiveData.itemDelete { _, dataSet ->
-                val selectItems = dataSet.getContentList().filter { it is LoggerItem && it.select && File(it.path).delete() }
+            liveData.itemChange { _, dataList ->
+                val selectItems = dataList.filter { it.select && File(it.path).delete() }
                 if (selectItems.isEmpty()) {
                     false
                 } else {
-                    dataSet.getContentList().removeAll(selectItems)
+                    dataList.removeAll(selectItems)
                     true
                 }
             }

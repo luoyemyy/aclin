@@ -79,7 +79,7 @@ class GalleryFragment : OverrideMenuFragment() {
         }
         requestPermission(this, requireContext().getString(R.string.aclin_image_picker_gallery_permission_request))
                 .granted {
-                    mPresenter.bucketsLiveData.loadInit(arguments)
+                    mPresenter.loadInit(arguments)
                 }
                 .denied {
                     PermissionManager.toSetting(this, requireContext().getString(R.string.aclin_image_picker_gallery_permission_failure))
@@ -107,8 +107,18 @@ class GalleryFragment : OverrideMenuFragment() {
 
     inner class ImageAdapter : FixedAdapter<Image, AclinImagePickerGalleryImageBinding>(this, mPresenter.imagesLiveData) {
 
-        override fun getContentLayoutId(viewType: Int): Int {
-            return R.layout.aclin_image_picker_gallery_image
+        override fun getContentBinding(viewType: Int, parent: ViewGroup): AclinImagePickerGalleryImageBinding {
+            return AclinImagePickerGalleryImageBinding.inflate(layoutInflater, parent, false).apply {
+                root.layoutParams.width = mPresenter.getImageSize()
+                root.layoutParams.height = mPresenter.getImageSize()
+            }
+        }
+
+        override fun bindContentViewHolder(binding: AclinImagePickerGalleryImageBinding, data: Image?, viewType: Int, position: Int) {
+            binding.apply {
+                entity = data
+                executePendingBindings()
+            }
         }
 
         override fun bindItemEvents(binding: AclinImagePickerGalleryImageBinding, vh: VH<*>) {
@@ -128,19 +138,19 @@ class GalleryFragment : OverrideMenuFragment() {
                 toPreview(images, position)
             }
         }
-
-        override fun createContentBinding(inflater: LayoutInflater, parent: ViewGroup, viewType: Int): AclinImagePickerGalleryImageBinding? {
-            return super.createContentBinding(inflater, parent, viewType)?.apply {
-                root.layoutParams.width = mPresenter.getImageSize()
-                root.layoutParams.height = mPresenter.getImageSize()
-            }
-        }
     }
 
     inner class BucketAdapter : FixedAdapter<Bucket, AclinImagePickerGalleryBucketBinding>(this, mPresenter.bucketsLiveData) {
 
-        override fun getContentLayoutId(viewType: Int): Int {
-            return R.layout.aclin_image_picker_gallery_bucket
+        override fun getContentBinding(viewType: Int, parent: ViewGroup): AclinImagePickerGalleryBucketBinding {
+            return AclinImagePickerGalleryBucketBinding.inflate(layoutInflater, parent, false)
+        }
+
+        override fun bindContentViewHolder(binding: AclinImagePickerGalleryBucketBinding, data: Bucket?, viewType: Int, position: Int) {
+            binding.apply {
+                entity = data
+                executePendingBindings()
+            }
         }
 
         override fun onItemViewClick(binding: AclinImagePickerGalleryBucketBinding, vh: VH<*>, view: View) {
