@@ -11,10 +11,6 @@ import java.util.concurrent.CopyOnWriteArrayList
 
 class MvpDiffer<T>(adapter: RecyclerView.Adapter<VH<ViewDataBinding>>) {
 
-    interface UpdateListener<T> {
-        fun onCurrentListChanged(oldList: List<DataItem<T>>?, newList: List<DataItem<T>>?)
-    }
-
     private val mUpdateCallback: ListUpdateCallback = AdapterListUpdateCallback(adapter)
     private val mListeners = CopyOnWriteArrayList<UpdateListener<T>>()
     private var mImmutableList: List<DataItem<T>> = listOf()
@@ -30,7 +26,7 @@ class MvpDiffer<T>(adapter: RecyclerView.Adapter<VH<ViewDataBinding>>) {
         mListeners.add(listener)
     }
 
-    fun update(newList: List<DataItem<T>>) {
+    fun update(newList: List<DataItem<T>>, updateListener: UpdateListener<T>? = null) {
         val runGeneration = ++mMaxScheduledGeneration
         if (newList == mImmutableList) {
             return
@@ -40,14 +36,14 @@ class MvpDiffer<T>(adapter: RecyclerView.Adapter<VH<ViewDataBinding>>) {
             if (oldList.isNotEmpty()) {
                 mImmutableList = listOf()
                 mUpdateCallback.onRemoved(0, oldList.size)
-                notifyUpdateListener(oldList, newList)
+                notifyUpdateListener(updateListener, oldList, newList)
             }
             return
         }
         if (oldList.isEmpty()) {
             mImmutableList = newList
             mUpdateCallback.onInserted(0, newList.size)
-            notifyUpdateListener(oldList, newList)
+            notifyUpdateListener(updateListener, oldList, newList)
             return
         }
         runOnThread {
@@ -82,13 +78,14 @@ class MvpDiffer<T>(adapter: RecyclerView.Adapter<VH<ViewDataBinding>>) {
                 if (mMaxScheduledGeneration == runGeneration) {
                     mImmutableList = newList
                     result.dispatchUpdatesTo(mUpdateCallback)
-                    notifyUpdateListener(oldList, newList)
+                    notifyUpdateListener(updateListener, oldList, newList)
                 }
             }
         }
     }
 
-    private fun notifyUpdateListener(oldList: List<DataItem<T>>?, newList: List<DataItem<T>>?) {
-        mListeners.forEach { it.onCurrentListChanged(oldList, newList) }
+    private fun notifyUpdateListener(updateListener: UpdateListener<T>?, oldList: List<DataItem<T>>?, newList: List<DataItem<T>>?) {
+        updateListener?.invoke(oldList, newList)
+        mListeners.forEach { it.invoke(oldList, newList) }
     }
 }

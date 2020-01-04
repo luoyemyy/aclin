@@ -11,6 +11,7 @@ import com.github.luoyemyy.aclin.ext.runOnMain
 import com.github.luoyemyy.aclin.ext.toast
 import com.github.luoyemyy.aclin.mvp.DataItem
 import com.github.luoyemyy.aclin.mvp.ListLiveData
+import com.github.luoyemyy.aclin.mvp.LoadParams
 import java.io.File
 
 class BucketLiveData(private val mApp: Application) : ListLiveData<Bucket>({ DataItem(it) }) {
@@ -31,7 +32,7 @@ class BucketLiveData(private val mApp: Application) : ListLiveData<Bucket>({ Dat
 
     private val mContentObserver = object : ContentObserver(Handler()) {
         override fun onChange(selfChange: Boolean) {
-            loadStart(forceLoad = true)
+            loadRefresh()
         }
     }
 
@@ -47,7 +48,7 @@ class BucketLiveData(private val mApp: Application) : ListLiveData<Bucket>({ Dat
         mApp.contentResolver.unregisterContentObserver(mContentObserver)
     }
 
-    override fun getStartData(): List<Bucket>? {
+    override fun getData(loadParams: LoadParams): List<Bucket>? {
         load()
         return mBuckets
     }
@@ -129,7 +130,7 @@ class BucketLiveData(private val mApp: Application) : ListLiveData<Bucket>({ Dat
         }
         selectBucketLiveData.postValue(select)
         runOnMain {
-            imageLiveData.loadStart(select.images, forceLoad = true)
+            imageLiveData.loadRefresh(select.images)
         }
     }
 

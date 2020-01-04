@@ -1,6 +1,8 @@
 package com.github.luoyemyy.aclin.mvp
 
 
+class NotifyData<T>(@LoadParams.LoadType var loadType: Int, var items: List<DataItem<T>>)
+
 open class DataItem<T>() {
 
     constructor(data: T?) : this() {

@@ -47,12 +47,9 @@ class ReversedFragment : OverrideMenuFragment() {
     class Presenter(app: Application) : MvpPresenter(app) {
 
         val listLiveData = object : ListLiveData<String>({ DataItem(it) }) {
-            override fun getStartData(): List<String>? {
-                return (0 until 10).map { (Random.nextDouble().toString()) }
-            }
 
-            override fun getMoreData(): List<String>? {
-                return (0 until 5).map { (Random.nextDouble().toString()) }
+            override fun getData(loadParams: LoadParams): List<String>? {
+                return (0 until 10).map { (Random.nextDouble().toString()) }
             }
         }
 

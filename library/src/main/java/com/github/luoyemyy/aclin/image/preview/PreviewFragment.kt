@@ -36,6 +36,15 @@ class PreviewFragment : OverrideMenuFragment() {
     }
 
     inner class Adapter : FixedAdapter<String, AclinImagePreviewItemBinding>(this, mPresenter.listLiveData) {
+
+        init {
+            addUpdateListener { oldList, newList ->
+                runOnMain {
+                    mBinding.viewPager.setCurrentItem(mPresenter.defaultPosition, false)
+                }
+            }
+        }
+
         override fun bindContentViewHolder(binding: AclinImagePreviewItemBinding, data: String?, viewType: Int, position: Int) {
             binding.apply {
                 entity = data
@@ -45,12 +54,6 @@ class PreviewFragment : OverrideMenuFragment() {
 
         override fun getContentBinding(viewType: Int, parent: ViewGroup): AclinImagePreviewItemBinding {
             return AclinImagePreviewItemBinding.inflate(layoutInflater, parent, false)
-        }
-
-        override fun onCurrentListChanged(oldList: List<DataItem<String>>?, newList: List<DataItem<String>>?) {
-            runOnMain {
-                mBinding.viewPager.setCurrentItem(mPresenter.defaultPosition, false)
-            }
         }
     }
 

@@ -79,7 +79,7 @@ class LoggerListFragment : OverrideMenuFragment() {
     class Presenter(private var mApp: Application) : MvpPresenter(mApp) {
 
         val liveData = object : ListLiveData<LoggerItem>({ DataItem(it) }) {
-            override fun getStartData(): List<LoggerItem>? {
+            override fun getData(loadParams: LoadParams): List<LoggerItem>? {
                 return files()
             }
         }

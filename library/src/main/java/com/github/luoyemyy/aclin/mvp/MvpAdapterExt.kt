@@ -8,6 +8,8 @@ import androidx.databinding.ViewDataBinding
 
 interface MvpAdapterExt<T, BIND : ViewDataBinding> {
 
+
+    fun notifyAfter(type: Int){}
     /**
      * 绑定列表数据
      */

@@ -14,7 +14,7 @@ import com.github.luoyemyy.aclin.databinding.*
 import com.github.luoyemyy.aclin.ext.TouchInfo
 
 abstract class MvpAdapter<T, BIND : ViewDataBinding>(owner: LifecycleOwner, private val mLiveData: ListLiveData<T>)
-    : RecyclerView.Adapter<VH<ViewDataBinding>>(), MvpAdapterExt<T, BIND> ,MvpDiffer.UpdateListener<T>{
+    : RecyclerView.Adapter<VH<ViewDataBinding>>(), MvpAdapterExt<T, BIND> {
 
     var enableMore: Boolean = true
         set(value) {
@@ -34,7 +34,11 @@ abstract class MvpAdapter<T, BIND : ViewDataBinding>(owner: LifecycleOwner, priv
 
     init {
         mLiveData.config(enableMore, reversed)
-        mLiveData.observe(owner, Observer { mDiffer.update(it) })
+        mLiveData.observe(owner, Observer {
+            mDiffer.update(it.items) { _, _ ->
+                notifyAfter(it.loadType)
+            }
+        })
     }
 
     override fun onAttachedToRecyclerView(recyclerView: RecyclerView) {
@@ -82,17 +86,15 @@ abstract class MvpAdapter<T, BIND : ViewDataBinding>(owner: LifecycleOwner, priv
     }
 
     private fun triggerLoadMore(position: Int) {
-        enableMore &&
-                ((reversed && position <= 1) ||                    // 反转列表，则判断当前是第1，2个的时候尝试加载更多
-                        (!reversed && position >= itemCount - 2))  // 没有反转，则判断当前是倒数第1，2个的时候尝试加载更多
-                        .apply {
-                            if (this) {
-                                mLiveData.loadMore()
-                            }
-                        }
+        (enableMore && ((reversed && position <= 1) || (!reversed && position >= itemCount - 2)))
+                .apply {
+                    if (this) {
+                        mLiveData.loadMore()
+                    }
+                }
     }
 
-    fun addUpdateListener(listener: MvpDiffer.UpdateListener<T>) {
+    fun addUpdateListener(listener: UpdateListener<T>) {
         mDiffer.addUpdateListener(listener)
     }
 
@@ -140,8 +142,5 @@ abstract class MvpAdapter<T, BIND : ViewDataBinding>(owner: LifecycleOwner, priv
             DataSet.MORE_END -> AclinListMoreEndBinding.inflate(inflater, parent, false)
             else -> AclinListNoneBinding.inflate(inflater, parent, false)
         }
-    }
-
-    override fun onCurrentListChanged(oldList: List<DataItem<T>>?, newList: List<DataItem<T>>?) {
     }
 }

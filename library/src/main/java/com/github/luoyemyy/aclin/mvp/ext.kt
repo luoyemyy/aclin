@@ -9,6 +9,7 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 
+typealias UpdateListener<T> = (oldList: List<DataItem<T>>?, newList: List<DataItem<T>>?) -> Unit
 
 inline fun <reified T : AndroidViewModel> FragmentActivity.getPresenter(): T = ViewModelProviders.of(this).get(T::class.java)
 

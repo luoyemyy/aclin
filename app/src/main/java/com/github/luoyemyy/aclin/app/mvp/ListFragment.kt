@@ -33,7 +33,7 @@ class ListFragment : OverrideMenuFragment() {
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        mPresenter.listLiveData.loadStart(forceLoad = true)
+        mPresenter.listLiveData.loadRefresh()
         return super.onOptionsItemSelected(item)
     }
 
@@ -54,15 +54,8 @@ class ListFragment : OverrideMenuFragment() {
     class Presenter(app: Application) : MvpPresenter(app) {
 
         val listLiveData = object : ListLiveData<String>({ DataItem(it) }) {
-            override fun getStartData(): List<String>? {
-                var random = Random.nextInt(9)
-                if (random > 3) {
-                    random = 9
-                }
-                return (0..random).map { Random.nextDouble().toString() }
-            }
 
-            override fun getMoreData(): List<String>? {
+            override fun getData(loadParams: LoadParams): List<String>? {
                 var random = Random.nextInt(9)
                 if (random > 3) {
                     random = 9
