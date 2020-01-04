@@ -4,7 +4,8 @@ import android.view.View
 import androidx.databinding.ViewDataBinding
 import androidx.lifecycle.LifecycleOwner
 
-abstract class FixedAdapter<T, BIND : ViewDataBinding>(owner: LifecycleOwner, liveData: ListLiveData<T>) : MvpAdapter<T, BIND>(owner, liveData) {
+abstract class FixedAdapter<T : MvpData, BIND : ViewDataBinding>(owner: LifecycleOwner, liveData: ListLiveData<T>)
+    : MvpAdapter<T, BIND>(owner, liveData) {
     init {
         enableMore = false
     }

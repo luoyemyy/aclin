@@ -4,7 +4,7 @@ package com.github.luoyemyy.aclin.mvp
 
 import java.util.*
 
-class DataSet<T>(private val transform: (T) -> DataItem<T>) {
+class DataSet<T : MvpData>(private val mTransform: (T) -> DataItem<T>) {
 
     companion object {
         const val INIT_LOADING = -101
@@ -71,7 +71,18 @@ class DataSet<T>(private val transform: (T) -> DataItem<T>) {
     }
 
     fun itemList(): List<DataItem<T>> {
-        val list = dataList.mapTo(mutableListOf(), transform)
+        val list = mutableListOf<DataItem<T>>()
+        dataList.forEach {
+            val item = it.dataItem as? DataItem<T>
+            if (item != null) {
+                list.add(item)
+            } else {
+                mTransform(it).apply {
+                    it.dataItem = this
+                    list.add(this)
+                }
+            }
+        }
         if (mState != INIT_END) {
             mExtraItem.type = mState
             if (reversed) {

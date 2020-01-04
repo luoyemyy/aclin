@@ -6,7 +6,7 @@ import androidx.lifecycle.MutableLiveData
 import com.github.luoyemyy.aclin.ext.runOnThread
 import java.util.concurrent.atomic.AtomicBoolean
 
-open class ListLiveData<T>(transform: (T) -> DataItem<T>) : MutableLiveData<NotifyData<T>>() {
+open class ListLiveData<T : MvpData>(transform: (T) -> DataItem<T>) : MutableLiveData<NotifyData<T>>() {
 
     private val mDataSet = DataSet(transform)
     private val mLoadStart = AtomicBoolean(false)

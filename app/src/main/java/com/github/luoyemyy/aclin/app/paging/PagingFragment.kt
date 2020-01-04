@@ -11,10 +11,7 @@ import com.github.luoyemyy.aclin.app.R
 import com.github.luoyemyy.aclin.app.databinding.FragmentListBinding
 import com.github.luoyemyy.aclin.app.databinding.FragmentListItem2Binding
 import com.github.luoyemyy.aclin.fragment.OverrideMenuFragment
-import com.github.luoyemyy.aclin.mvp.DataItem
-import com.github.luoyemyy.aclin.mvp.ListLiveData
-import com.github.luoyemyy.aclin.mvp.LoadParams
-import com.github.luoyemyy.aclin.mvp.MvpAdapter
+import com.github.luoyemyy.aclin.mvp.*
 import java.util.*
 
 class PagingFragment : OverrideMenuFragment() {
@@ -47,8 +44,8 @@ class PagingFragment : OverrideMenuFragment() {
         mPresenter.liveData.loadStart()
     }
 
-    inner class Adapter : MvpAdapter<String, FragmentListItem2Binding>(this, mPresenter.liveData) {
-        override fun bindContentViewHolder(binding: FragmentListItem2Binding, data: String?, viewType: Int, position: Int) {
+    inner class Adapter : MvpAdapter<TextData, FragmentListItem2Binding>(this, mPresenter.liveData) {
+        override fun bindContentViewHolder(binding: FragmentListItem2Binding, data: TextData?, viewType: Int, position: Int) {
             binding.apply {
                 entity = getItem(position)
                 executePendingBindings()
@@ -62,11 +59,11 @@ class PagingFragment : OverrideMenuFragment() {
 
     class Presenter(mApp: Application) : AndroidViewModel(mApp) {
 
-        val liveData = object : ListLiveData<String>({ DataItem(it) }) {
+        val liveData = object : ListLiveData<TextData>({ DataItem(it) }) {
 
-            override fun getData(loadParams: LoadParams): List<String>? {
+            override fun getData(loadParams: LoadParams): List<TextData>? {
                 Thread.sleep(500)
-                return (0..4).map { Random().nextInt().toString() }
+                return (0..4).map { TextData(Random().nextInt().toString()) }
             }
         }
     }

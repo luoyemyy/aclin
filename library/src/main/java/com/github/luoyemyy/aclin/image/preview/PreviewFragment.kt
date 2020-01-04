@@ -35,7 +35,7 @@ class PreviewFragment : OverrideMenuFragment() {
         mPresenter.loadInit(arguments)
     }
 
-    inner class Adapter : FixedAdapter<String, AclinImagePreviewItemBinding>(this, mPresenter.listLiveData) {
+    inner class Adapter : FixedAdapter<TextItem, AclinImagePreviewItemBinding>(this, mPresenter.listLiveData) {
 
         init {
             addUpdateListener { oldList, newList ->
@@ -45,7 +45,7 @@ class PreviewFragment : OverrideMenuFragment() {
             }
         }
 
-        override fun bindContentViewHolder(binding: AclinImagePreviewItemBinding, data: String?, viewType: Int, position: Int) {
+        override fun bindContentViewHolder(binding: AclinImagePreviewItemBinding, data: TextItem?, viewType: Int, position: Int) {
             binding.apply {
                 entity = data
                 executePendingBindings()
@@ -61,11 +61,11 @@ class PreviewFragment : OverrideMenuFragment() {
 
         var count: Int = 0
         var defaultPosition: Int = 0
-        val listLiveData = ListLiveData<String> { DataItem(it) }
+        val listLiveData = ListLiveData<TextItem>()
 
         override fun loadData(bundle: Bundle?) {
             defaultPosition = bundle?.getInt("current", 0) ?: 0
-            listLiveData.loadStart(bundle?.getStringArrayList("paths")?.map { it }?.apply {
+            listLiveData.loadStart(bundle?.getStringArrayList("paths")?.map { TextItem(it) }?.apply {
                 count = size
             })
         }

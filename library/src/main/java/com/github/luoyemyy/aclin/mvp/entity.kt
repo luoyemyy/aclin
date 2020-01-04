@@ -1,42 +1,39 @@
 package com.github.luoyemyy.aclin.mvp
 
 
-class NotifyData<T>(@LoadParams.LoadType var loadType: Int, var items: List<DataItem<T>>)
+class NotifyData<T : MvpData>(@LoadParams.LoadType var loadType: Int, var items: List<DataItem<T>>)
 
-open class DataItem<T>() {
+class TextData(var text: String?) : MvpData()
 
-    constructor(data: T?) : this() {
+open class MvpData {
+    var dataItem: DataItem<*>? = null
+}
+
+class DataItem<T : MvpData>() {
+
+    constructor(data: T) : this() {
         this.data = data
     }
 
     var type: Int = 0
     var data: T? = null
-    private var mUsePayload: Boolean = false
-
-    constructor(type: Int) : this() {
-        this.type = type
-    }
-
-    constructor(data: T, mapType: (T) -> Int) : this() {
-        this.type = mapType(data)
-        this.data = data
-    }
+    private var usePayload: Boolean = false
 
     fun hasPayload() {
-        mUsePayload = true
+        usePayload = true
     }
 
     fun areItemsTheSame(oldItem: DataItem<T>): Boolean {
-        return this.type == oldItem.type && this.data == oldItem.data
+        return this == oldItem
     }
 
     fun areContentsTheSame(oldItem: DataItem<T>): Boolean {
-        return !mUsePayload
+        return !usePayload
     }
 
     fun getChangePayload(oldItem: DataItem<T>): Any? {
-        return if (mUsePayload) {
-            mUsePayload = false
+        return if (usePayload) {
+            this.usePayload = false
             Any()
         } else null
     }

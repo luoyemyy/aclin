@@ -113,7 +113,7 @@ class BucketLiveData(private val mApp: Application) : ListLiveData<Bucket>({ Dat
         var select = bucket ?: mBucketMap[BUCKET_ALL] ?: return
         itemChange { itemList, _ ->
             itemList?.forEach {
-                it.data?.apply {
+                (it as? Bucket)?.apply {
                     if (this.id == select.id) {
                         select = this
                         if (!this.select) {

@@ -32,7 +32,7 @@ fun RecyclerView.setupGrid(adapter: RecyclerView.Adapter<*>,
     this.addItemDecoration(decoration)
 }
 
-fun <T> SwipeRefreshLayout.setup(listLiveData: ListLiveData<T>) {
+fun <T : MvpData> SwipeRefreshLayout.setup(listLiveData: ListLiveData<T>) {
     this.setOnRefreshListener {
         listLiveData.loadStart()
     }

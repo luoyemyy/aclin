@@ -30,13 +30,13 @@ class ReversedFragment : OverrideMenuFragment() {
         mPresenter.loadInit(arguments)
     }
 
-    inner class Adapter(private var context: Context) : ReversedAdapter<String, FragmentListItemBinding>(this, mPresenter.listLiveData) {
+    inner class Adapter(private var context: Context) : ReversedAdapter<TextData, FragmentListItemBinding>(this, mPresenter.listLiveData) {
 
         override fun getContentBinding(viewType: Int, parent: ViewGroup): FragmentListItemBinding {
             return FragmentListItemBinding.inflate(layoutInflater, parent, false)
         }
 
-        override fun bindContentViewHolder(binding: FragmentListItemBinding, data: String?, viewType: Int, position: Int) {
+        override fun bindContentViewHolder(binding: FragmentListItemBinding, data: TextData?, viewType: Int, position: Int) {
             binding.apply {
                 entity = data
                 executePendingBindings()
@@ -46,10 +46,10 @@ class ReversedFragment : OverrideMenuFragment() {
 
     class Presenter(app: Application) : MvpPresenter(app) {
 
-        val listLiveData = object : ListLiveData<String>({ DataItem(it) }) {
+        val listLiveData = object : ListLiveData<TextData>({ DataItem(it) }) {
 
-            override fun getData(loadParams: LoadParams): List<String>? {
-                return (0 until 10).map { (Random.nextDouble().toString()) }
+            override fun getData(loadParams: LoadParams): List<TextData>? {
+                return (0 until 10).map { TextData(Random.nextDouble().toString()) }
             }
         }
 

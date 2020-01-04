@@ -1,3 +1,5 @@
+@file:Suppress("UNCHECKED_CAST")
+
 package com.github.luoyemyy.aclin.mvp
 
 import androidx.databinding.ViewDataBinding
@@ -9,7 +11,7 @@ import com.github.luoyemyy.aclin.ext.runOnMain
 import com.github.luoyemyy.aclin.ext.runOnThread
 import java.util.concurrent.CopyOnWriteArrayList
 
-class MvpDiffer<T>(adapter: RecyclerView.Adapter<VH<ViewDataBinding>>) {
+class MvpDiffer<T : MvpData>(adapter: RecyclerView.Adapter<VH<ViewDataBinding>>) {
 
     private val mUpdateCallback: ListUpdateCallback = AdapterListUpdateCallback(adapter)
     private val mListeners = CopyOnWriteArrayList<UpdateListener<T>>()
@@ -20,7 +22,7 @@ class MvpDiffer<T>(adapter: RecyclerView.Adapter<VH<ViewDataBinding>>) {
 
     fun countItem(): Int = mImmutableList.size
 
-    fun getItem(position: Int): T? = mImmutableList[position].data
+    fun getItem(position: Int): T? = mImmutableList[position] as? T
 
     fun addUpdateListener(listener: UpdateListener<T>) {
         mListeners.add(listener)

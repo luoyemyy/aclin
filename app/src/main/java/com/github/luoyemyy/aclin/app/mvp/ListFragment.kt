@@ -37,13 +37,13 @@ class ListFragment : OverrideMenuFragment() {
         return super.onOptionsItemSelected(item)
     }
 
-    inner class Adapter : MvpAdapter<String, FragmentListItemBinding>(this, mPresenter.listLiveData) {
+    inner class Adapter : MvpAdapter<TextData, FragmentListItemBinding>(this, mPresenter.listLiveData) {
 
         override fun getContentBinding(viewType: Int, parent: ViewGroup): FragmentListItemBinding {
             return FragmentListItemBinding.inflate(layoutInflater, parent, false)
         }
 
-        override fun bindContentViewHolder(binding: FragmentListItemBinding, data: String?, viewType: Int, position: Int) {
+        override fun bindContentViewHolder(binding: FragmentListItemBinding, data: TextData?, viewType: Int, position: Int) {
             binding.apply {
                 entity = data
                 executePendingBindings()
@@ -53,14 +53,14 @@ class ListFragment : OverrideMenuFragment() {
 
     class Presenter(app: Application) : MvpPresenter(app) {
 
-        val listLiveData = object : ListLiveData<String>({ DataItem(it) }) {
+        val listLiveData = object : ListLiveData<TextData>({ DataItem(it) }) {
 
-            override fun getData(loadParams: LoadParams): List<String>? {
+            override fun getData(loadParams: LoadParams): List<TextData>? {
                 var random = Random.nextInt(9)
                 if (random > 3) {
                     random = 9
                 }
-                return (0..random).map { Random.nextDouble().toString() }
+                return (0..random).map { TextData(Random.nextDouble().toString()) }
             }
         }
 

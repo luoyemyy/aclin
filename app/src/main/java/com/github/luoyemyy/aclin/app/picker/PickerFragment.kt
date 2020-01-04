@@ -56,10 +56,10 @@ class PickerFragment : OverrideMenuFragment() {
                 }
     }
 
-    inner class Adapter(private var context: Context) : FixedAdapter<String, FragmentListItemBinding>(this, mPresenter.listLiveData) {
+    inner class Adapter(private var context: Context) : FixedAdapter<TextData, FragmentListItemBinding>(this, mPresenter.listLiveData) {
 
 
-        override fun bindContentViewHolder(binding: FragmentListItemBinding, data: String?, viewType: Int, position: Int) {
+        override fun bindContentViewHolder(binding: FragmentListItemBinding, data: TextData?, viewType: Int, position: Int) {
             binding.apply {
                 entity = getItem(position)
                 executePendingBindings()
@@ -82,7 +82,7 @@ class PickerFragment : OverrideMenuFragment() {
         }
 
         override fun onItemViewClick(binding: FragmentListItemBinding, vh: VH<*>, view: View) {
-            when (getItem(vh.adapterPosition) ?: return) {
+            when (getItem(vh.adapterPosition)?.text ?: return) {
                 "gallery" -> gallery()
                 "camera" -> camera()
                 "gallery/camera" -> requireActivity().items(arrayOf("gallery", "camera")) {
@@ -97,13 +97,13 @@ class PickerFragment : OverrideMenuFragment() {
 
     class Presenter(private var mApp: Application) : MvpPresenter(mApp) {
 
-        val listLiveData = ListLiveData<String> { DataItem(it) }
+        val listLiveData = ListLiveData<TextData> { DataItem(it) }
 
         override fun loadData(bundle: Bundle?) {
             listLiveData.loadStart(listOf(
-                "gallery",
-                "camera",
-                "gallery/camera"))
+                TextData("gallery"),
+                TextData("camera"),
+                TextData("gallery/camera")))
         }
     }
 }

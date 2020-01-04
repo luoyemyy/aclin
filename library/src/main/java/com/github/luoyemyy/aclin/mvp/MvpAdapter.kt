@@ -13,7 +13,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.github.luoyemyy.aclin.databinding.*
 import com.github.luoyemyy.aclin.ext.TouchInfo
 
-abstract class MvpAdapter<T, BIND : ViewDataBinding>(owner: LifecycleOwner, private val mLiveData: ListLiveData<T>)
+abstract class MvpAdapter<T : MvpData, BIND : ViewDataBinding>(owner: LifecycleOwner, private val mLiveData: ListLiveData<T>)
     : RecyclerView.Adapter<VH<ViewDataBinding>>(), MvpAdapterExt<T, BIND> {
 
     var enableMore: Boolean = true

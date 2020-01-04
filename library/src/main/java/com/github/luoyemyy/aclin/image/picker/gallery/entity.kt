@@ -1,7 +1,9 @@
 package com.github.luoyemyy.aclin.image.picker.gallery
 
-class Image(var path: String, var select: Boolean = false)
+import com.github.luoyemyy.aclin.mvp.MvpData
 
-class Bucket(var id: String, var name: String, var select: Boolean = false, var images: MutableList<Image> = mutableListOf())
+class Image(var path: String, var select: Boolean = false) : MvpData()
+
+class Bucket(var id: String, var name: String, var select: Boolean = false, var images: MutableList<Image> = mutableListOf()) : MvpData()
 
 class GalleryArgs(val minSelect: Int, val maxSelect: Int)

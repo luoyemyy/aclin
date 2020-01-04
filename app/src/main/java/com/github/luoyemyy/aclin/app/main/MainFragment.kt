@@ -44,13 +44,13 @@ class MainFragment : Fragment(), BusResult {
         }
     }
 
-    inner class Adapter : FixedAdapter<String, FragmentListItemBinding>(this, mPresenter.listLiveData) {
+    inner class Adapter : FixedAdapter<TextData, FragmentListItemBinding>(this, mPresenter.listLiveData) {
 
         override fun getContentBinding(viewType: Int, parent: ViewGroup): FragmentListItemBinding {
             return FragmentListItemBinding.inflate(layoutInflater, parent, false)
         }
 
-        override fun bindContentViewHolder(binding: FragmentListItemBinding, data: String?, viewType: Int, position: Int) {
+        override fun bindContentViewHolder(binding: FragmentListItemBinding, data: TextData?, viewType: Int, position: Int) {
             binding.apply {
                 entity = data
                 executePendingBindings()
@@ -58,7 +58,7 @@ class MainFragment : Fragment(), BusResult {
         }
 
         override fun onItemViewClick(binding: FragmentListItemBinding, vh: VH<*>, view: View) {
-            val text = getItem(vh.adapterPosition) ?: return
+            val text = getItem(vh.adapterPosition)?.text ?: return
             when (text.split(":")[0]) {
                 "itemList" -> findNavController().navigate(R.id.action_mainFragment_to_mvpFragment)
                 "itemList-reversed" -> findNavController().navigate(R.id.action_mainFragment_to_reversedFragment)
@@ -76,7 +76,7 @@ class MainFragment : Fragment(), BusResult {
 
     class Presenter(app: Application) : MvpPresenter(app) {
 
-        val listLiveData = ListLiveData<String> { DataItem(it) }
+        val listLiveData = ListLiveData<TextData> { DataItem(it) }
 
         override fun loadData(bundle: Bundle?) {
             val list = listOf(
@@ -89,14 +89,14 @@ class MainFragment : Fragment(), BusResult {
                 "paging",
                 "qrcode"
                              )
-            listLiveData.loadStart(list)
+            listLiveData.loadStart(list.map { TextData(it) })
         }
 
         fun updateProfile() {
             listLiveData.itemChange { items, _ ->
                 items?.forEach {
-                    if (it.data?.startsWith("profile") == true) {
-                        it.data = "profile:${Profile.active().desc}"
+                    if (it.data?.text?.startsWith("profile") == true) {
+                        it.data?.text = "profile:${Profile.active().desc}"
                         it.hasPayload()
                     }
                 }

@@ -76,7 +76,7 @@ class LoggerListFragment : OverrideMenuFragment() {
         }
     }
 
-    class Presenter(private var mApp: Application) : MvpPresenter(mApp) {
+    class Presenter(app: Application) : MvpPresenter(app) {
 
         val liveData = object : ListLiveData<LoggerItem>({ DataItem(it) }) {
             override fun getData(loadParams: LoadParams): List<LoggerItem>? {
