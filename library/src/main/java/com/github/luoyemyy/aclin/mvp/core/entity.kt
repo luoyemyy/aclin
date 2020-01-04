@@ -1,7 +1,9 @@
-package com.github.luoyemyy.aclin.mvp
+@file:Suppress("UNUSED_PARAMETER")
+
+package com.github.luoyemyy.aclin.mvp.core
 
 
-class NotifyData<T : MvpData>(@LoadParams.LoadType var loadType: Int, var items: List<DataItem<T>>)
+class NotifyItems<T : MvpData>(@LoadParams.LoadType var loadType: Int, var items: List<DataItem<T>>)
 
 class TextData(var text: String?) : MvpData()
 
@@ -24,7 +26,7 @@ class DataItem<T : MvpData>() {
     }
 
     fun areItemsTheSame(oldItem: DataItem<T>): Boolean {
-        return this == oldItem
+        return this.type == oldItem.type && this.data == oldItem.data
     }
 
     fun areContentsTheSame(oldItem: DataItem<T>): Boolean {

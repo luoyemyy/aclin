@@ -26,11 +26,11 @@ class QrCodeBuilder private constructor() {
     }
 
     fun buildAndScan(callback: QrCodeCallback) {
-        setBus(mFragment, QR_CODE_RESULT, BusResult {
+        mFragment.setBus(BusResult {
             it.extra?.getString(QR_CODE_RESULT)?.apply {
                 callback(this)
             }
-        })
+        }, QR_CODE_RESULT)
         mFragment.findNavController().navigate(mActionId)
     }
 

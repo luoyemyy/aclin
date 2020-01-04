@@ -1,4 +1,4 @@
-package com.github.luoyemyy.aclin.mvp
+package com.github.luoyemyy.aclin.mvp.decoration
 
 import android.content.Context
 import android.graphics.Rect

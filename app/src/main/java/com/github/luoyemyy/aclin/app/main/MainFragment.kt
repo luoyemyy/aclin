@@ -13,9 +13,12 @@ import com.github.luoyemyy.aclin.app.databinding.FragmentListBinding
 import com.github.luoyemyy.aclin.app.databinding.FragmentListItemBinding
 import com.github.luoyemyy.aclin.bus.BusMsg
 import com.github.luoyemyy.aclin.bus.BusResult
-import com.github.luoyemyy.aclin.bus.addBus
+import com.github.luoyemyy.aclin.bus.setBus
 import com.github.luoyemyy.aclin.ext.toast
-import com.github.luoyemyy.aclin.mvp.*
+import com.github.luoyemyy.aclin.mvp.adapter.FixedAdapter
+import com.github.luoyemyy.aclin.mvp.core.*
+import com.github.luoyemyy.aclin.mvp.ext.getPresenter
+import com.github.luoyemyy.aclin.mvp.ext.setupLinear
 import com.github.luoyemyy.aclin.profile.Profile
 import com.github.luoyemyy.aclin.scan.QrCodeBuilder
 
@@ -31,10 +34,14 @@ class MainFragment : Fragment(), BusResult {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         mPresenter = getPresenter()
         mBinding.apply {
-            recyclerView.setupLinear(Adapter())
-            swipeRefreshLayout.setup(mPresenter.listLiveData)
+            recyclerView.setupLinear(Adapter().apply {
+                setup(this@MainFragment, mPresenter.listLiveData)
+            })
+            swipeRefreshLayout.setOnRefreshListener {
+                mPresenter.listLiveData.loadRefresh(mPresenter.getData())
+            }
         }
-        addBus(this, BusEvent.PROFILE_CHANGE, this)
+        setBus(this, BusEvent.PROFILE_CHANGE)
         mPresenter.loadInit(arguments)
     }
 
@@ -44,7 +51,13 @@ class MainFragment : Fragment(), BusResult {
         }
     }
 
-    inner class Adapter : FixedAdapter<TextData, FragmentListItemBinding>(this, mPresenter.listLiveData) {
+    inner class Adapter : FixedAdapter<TextData, FragmentListItemBinding>() {
+
+        override fun notifyAfter(type: Int) {
+            if (LoadParams.isRefresh(type)) {
+                mBinding.swipeRefreshLayout.isRefreshing = false
+            }
+        }
 
         override fun getContentBinding(viewType: Int, parent: ViewGroup): FragmentListItemBinding {
             return FragmentListItemBinding.inflate(layoutInflater, parent, false)
@@ -79,7 +92,11 @@ class MainFragment : Fragment(), BusResult {
         val listLiveData = ListLiveData<TextData> { DataItem(it) }
 
         override fun loadData(bundle: Bundle?) {
-            val list = listOf(
+            listLiveData.loadStart(getData())
+        }
+
+        fun getData(): List<TextData> {
+            return listOf(
                 "itemList",
                 "itemList-reversed",
                 "profile:${Profile.active().desc}",
@@ -87,9 +104,7 @@ class MainFragment : Fragment(), BusResult {
                 "image",
                 "logger",
                 "paging",
-                "qrcode"
-                             )
-            listLiveData.loadStart(list.map { TextData(it) })
+                "qrcode").map { TextData(it) }
         }
 
         fun updateProfile() {

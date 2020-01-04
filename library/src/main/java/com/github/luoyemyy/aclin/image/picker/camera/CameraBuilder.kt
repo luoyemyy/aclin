@@ -8,7 +8,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.Observer
 import com.github.luoyemyy.aclin.file.FileManager
 import com.github.luoyemyy.aclin.logger.loge
-import com.github.luoyemyy.aclin.mvp.getPresenter
+import com.github.luoyemyy.aclin.mvp.ext.getPresenter
 import java.util.*
 
 

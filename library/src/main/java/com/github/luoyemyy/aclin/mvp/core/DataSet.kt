@@ -1,6 +1,6 @@
 @file:Suppress("unused")
 
-package com.github.luoyemyy.aclin.mvp
+package com.github.luoyemyy.aclin.mvp.core
 
 import java.util.*
 
@@ -16,6 +16,7 @@ class DataSet<T : MvpData>(private val mTransform: (T) -> DataItem<T>) {
         const val MORE_FAILURE = -203
     }
 
+    var enableInit: Boolean = true
     var enableMore: Boolean = true
     var reversed: Boolean = false
     val dataList: MutableList<T> = mutableListOf()
@@ -85,13 +86,15 @@ class DataSet<T : MvpData>(private val mTransform: (T) -> DataItem<T>) {
         }
         if (mState != INIT_END) {
             mExtraItem.type = mState
-            if (reversed) {
-                list.add(0, mExtraItem)
-            } else {
-                list.add(mExtraItem)
+            if (mState != INIT_LOADING || enableInit) {
+                if (reversed) {
+                    list.add(0, mExtraItem)
+                } else {
+                    list.add(mExtraItem)
+                }
             }
         }
-        return Collections.unmodifiableList(list).apply {
+        return list.apply {
             lastItemList = this
         }
     }

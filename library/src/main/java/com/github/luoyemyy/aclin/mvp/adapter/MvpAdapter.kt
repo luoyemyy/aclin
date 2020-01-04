@@ -1,6 +1,6 @@
 @file:Suppress("unused")
 
-package com.github.luoyemyy.aclin.mvp
+package com.github.luoyemyy.aclin.mvp.adapter
 
 import android.view.LayoutInflater
 import android.view.MotionEvent
@@ -12,28 +12,31 @@ import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
 import com.github.luoyemyy.aclin.databinding.*
 import com.github.luoyemyy.aclin.ext.TouchInfo
+import com.github.luoyemyy.aclin.mvp.core.*
+import com.github.luoyemyy.aclin.mvp.ext.SortCallback
+import com.github.luoyemyy.aclin.mvp.ext.UpdateListener
 
-abstract class MvpAdapter<T : MvpData, BIND : ViewDataBinding>(owner: LifecycleOwner, private val mLiveData: ListLiveData<T>)
+
+abstract class MvpAdapter<T : MvpData, BIND : ViewDataBinding>
     : RecyclerView.Adapter<VH<ViewDataBinding>>(), MvpAdapterExt<T, BIND> {
 
+    var enableInit: Boolean = true
     var enableMore: Boolean = true
-        set(value) {
-            mLiveData.config(value, reversed)
-            field = value
-        }
     var reversed: Boolean = false
-        set(value) {
-            mLiveData.config(enableMore, value)
-            field = value
-        }
     var enableSort = false
     var enablePopupMenu = false
+    private lateinit var mLiveData: ListLiveData<T>
+    private lateinit var mDiffer: MvpDiffer<T>
     private var mRecyclerView: RecyclerView? = null
-    private val mDiffer: MvpDiffer<T> = MvpDiffer(this)
     private val mItemTouchHelper by lazy { ItemTouchHelper(SortCallback(mLiveData)) }
 
-    init {
-        mLiveData.config(enableMore, reversed)
+    fun setup(owner: LifecycleOwner, liveData: ListLiveData<T>) {
+        mDiffer = MvpDiffer(this)
+        mLiveData = liveData
+        mLiveData.enableInit(enableInit)
+        mLiveData.enableMore(enableMore)
+        mLiveData.reversed(reversed)
+        mLiveData.startInit()
         mLiveData.observe(owner, Observer {
             mDiffer.update(it.items) { _, _ ->
                 notifyAfter(it.loadType)

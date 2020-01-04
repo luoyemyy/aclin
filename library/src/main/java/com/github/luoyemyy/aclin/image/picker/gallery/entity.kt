@@ -1,6 +1,6 @@
 package com.github.luoyemyy.aclin.image.picker.gallery
 
-import com.github.luoyemyy.aclin.mvp.MvpData
+import com.github.luoyemyy.aclin.mvp.core.MvpData
 
 class Image(var path: String, var select: Boolean = false) : MvpData()
 

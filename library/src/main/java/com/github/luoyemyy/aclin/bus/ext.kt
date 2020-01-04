@@ -1,21 +1,21 @@
 package com.github.luoyemyy.aclin.bus
 
 import android.os.Bundle
-import androidx.lifecycle.LifecycleOwner
+import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProvider
 
-fun addBus(owner: LifecycleOwner, event: String, result: BusResult) {
-    Bus.register(BusObserver(owner.lifecycle, result, event))
+
+fun Fragment.setBus(busResult: BusResult,vararg events: String) {
+    getBusLiveData().also {
+        it.removeObservers(this)
+        it.observe(this, BusObserver(busResult, events.toList()))
+    }
 }
 
-fun setBus(owner: LifecycleOwner, event: String, result: BusResult) {
-    Bus.replaceRegister(BusObserver(owner.lifecycle, result, event))
+fun Fragment.postBus(event: String, intValue: Int = 0, longValue: Long = 0L, boolValue: Boolean = false, stringValue: String? = null, extra: Bundle? = null) {
+    getBusLiveData().postValue(BusMsg(event, intValue, longValue, boolValue, stringValue, extra))
 }
 
-//debug
-fun debugBus(debugListener: BusDebugListener) {
-    Bus.addDebug(debugListener)
-}
-
-fun postBus(event: String, intValue: Int = 0, longValue: Long = 0L, boolValue: Boolean = false, stringValue: String? = null, extra: Bundle? = null) {
-    Bus.post(event, intValue, longValue, boolValue, stringValue, extra)
+fun Fragment.getBusLiveData(): BusLiveData {
+    return ViewModelProvider(this.requireActivity())[BusPresenter::class.java].busLiveData
 }

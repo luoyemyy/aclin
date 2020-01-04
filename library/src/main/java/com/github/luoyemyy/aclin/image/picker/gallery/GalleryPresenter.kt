@@ -2,7 +2,7 @@ package com.github.luoyemyy.aclin.image.picker.gallery
 
 import android.app.Application
 import android.os.Bundle
-import com.github.luoyemyy.aclin.mvp.MvpPresenter
+import com.github.luoyemyy.aclin.mvp.core.MvpPresenter
 
 class GalleryPresenter(private var mApp: Application) : MvpPresenter(mApp) {
 

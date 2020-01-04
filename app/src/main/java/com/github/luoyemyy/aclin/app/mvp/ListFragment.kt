@@ -7,7 +7,11 @@ import com.github.luoyemyy.aclin.app.R
 import com.github.luoyemyy.aclin.app.databinding.FragmentListBinding
 import com.github.luoyemyy.aclin.app.databinding.FragmentListItemBinding
 import com.github.luoyemyy.aclin.fragment.OverrideMenuFragment
-import com.github.luoyemyy.aclin.mvp.*
+import com.github.luoyemyy.aclin.mvp.adapter.MvpAdapter
+import com.github.luoyemyy.aclin.mvp.core.*
+import com.github.luoyemyy.aclin.mvp.ext.getPresenter
+import com.github.luoyemyy.aclin.mvp.ext.setup
+import com.github.luoyemyy.aclin.mvp.ext.setupLinear
 import kotlin.random.Random
 
 class ListFragment : OverrideMenuFragment() {
@@ -22,7 +26,9 @@ class ListFragment : OverrideMenuFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         mPresenter = getPresenter()
         mBinding.apply {
-            recyclerView.setupLinear(Adapter())
+            recyclerView.setupLinear(Adapter().apply {
+                setup(this@ListFragment, mPresenter.listLiveData)
+            })
             swipeRefreshLayout.setup(mPresenter.listLiveData)
         }
         mPresenter.loadInit(arguments)
@@ -37,7 +43,7 @@ class ListFragment : OverrideMenuFragment() {
         return super.onOptionsItemSelected(item)
     }
 
-    inner class Adapter : MvpAdapter<TextData, FragmentListItemBinding>(this, mPresenter.listLiveData) {
+    inner class Adapter : MvpAdapter<TextData, FragmentListItemBinding>() {
 
         override fun getContentBinding(viewType: Int, parent: ViewGroup): FragmentListItemBinding {
             return FragmentListItemBinding.inflate(layoutInflater, parent, false)

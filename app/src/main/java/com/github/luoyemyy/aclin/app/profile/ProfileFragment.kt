@@ -10,8 +10,16 @@ import com.github.luoyemyy.aclin.api.refreshApi
 import com.github.luoyemyy.aclin.app.common.util.BusEvent
 import com.github.luoyemyy.aclin.app.databinding.FragmentListBinding
 import com.github.luoyemyy.aclin.app.databinding.FragmentProfileItemBinding
-import com.github.luoyemyy.aclin.bus.postBus
-import com.github.luoyemyy.aclin.mvp.*
+import com.github.luoyemyy.aclin.bus.BusLiveData
+import com.github.luoyemyy.aclin.bus.getBusLiveData
+import com.github.luoyemyy.aclin.mvp.adapter.FixedAdapter
+import com.github.luoyemyy.aclin.mvp.core.DataItem
+import com.github.luoyemyy.aclin.mvp.core.ListLiveData
+import com.github.luoyemyy.aclin.mvp.core.MvpPresenter
+import com.github.luoyemyy.aclin.mvp.core.VH
+import com.github.luoyemyy.aclin.mvp.ext.getPresenter
+import com.github.luoyemyy.aclin.mvp.ext.setup
+import com.github.luoyemyy.aclin.mvp.ext.setupLinear
 import com.github.luoyemyy.aclin.profile.Profile
 
 class ProfileFragment : Fragment() {
@@ -25,14 +33,17 @@ class ProfileFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         mPresenter = getPresenter()
+        mPresenter.busLiveData = getBusLiveData()
         mBinding.apply {
-            recyclerView.setupLinear(Adapter())
+            recyclerView.setupLinear(Adapter().apply {
+                setup(this@ProfileFragment, mPresenter.listLiveData)
+            })
             swipeRefreshLayout.setup(mPresenter.listLiveData)
         }
         mPresenter.loadInit(arguments)
     }
 
-    inner class Adapter : FixedAdapter<ProfileItem, FragmentProfileItemBinding>(this, mPresenter.listLiveData) {
+    inner class Adapter : FixedAdapter<ProfileItem, FragmentProfileItemBinding>() {
 
         override fun getContentBinding(viewType: Int, parent: ViewGroup): FragmentProfileItemBinding {
             return FragmentProfileItemBinding.inflate(layoutInflater, parent, false)
@@ -54,6 +65,7 @@ class ProfileFragment : Fragment() {
     class Presenter(private var mApp: Application) : MvpPresenter(mApp) {
 
         val listLiveData = ListLiveData<ProfileItem> { DataItem(it) }
+        lateinit var busLiveData: BusLiveData
 
         override fun loadData(bundle: Bundle?) {
             listLiveData.loadStart(Profile.allTypes().map { ProfileItem(it.desc, it.isActive()) })
@@ -64,7 +76,7 @@ class ProfileFragment : Fragment() {
             if (activePosition != selectPosition) {
                 Profile.changeType(mApp, selectPosition) {
                     refreshApi()
-                    postBus(BusEvent.PROFILE_CHANGE)
+                    busLiveData.post(BusEvent.PROFILE_CHANGE)
                     listLiveData.itemChange { items, _ ->
                         (items?.get(activePosition))?.apply {
                             data?.active = false

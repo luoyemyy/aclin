@@ -1,7 +1,6 @@
 package com.github.luoyemyy.aclin.app.picker
 
 import android.app.Application
-import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -16,7 +15,11 @@ import com.github.luoyemyy.aclin.fragment.OverrideMenuFragment
 import com.github.luoyemyy.aclin.image.crop.CropBuilder
 import com.github.luoyemyy.aclin.image.picker.camera.CameraBuilder
 import com.github.luoyemyy.aclin.image.picker.gallery.GalleryBuilder
-import com.github.luoyemyy.aclin.mvp.*
+import com.github.luoyemyy.aclin.mvp.adapter.FixedAdapter
+import com.github.luoyemyy.aclin.mvp.core.*
+import com.github.luoyemyy.aclin.mvp.ext.getPresenter
+import com.github.luoyemyy.aclin.mvp.ext.setup
+import com.github.luoyemyy.aclin.mvp.ext.setupLinear
 
 class PickerFragment : OverrideMenuFragment() {
 
@@ -30,7 +33,9 @@ class PickerFragment : OverrideMenuFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         mPresenter = getPresenter()
         mBinding.apply {
-            recyclerView.setupLinear(Adapter(requireContext()).apply { enablePopupMenu = true })
+            recyclerView.setupLinear(Adapter().apply {
+                setup(this@PickerFragment, mPresenter.listLiveData)
+            })
             swipeRefreshLayout.setup(mPresenter.listLiveData)
         }
         mPresenter.loadInit(arguments)
@@ -56,8 +61,11 @@ class PickerFragment : OverrideMenuFragment() {
                 }
     }
 
-    inner class Adapter(private var context: Context) : FixedAdapter<TextData, FragmentListItemBinding>(this, mPresenter.listLiveData) {
+    inner class Adapter : FixedAdapter<TextData, FragmentListItemBinding>() {
 
+        init {
+            enablePopupMenu = true
+        }
 
         override fun bindContentViewHolder(binding: FragmentListItemBinding, data: TextData?, viewType: Int, position: Int) {
             binding.apply {

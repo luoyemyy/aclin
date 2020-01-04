@@ -11,7 +11,11 @@ import com.github.luoyemyy.aclin.databinding.AclinLoggerListBinding
 import com.github.luoyemyy.aclin.databinding.AclinLoggerListItemBinding
 import com.github.luoyemyy.aclin.ext.toast
 import com.github.luoyemyy.aclin.fragment.OverrideMenuFragment
-import com.github.luoyemyy.aclin.mvp.*
+import com.github.luoyemyy.aclin.mvp.adapter.FixedAdapter
+import com.github.luoyemyy.aclin.mvp.core.*
+import com.github.luoyemyy.aclin.mvp.ext.getPresenter
+import com.github.luoyemyy.aclin.mvp.ext.setup
+import com.github.luoyemyy.aclin.mvp.ext.setupLinear
 import java.io.File
 
 class LoggerListFragment : OverrideMenuFragment() {
@@ -25,7 +29,9 @@ class LoggerListFragment : OverrideMenuFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         mPresenter = getPresenter()
-        mBinding.recyclerView.setupLinear(Adapter())
+        mBinding.recyclerView.setupLinear(Adapter().apply {
+            setup(this@LoggerListFragment, mPresenter.liveData)
+        })
         mBinding.swipeRefreshLayout.setup(mPresenter.liveData)
         mPresenter.loadInit(arguments)
     }
@@ -51,7 +57,7 @@ class LoggerListFragment : OverrideMenuFragment() {
         return super.onOptionsItemSelected(item)
     }
 
-    inner class Adapter : FixedAdapter<LoggerItem, AclinLoggerListItemBinding>(this, mPresenter.liveData) {
+    inner class Adapter : FixedAdapter<LoggerItem, AclinLoggerListItemBinding>() {
         override fun bindContentViewHolder(binding: AclinLoggerListItemBinding, data: LoggerItem?, viewType: Int, position: Int) {
             binding.apply {
                 entity = data

@@ -1,30 +1,13 @@
 package com.github.luoyemyy.aclin.app
 
 import android.app.Application
-import android.util.Log
 import com.github.luoyemyy.aclin.app.common.db.Db
 import com.github.luoyemyy.aclin.app.common.profile.Properties
-import com.github.luoyemyy.aclin.bus.Bus
-import com.github.luoyemyy.aclin.bus.BusDebugListener
 
-class App : Application(), BusDebugListener {
+class App : Application() {
     override fun onCreate() {
         super.onCreate()
         Db.initDb(this)
         AppInfo.init(this, BuildConfig.BUILD_TYPE, Properties())
-
-        //        debugBus(this)
-    }
-
-    override fun onRegister(current: Bus.Callback, all: List<Bus.Callback>) {
-        Log.e("App", "debugBus.onRegister: current=[${current.interceptEvent()}],all=[${all.joinToString(",") { it.interceptEvent() }}]")
-    }
-
-    override fun onUnRegister(current: Bus.Callback, all: List<Bus.Callback>) {
-        Log.e("App", "debugBus.onUnRegister: current=[${current.interceptEvent()}],all=[${all.joinToString(",") { it.interceptEvent() }}]")
-    }
-
-    override fun onPost(event: String, match: List<Bus.Callback>) {
-        Log.e("App", "debugBus.onPost: current=[$event],size=[${match.size}]")
     }
 }

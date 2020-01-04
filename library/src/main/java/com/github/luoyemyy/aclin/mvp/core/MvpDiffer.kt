@@ -1,6 +1,4 @@
-@file:Suppress("UNCHECKED_CAST")
-
-package com.github.luoyemyy.aclin.mvp
+package com.github.luoyemyy.aclin.mvp.core
 
 import androidx.databinding.ViewDataBinding
 import androidx.recyclerview.widget.AdapterListUpdateCallback
@@ -9,6 +7,7 @@ import androidx.recyclerview.widget.ListUpdateCallback
 import androidx.recyclerview.widget.RecyclerView
 import com.github.luoyemyy.aclin.ext.runOnMain
 import com.github.luoyemyy.aclin.ext.runOnThread
+import com.github.luoyemyy.aclin.mvp.ext.UpdateListener
 import java.util.concurrent.CopyOnWriteArrayList
 
 class MvpDiffer<T : MvpData>(adapter: RecyclerView.Adapter<VH<ViewDataBinding>>) {
@@ -22,7 +21,7 @@ class MvpDiffer<T : MvpData>(adapter: RecyclerView.Adapter<VH<ViewDataBinding>>)
 
     fun countItem(): Int = mImmutableList.size
 
-    fun getItem(position: Int): T? = mImmutableList[position] as? T
+    fun getItem(position: Int): T? = mImmutableList[position].data
 
     fun addUpdateListener(listener: UpdateListener<T>) {
         mListeners.add(listener)
@@ -30,9 +29,6 @@ class MvpDiffer<T : MvpData>(adapter: RecyclerView.Adapter<VH<ViewDataBinding>>)
 
     fun update(newList: List<DataItem<T>>, updateListener: UpdateListener<T>? = null) {
         val runGeneration = ++mMaxScheduledGeneration
-        if (newList == mImmutableList) {
-            return
-        }
         val oldList = mImmutableList
         if (newList.isEmpty()) {
             if (oldList.isNotEmpty()) {

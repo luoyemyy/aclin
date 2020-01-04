@@ -1,4 +1,4 @@
-package com.github.luoyemyy.aclin.mvp
+package com.github.luoyemyy.aclin.mvp.core
 
 import androidx.annotation.IntDef
 
@@ -10,6 +10,8 @@ class LoadParams {
         const val TYPE_START = 2
         const val TYPE_REFRESH = 3
         const val TYPE_MORE = 4
+
+        fun isRefresh(type: Int): Boolean = type == TYPE_REFRESH
     }
 
     @IntDef(TYPE_INIT, TYPE_UPDATE, TYPE_START, TYPE_REFRESH, TYPE_MORE)

@@ -1,15 +1,15 @@
 @file:Suppress("unused")
 
-package com.github.luoyemyy.aclin.mvp
+package com.github.luoyemyy.aclin.mvp.adapter
 
 import android.view.View
 import android.view.ViewGroup
 import androidx.databinding.ViewDataBinding
+import com.github.luoyemyy.aclin.mvp.core.VH
 
 interface MvpAdapterExt<T, BIND : ViewDataBinding> {
 
-
-    fun notifyAfter(type: Int){}
+    fun notifyAfter(type: Int) {}
     /**
      * 绑定列表数据
      */

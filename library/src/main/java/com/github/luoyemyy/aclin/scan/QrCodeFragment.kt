@@ -12,8 +12,8 @@ import com.github.luoyemyy.aclin.bus.postBus
 import com.github.luoyemyy.aclin.databinding.AclinScanBinding
 import com.github.luoyemyy.aclin.fragment.OverrideMenuFragment
 import com.github.luoyemyy.aclin.logger.logd
-import com.github.luoyemyy.aclin.mvp.MvpPresenter
-import com.github.luoyemyy.aclin.mvp.getPresenter
+import com.github.luoyemyy.aclin.mvp.core.MvpPresenter
+import com.github.luoyemyy.aclin.mvp.ext.getPresenter
 
 class QrCodeFragment : OverrideMenuFragment(), ImageAnalysis.Analyzer, Preview.OnPreviewOutputUpdateListener {
 

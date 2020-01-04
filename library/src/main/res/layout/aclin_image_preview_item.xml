@@ -5,7 +5,7 @@
 
         <variable
             name="entity"
-            type="com.github.luoyemyy.aclin.mvp.TextItem" />
+            type="com.github.luoyemyy.aclin.mvp.core.TextData" />
     </data>
 
     <com.github.luoyemyy.aclin.image.preview.PreviewImageView

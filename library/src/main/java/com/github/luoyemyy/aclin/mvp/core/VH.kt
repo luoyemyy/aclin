@@ -1,4 +1,4 @@
-package com.github.luoyemyy.aclin.mvp
+package com.github.luoyemyy.aclin.mvp.core
 
 import androidx.databinding.ViewDataBinding
 import androidx.recyclerview.widget.RecyclerView

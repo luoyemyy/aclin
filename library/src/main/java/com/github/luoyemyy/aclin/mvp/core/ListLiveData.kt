@@ -1,4 +1,4 @@
-package com.github.luoyemyy.aclin.mvp
+package com.github.luoyemyy.aclin.mvp.core
 
 import androidx.annotation.MainThread
 import androidx.annotation.WorkerThread
@@ -6,32 +6,41 @@ import androidx.lifecycle.MutableLiveData
 import com.github.luoyemyy.aclin.ext.runOnThread
 import java.util.concurrent.atomic.AtomicBoolean
 
-open class ListLiveData<T : MvpData>(transform: (T) -> DataItem<T>) : MutableLiveData<NotifyData<T>>() {
+open class ListLiveData<T : MvpData>(transform: (T) -> DataItem<T>) : MutableLiveData<NotifyItems<T>>() {
 
     private val mDataSet = DataSet(transform)
+    private val mInit = AtomicBoolean(false)
     private val mLoadStart = AtomicBoolean(false)
     private val mLoading = AtomicBoolean(false)
     private val mLoadParams = LoadParams()
 
-    init {
-        value = NotifyData(LoadParams.TYPE_INIT, mDataSet.itemList())
+    fun enableMore(enable: Boolean) {
+        mDataSet.enableMore = enable
     }
 
-    fun config(enableMore: Boolean, reversed: Boolean) {
-        mDataSet.also {
-            it.enableMore = enableMore
-            it.reversed = reversed
+    fun enableInit(enable: Boolean) {
+        mDataSet.enableInit = enable
+    }
+
+    fun reversed(enable: Boolean) {
+        mDataSet.reversed = enable
+    }
+
+    fun startInit() {
+        if (mInit.compareAndSet(false, true)) {
+            value = NotifyItems(LoadParams.TYPE_INIT, mDataSet.itemList())
         }
     }
 
     private fun post(@LoadParams.LoadType type: Int, items: List<DataItem<T>>) {
-        postValue(NotifyData(type, items))
+        postValue(NotifyItems(type, items))
     }
 
     @MainThread
     fun loadRefresh(refreshData: List<T>? = null) {
         if (mLoading.compareAndSet(false, true)) {
             mLoadStart.set(true)
+            mLoadParams.refresh()
             if (!refreshData.isNullOrEmpty()) {
                 post(mLoadParams.loadType, mDataSet.addStartData(refreshData))
                 mLoading.set(false)
@@ -39,7 +48,6 @@ open class ListLiveData<T : MvpData>(transform: (T) -> DataItem<T>) : MutableLiv
             }
             runOnThread {
                 try {
-                    mLoadParams.refresh()
                     mLoadParams.resetPage()
                     post(mLoadParams.loadType, mDataSet.addStartData(getData(mLoadParams)))
                 } catch (e: Throwable) {
@@ -54,6 +62,7 @@ open class ListLiveData<T : MvpData>(transform: (T) -> DataItem<T>) : MutableLiv
     @MainThread
     fun loadStart(startData: List<T>? = null) {
         if (mLoadStart.compareAndSet(false, true) && mLoading.compareAndSet(false, true)) {
+            mLoadParams.start()
             if (!startData.isNullOrEmpty()) {
                 post(mLoadParams.loadType, mDataSet.addStartData(startData))
                 mLoading.set(false)
@@ -61,7 +70,6 @@ open class ListLiveData<T : MvpData>(transform: (T) -> DataItem<T>) : MutableLiv
             }
             runOnThread {
                 try {
-                    mLoadParams.start()
                     mLoadParams.resetPage()
                     post(mLoadParams.loadType, mDataSet.addStartData(getData(mLoadParams)))
                 } catch (e: Throwable) {

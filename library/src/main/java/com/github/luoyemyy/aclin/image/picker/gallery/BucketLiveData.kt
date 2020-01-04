@@ -9,9 +9,9 @@ import androidx.lifecycle.MutableLiveData
 import com.github.luoyemyy.aclin.R
 import com.github.luoyemyy.aclin.ext.runOnMain
 import com.github.luoyemyy.aclin.ext.toast
-import com.github.luoyemyy.aclin.mvp.DataItem
-import com.github.luoyemyy.aclin.mvp.ListLiveData
-import com.github.luoyemyy.aclin.mvp.LoadParams
+import com.github.luoyemyy.aclin.mvp.core.DataItem
+import com.github.luoyemyy.aclin.mvp.core.ListLiveData
+import com.github.luoyemyy.aclin.mvp.core.LoadParams
 import java.io.File
 
 class BucketLiveData(private val mApp: Application) : ListLiveData<Bucket>({ DataItem(it) }) {

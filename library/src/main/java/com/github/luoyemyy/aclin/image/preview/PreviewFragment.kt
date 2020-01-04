@@ -10,7 +10,12 @@ import com.github.luoyemyy.aclin.databinding.AclinImagePreviewBinding
 import com.github.luoyemyy.aclin.databinding.AclinImagePreviewItemBinding
 import com.github.luoyemyy.aclin.ext.runOnMain
 import com.github.luoyemyy.aclin.fragment.OverrideMenuFragment
-import com.github.luoyemyy.aclin.mvp.*
+import com.github.luoyemyy.aclin.mvp.adapter.FixedAdapter
+import com.github.luoyemyy.aclin.mvp.core.DataItem
+import com.github.luoyemyy.aclin.mvp.core.ListLiveData
+import com.github.luoyemyy.aclin.mvp.core.MvpPresenter
+import com.github.luoyemyy.aclin.mvp.core.TextData
+import com.github.luoyemyy.aclin.mvp.ext.getPresenter
 
 class PreviewFragment : OverrideMenuFragment() {
 
@@ -24,7 +29,9 @@ class PreviewFragment : OverrideMenuFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         mPresenter = getPresenter()
         mBinding.viewPager.apply {
-            adapter = Adapter()
+            adapter = Adapter().apply {
+                setup(this@PreviewFragment, mPresenter.listLiveData)
+            }
             offscreenPageLimit = 3
             registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
                 override fun onPageSelected(position: Int) {
@@ -35,17 +42,17 @@ class PreviewFragment : OverrideMenuFragment() {
         mPresenter.loadInit(arguments)
     }
 
-    inner class Adapter : FixedAdapter<TextItem, AclinImagePreviewItemBinding>(this, mPresenter.listLiveData) {
+    inner class Adapter : FixedAdapter<TextData, AclinImagePreviewItemBinding>() {
 
         init {
-            addUpdateListener { oldList, newList ->
+            addUpdateListener { _, _ ->
                 runOnMain {
                     mBinding.viewPager.setCurrentItem(mPresenter.defaultPosition, false)
                 }
             }
         }
 
-        override fun bindContentViewHolder(binding: AclinImagePreviewItemBinding, data: TextItem?, viewType: Int, position: Int) {
+        override fun bindContentViewHolder(binding: AclinImagePreviewItemBinding, data: TextData?, viewType: Int, position: Int) {
             binding.apply {
                 entity = data
                 executePendingBindings()
@@ -61,11 +68,11 @@ class PreviewFragment : OverrideMenuFragment() {
 
         var count: Int = 0
         var defaultPosition: Int = 0
-        val listLiveData = ListLiveData<TextItem>()
+        val listLiveData = ListLiveData<TextData> { DataItem(it) }
 
         override fun loadData(bundle: Bundle?) {
             defaultPosition = bundle?.getInt("current", 0) ?: 0
-            listLiveData.loadStart(bundle?.getStringArrayList("paths")?.map { TextItem(it) }?.apply {
+            listLiveData.loadStart(bundle?.getStringArrayList("paths")?.map { TextData(it) }?.apply {
                 count = size
             })
         }

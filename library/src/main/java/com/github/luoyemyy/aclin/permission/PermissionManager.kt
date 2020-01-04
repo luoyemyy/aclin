@@ -16,7 +16,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.Observer
 import com.github.luoyemyy.aclin.R
 import com.github.luoyemyy.aclin.ext.confirm
-import com.github.luoyemyy.aclin.mvp.getPresenter
+import com.github.luoyemyy.aclin.mvp.ext.getPresenter
 
 object PermissionManager {
 

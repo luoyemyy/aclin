@@ -17,7 +17,13 @@ import com.github.luoyemyy.aclin.databinding.AclinImageCropRatioCustomBinding
 import com.github.luoyemyy.aclin.ext.show
 import com.github.luoyemyy.aclin.file.FileManager
 import com.github.luoyemyy.aclin.fragment.OverrideMenuFragment
-import com.github.luoyemyy.aclin.mvp.*
+import com.github.luoyemyy.aclin.mvp.adapter.FixedAdapter
+import com.github.luoyemyy.aclin.mvp.core.DataItem
+import com.github.luoyemyy.aclin.mvp.core.ListLiveData
+import com.github.luoyemyy.aclin.mvp.core.MvpPresenter
+import com.github.luoyemyy.aclin.mvp.core.VH
+import com.github.luoyemyy.aclin.mvp.ext.getPresenter
+import com.github.luoyemyy.aclin.mvp.ext.setupLinear
 import java.io.FileOutputStream
 
 class CropFragment : OverrideMenuFragment(), View.OnClickListener {
@@ -74,7 +80,9 @@ class CropFragment : OverrideMenuFragment(), View.OnClickListener {
         })
         mPresenter.list.observe(this, Observer {
             mBinding.recyclerView.show()
-            mBinding.recyclerView.setupLinear(Adapter(), false)
+            mBinding.recyclerView.setupLinear(Adapter().apply {
+                setup(this@CropFragment,mPresenter.listLiveData)
+            }, false)
             mBinding.recyclerView.setHasFixedSize(true)
             mPresenter.loadInit(arguments)
         })
@@ -118,7 +126,7 @@ class CropFragment : OverrideMenuFragment(), View.OnClickListener {
         }
     }
 
-    inner class Adapter : FixedAdapter<CropImage, AclinImageCropImageBinding>(this, mPresenter.listLiveData) {
+    inner class Adapter : FixedAdapter<CropImage, AclinImageCropImageBinding>() {
 
         override fun bindContentViewHolder(binding: AclinImageCropImageBinding, data: CropImage?, viewType: Int, position: Int) {
             binding.apply {
@@ -132,7 +140,7 @@ class CropFragment : OverrideMenuFragment(), View.OnClickListener {
         }
 
         override fun onItemViewClick(binding: AclinImageCropImageBinding, vh: VH<*>, view: View) {
-            (getItem(vh.adapterPosition) as? CropImage)?.apply {
+            getItem(vh.adapterPosition)?.apply {
                 mPresenter.setCropImage(this)
             }
         }
@@ -146,7 +154,7 @@ class CropFragment : OverrideMenuFragment(), View.OnClickListener {
         val menu = MutableLiveData<Boolean>()
         val list = MutableLiveData<Boolean>()
 
-        val listLiveData = ListLiveData<CropImage>({ DataItem(it) })
+        val listLiveData = ListLiveData<CropImage> { DataItem(it) }
 
         private lateinit var mCropArgs: CropArgs
         private lateinit var mCropImage: CropImage

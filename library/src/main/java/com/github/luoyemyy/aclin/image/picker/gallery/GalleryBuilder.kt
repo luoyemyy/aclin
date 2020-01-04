@@ -45,11 +45,11 @@ class GalleryBuilder private constructor() {
     }
 
     fun buildAndPicker(callback: GalleryCallback) {
-        setBus(mFragment, PICKER_RESULT, BusResult {
+        mFragment.setBus(BusResult {
             it.extra?.getStringArrayList(PICKER_RESULT)?.apply {
                 callback(this)
             }
-        })
+        },PICKER_RESULT)
         mFragment.findNavController().navigate(mActionId, bundleOf(MIN_SELECT to mMin, MAX_SELECT to mMax))
     }
 

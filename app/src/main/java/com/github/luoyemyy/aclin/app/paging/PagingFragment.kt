@@ -11,7 +11,11 @@ import com.github.luoyemyy.aclin.app.R
 import com.github.luoyemyy.aclin.app.databinding.FragmentListBinding
 import com.github.luoyemyy.aclin.app.databinding.FragmentListItem2Binding
 import com.github.luoyemyy.aclin.fragment.OverrideMenuFragment
-import com.github.luoyemyy.aclin.mvp.*
+import com.github.luoyemyy.aclin.mvp.adapter.MvpAdapter
+import com.github.luoyemyy.aclin.mvp.core.DataItem
+import com.github.luoyemyy.aclin.mvp.core.ListLiveData
+import com.github.luoyemyy.aclin.mvp.core.LoadParams
+import com.github.luoyemyy.aclin.mvp.core.TextData
 import java.util.*
 
 class PagingFragment : OverrideMenuFragment() {
@@ -40,11 +44,13 @@ class PagingFragment : OverrideMenuFragment() {
         }
         mBinding.recyclerView.setHasFixedSize(true)
         mBinding.recyclerView.layoutManager = LinearLayoutManager(context, RecyclerView.VERTICAL, false)
-        mBinding.recyclerView.adapter = Adapter()
+        mBinding.recyclerView.adapter = Adapter().apply {
+            setup(this@PagingFragment, mPresenter.liveData)
+        }
         mPresenter.liveData.loadStart()
     }
 
-    inner class Adapter : MvpAdapter<TextData, FragmentListItem2Binding>(this, mPresenter.liveData) {
+    inner class Adapter : MvpAdapter<TextData, FragmentListItem2Binding>() {
         override fun bindContentViewHolder(binding: FragmentListItem2Binding, data: TextData?, viewType: Int, position: Int) {
             binding.apply {
                 entity = getItem(position)

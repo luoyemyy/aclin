@@ -63,11 +63,11 @@ class CropBuilder private constructor() {
     }
 
     fun buildAndCrop() {
-        setBus(mFragment, CROP_RESULT, BusResult {
+        mFragment.setBus(BusResult {
             it.extra?.getStringArrayList(CROP_RESULT)?.apply {
                 mCropCallback?.invoke(this)
             }
-        })
+        }, CROP_RESULT)
         mFragment.findNavController().navigate(mActionId, bundleOf(
             PATHS to mPaths,
             RATIO_FIXED to mRatioFixed,

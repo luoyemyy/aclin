@@ -12,7 +12,11 @@ import com.github.luoyemyy.aclin.databinding.AclinImagePickerGalleryBinding
 import com.github.luoyemyy.aclin.databinding.AclinImagePickerGalleryBucketBinding
 import com.github.luoyemyy.aclin.databinding.AclinImagePickerGalleryImageBinding
 import com.github.luoyemyy.aclin.fragment.OverrideMenuFragment
-import com.github.luoyemyy.aclin.mvp.*
+import com.github.luoyemyy.aclin.mvp.adapter.FixedAdapter
+import com.github.luoyemyy.aclin.mvp.core.VH
+import com.github.luoyemyy.aclin.mvp.ext.getPresenter
+import com.github.luoyemyy.aclin.mvp.ext.setupGrid
+import com.github.luoyemyy.aclin.mvp.ext.setupLinear
 import com.github.luoyemyy.aclin.permission.PermissionManager
 import com.github.luoyemyy.aclin.permission.requestPermission
 import com.google.android.material.bottomsheet.BottomSheetBehavior
@@ -62,9 +66,13 @@ class GalleryFragment : OverrideMenuFragment() {
         })
 
         mBinding.apply {
-            recyclerView.setupGrid(ImageAdapter(), mPresenter.getImageSpan())
+            recyclerView.setupGrid(ImageAdapter().apply {
+                setup(this@GalleryFragment, mPresenter.imagesLiveData)
+            }, mPresenter.getImageSpan())
             recyclerView.setHasFixedSize(true)
-            recyclerViewBucket.setupLinear(BucketAdapter())
+            recyclerViewBucket.setupLinear(BucketAdapter().apply {
+                setup(this@GalleryFragment, mPresenter.bucketsLiveData)
+            })
             recyclerViewBucket.setHasFixedSize(true)
 
             txtSelectBucket.setOnClickListener {
@@ -105,7 +113,7 @@ class GalleryFragment : OverrideMenuFragment() {
     }
 
 
-    inner class ImageAdapter : FixedAdapter<Image, AclinImagePickerGalleryImageBinding>(this, mPresenter.imagesLiveData) {
+    inner class ImageAdapter : FixedAdapter<Image, AclinImagePickerGalleryImageBinding>() {
 
         override fun getContentBinding(viewType: Int, parent: ViewGroup): AclinImagePickerGalleryImageBinding {
             return AclinImagePickerGalleryImageBinding.inflate(layoutInflater, parent, false).apply {
@@ -140,7 +148,7 @@ class GalleryFragment : OverrideMenuFragment() {
         }
     }
 
-    inner class BucketAdapter : FixedAdapter<Bucket, AclinImagePickerGalleryBucketBinding>(this, mPresenter.bucketsLiveData) {
+    inner class BucketAdapter : FixedAdapter<Bucket, AclinImagePickerGalleryBucketBinding>() {
 
         override fun getContentBinding(viewType: Int, parent: ViewGroup): AclinImagePickerGalleryBucketBinding {
             return AclinImagePickerGalleryBucketBinding.inflate(layoutInflater, parent, false)
@@ -154,7 +162,7 @@ class GalleryFragment : OverrideMenuFragment() {
         }
 
         override fun onItemViewClick(binding: AclinImagePickerGalleryBucketBinding, vh: VH<*>, view: View) {
-            mPresenter.bucketsLiveData.selectBucket(getItem(vh.adapterPosition) as? Bucket)
+            mPresenter.bucketsLiveData.selectBucket(getItem(vh.adapterPosition))
             bottomSheetState(false)
         }
     }
