@@ -16,16 +16,13 @@ import com.github.luoyemyy.aclin.mvp.adapter.FixedAdapter
 import com.github.luoyemyy.aclin.mvp.core.VH
 import com.github.luoyemyy.aclin.mvp.ext.getPresenter
 import com.github.luoyemyy.aclin.mvp.ext.setupGrid
-import com.github.luoyemyy.aclin.mvp.ext.setupLinear
 import com.github.luoyemyy.aclin.permission.PermissionManager
 import com.github.luoyemyy.aclin.permission.requestPermission
-import com.google.android.material.bottomsheet.BottomSheetBehavior
 
 class GalleryFragment : OverrideMenuFragment() {
 
     private lateinit var mBinding: AclinImagePickerGalleryBinding
     private lateinit var mPresenter: GalleryPresenter
-    private lateinit var mBottomBehavior: BottomSheetBehavior<View>
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         inflater.inflate(R.menu.aclin_image_picker_gallery, menu)
@@ -55,12 +52,7 @@ class GalleryFragment : OverrideMenuFragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        mBottomBehavior = BottomSheetBehavior.from(mBinding.layoutBucket)
-        bottomSheetState(false)
         mPresenter = getPresenter()
-        mPresenter.selectBucketLiveData.observe(this, Observer {
-            mBinding.entity = it
-        })
         mPresenter.menuLiveData.observe(this, Observer {
             requireActivity().invalidateOptionsMenu()
         })
@@ -70,20 +62,6 @@ class GalleryFragment : OverrideMenuFragment() {
                 setup(this@GalleryFragment, mPresenter.imagesLiveData)
             }, mPresenter.getImageSpan())
             recyclerView.setHasFixedSize(true)
-            recyclerViewBucket.setupLinear(BucketAdapter().apply {
-                setup(this@GalleryFragment, mPresenter.bucketsLiveData)
-            })
-            recyclerViewBucket.setHasFixedSize(true)
-
-            txtSelectBucket.setOnClickListener {
-                bottomSheetToggle()
-            }
-
-            txtPreview.setOnClickListener {
-                mPresenter.bucketsLiveData.selectedImages()?.apply {
-                    toPreview(this)
-                }
-            }
         }
         requestPermission(this, requireContext().getString(R.string.aclin_image_picker_gallery_permission_request))
                 .granted {
@@ -95,25 +73,17 @@ class GalleryFragment : OverrideMenuFragment() {
                 .buildAndRequest(Manifest.permission.WRITE_EXTERNAL_STORAGE)
     }
 
-    private fun bottomSheetToggle() {
-        when (mBottomBehavior.state) {
-            BottomSheetBehavior.STATE_EXPANDED -> bottomSheetState(false)
-            BottomSheetBehavior.STATE_HIDDEN -> bottomSheetState(true)
-        }
-    }
-
     private fun toPreview(paths: ArrayList<String>, current: Int = 0) {
         if (paths.isNotEmpty()) {
             findNavController().navigate(R.id.action_galleryFragment_to_previewFragment, bundleOf("paths" to paths, "current" to current))
         }
     }
 
-    private fun bottomSheetState(show: Boolean) {
-        mBottomBehavior.state = if (show) BottomSheetBehavior.STATE_EXPANDED else BottomSheetBehavior.STATE_HIDDEN
-    }
-
-
     inner class ImageAdapter : FixedAdapter<Image, AclinImagePickerGalleryImageBinding>() {
+
+        init {
+            enableInit = false
+        }
 
         override fun getContentBinding(viewType: Int, parent: ViewGroup): AclinImagePickerGalleryImageBinding {
             return AclinImagePickerGalleryImageBinding.inflate(layoutInflater, parent, false).apply {
@@ -163,7 +133,6 @@ class GalleryFragment : OverrideMenuFragment() {
 
         override fun onItemViewClick(binding: AclinImagePickerGalleryBucketBinding, vh: VH<*>, view: View) {
             mPresenter.bucketsLiveData.selectBucket(getItem(vh.adapterPosition))
-            bottomSheetState(false)
         }
     }
 }

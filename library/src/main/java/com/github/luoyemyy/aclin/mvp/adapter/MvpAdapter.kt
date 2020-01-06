@@ -136,11 +136,11 @@ abstract class MvpAdapter<T : MvpData, BIND : ViewDataBinding>
             DataSet.INIT_LOADING -> AclinListInitLoadingBinding.inflate(inflater, parent, false)
             DataSet.INIT_EMPTY -> AclinListEmptyBinding.inflate(inflater, parent, false)
             DataSet.INIT_FAILURE -> AclinListInitFailureBinding.inflate(inflater, parent, false).apply {
-                root.setOnClickListener { mLiveData.loadStart() }
+                root.setOnClickListener { mLiveData.loadStart(reload = true) }
             }
             DataSet.MORE_LOADING -> AclinListMoreLoadingBinding.inflate(inflater, parent, false)
             DataSet.MORE_FAILURE -> AclinListMoreFailureBinding.inflate(inflater, parent, false).apply {
-                root.setOnClickListener { mLiveData.loadMore() }
+                root.setOnClickListener { mLiveData.loadMore(reload = true) }
             }
             DataSet.MORE_END -> AclinListMoreEndBinding.inflate(inflater, parent, false)
             else -> AclinListNoneBinding.inflate(inflater, parent, false)

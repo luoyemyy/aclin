@@ -28,7 +28,7 @@ open class ListLiveData<T : MvpData>(transform: (T) -> DataItem<T>) : MutableLiv
 
     fun startInit() {
         if (mInit.compareAndSet(false, true)) {
-            value = NotifyItems(LoadParams.TYPE_INIT, mDataSet.itemList())
+            post(LoadParams.TYPE_INIT, mDataSet.itemList())
         }
     }
 
@@ -60,8 +60,12 @@ open class ListLiveData<T : MvpData>(transform: (T) -> DataItem<T>) : MutableLiv
     }
 
     @MainThread
-    fun loadStart(startData: List<T>? = null) {
-        if (mLoadStart.compareAndSet(false, true) && mLoading.compareAndSet(false, true)) {
+    fun loadStart(startData: List<T>? = null, reload: Boolean = false) {
+        if (((reload && mLoading.get()) || mLoadStart.compareAndSet(false, true)) && mLoading.compareAndSet(false, true)) {
+            if (reload) {
+                mDataSet.setStartLoading()
+                post(LoadParams.TYPE_UPDATE, mDataSet.itemList())
+            }
             mLoadParams.start()
             if (!startData.isNullOrEmpty()) {
                 post(mLoadParams.loadType, mDataSet.addStartData(startData))
@@ -70,10 +74,8 @@ open class ListLiveData<T : MvpData>(transform: (T) -> DataItem<T>) : MutableLiv
             }
             runOnThread {
                 try {
-                    mLoadParams.resetPage()
                     post(mLoadParams.loadType, mDataSet.addStartData(getData(mLoadParams)))
                 } catch (e: Throwable) {
-                    mLoadParams.backPage()
                     post(mLoadParams.loadType, mDataSet.setStartFail())
                 } finally {
                     mLoading.set(false)
@@ -83,11 +85,15 @@ open class ListLiveData<T : MvpData>(transform: (T) -> DataItem<T>) : MutableLiv
     }
 
     @MainThread
-    fun loadMore() {
+    fun loadMore(reload: Boolean = false) {
         if (!mLoadStart.get() || mDataSet.isMoreEnd()) { //没有加载过第一页数据 或者 已加载全部数据 ，则跳过
             return
         }
         if (mLoading.compareAndSet(false, true)) {
+            if (reload) {
+                mDataSet.setMoreLoading()
+                post(LoadParams.TYPE_UPDATE, mDataSet.itemList())
+            }
             runOnThread {
                 try {
                     mLoadParams.more()

@@ -49,8 +49,7 @@ class BucketLiveData(private val mApp: Application) : ListLiveData<Bucket>({ Dat
     }
 
     override fun getData(loadParams: LoadParams): List<Bucket>? {
-        load()
-        return mBuckets
+        return load()
     }
 
     private fun countSelectImage(): Int {
@@ -113,7 +112,7 @@ class BucketLiveData(private val mApp: Application) : ListLiveData<Bucket>({ Dat
         var select = bucket ?: mBucketMap[BUCKET_ALL] ?: return
         itemChange { itemList, _ ->
             itemList?.forEach {
-                (it as? Bucket)?.apply {
+                it.data?.apply {
                     if (this.id == select.id) {
                         select = this
                         if (!this.select) {

@@ -2,6 +2,7 @@
 
 package com.github.luoyemyy.aclin.mvp.core
 
+import androidx.annotation.IntDef
 import java.util.*
 
 class DataSet<T : MvpData>(private val mTransform: (T) -> DataItem<T>) {
@@ -15,6 +16,9 @@ class DataSet<T : MvpData>(private val mTransform: (T) -> DataItem<T>) {
         const val MORE_END = -202
         const val MORE_FAILURE = -203
     }
+
+    @IntDef(INIT_LOADING, INIT_FAILURE, INIT_EMPTY, INIT_END, MORE_LOADING, MORE_END, MORE_FAILURE)
+    annotation class State
 
     var enableInit: Boolean = true
     var enableMore: Boolean = true
@@ -34,7 +38,13 @@ class DataSet<T : MvpData>(private val mTransform: (T) -> DataItem<T>) {
      *                                      -more_loading
      *                                      -more_end
      */
+    @State
     private var mState: Int = INIT_LOADING
+
+    fun setStartLoading(): List<DataItem<T>> {
+        mState = INIT_LOADING
+        return itemList()
+    }
 
     fun setStartFail(): List<DataItem<T>> {
         mState = INIT_FAILURE
@@ -49,6 +59,11 @@ class DataSet<T : MvpData>(private val mTransform: (T) -> DataItem<T>) {
             dataList.addAll(startData)
             if (enableMore) MORE_LOADING else INIT_END
         }
+        return itemList()
+    }
+
+    fun setMoreLoading(): List<DataItem<T>> {
+        mState = MORE_LOADING
         return itemList()
     }
 
@@ -86,7 +101,7 @@ class DataSet<T : MvpData>(private val mTransform: (T) -> DataItem<T>) {
         }
         if (mState != INIT_END) {
             mExtraItem.type = mState
-            if (mState != INIT_LOADING || enableInit) {
+            if (mState !in arrayOf(INIT_LOADING, INIT_EMPTY) || enableInit) {
                 if (reversed) {
                     list.add(0, mExtraItem)
                 } else {

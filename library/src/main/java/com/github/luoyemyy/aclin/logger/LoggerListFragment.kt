@@ -58,6 +58,13 @@ class LoggerListFragment : OverrideMenuFragment() {
     }
 
     inner class Adapter : FixedAdapter<LoggerItem, AclinLoggerListItemBinding>() {
+
+        override fun notifyAfter(type: Int) {
+            if (LoadParams.isRefresh(type)) {
+                mBinding.swipeRefreshLayout.isRefreshing = false
+            }
+        }
+
         override fun bindContentViewHolder(binding: AclinLoggerListItemBinding, data: LoggerItem?, viewType: Int, position: Int) {
             binding.apply {
                 entity = data
