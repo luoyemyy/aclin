@@ -8,6 +8,7 @@ class NotifyItems<T : MvpData>(@LoadParams.LoadType var loadType: Int, var items
 class TextData(var text: String?) : MvpData()
 
 open class MvpData {
+    @Transient
     var dataItem: DataItem<*>? = null
 }
 

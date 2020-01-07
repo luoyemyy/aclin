@@ -14,13 +14,12 @@ class GalleryBuilder private constructor() {
         const val MAX_SELECT = "maxSelect"
         const val PICKER_RESULT = "gallery_picker_result"
 
-        internal fun parseGalleryArgs(bundle: Bundle?): GalleryArgs {
-            return bundle?.let {
-                GalleryArgs(
-                    it.getInt(MIN_SELECT, 1),
-                    it.getInt(MAX_SELECT, 9)
-                           )
-            } ?: GalleryArgs(1, 9)
+        internal fun parseMinSelect(bundle: Bundle?): Int {
+            return bundle?.getInt(MIN_SELECT, 1) ?: 1
+        }
+
+        internal fun parseMaxSelect(bundle: Bundle?): Int {
+            return bundle?.getInt(MAX_SELECT, 9) ?: 9
         }
     }
 
@@ -49,7 +48,7 @@ class GalleryBuilder private constructor() {
             it.extra?.getStringArrayList(PICKER_RESULT)?.apply {
                 callback(this)
             }
-        },PICKER_RESULT)
+        }, PICKER_RESULT)
         mFragment.findNavController().navigate(mActionId, bundleOf(MIN_SELECT to mMin, MAX_SELECT to mMax))
     }
 

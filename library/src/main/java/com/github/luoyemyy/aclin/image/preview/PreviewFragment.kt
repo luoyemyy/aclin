@@ -8,7 +8,6 @@ import android.view.ViewGroup
 import androidx.viewpager2.widget.ViewPager2
 import com.github.luoyemyy.aclin.databinding.AclinImagePreviewBinding
 import com.github.luoyemyy.aclin.databinding.AclinImagePreviewItemBinding
-import com.github.luoyemyy.aclin.ext.runOnMain
 import com.github.luoyemyy.aclin.fragment.OverrideMenuFragment
 import com.github.luoyemyy.aclin.mvp.adapter.FixedAdapter
 import com.github.luoyemyy.aclin.mvp.core.DataItem
@@ -31,6 +30,9 @@ class PreviewFragment : OverrideMenuFragment() {
         mBinding.viewPager.apply {
             adapter = Adapter().apply {
                 setup(this@PreviewFragment, mPresenter.listLiveData)
+                addUpdateListener { _, _ ->
+                    mBinding.viewPager.setCurrentItem(mPresenter.defaultPosition, false)
+                }
             }
             offscreenPageLimit = 3
             registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
@@ -44,14 +46,6 @@ class PreviewFragment : OverrideMenuFragment() {
 
     inner class Adapter : FixedAdapter<TextData, AclinImagePreviewItemBinding>() {
 
-        init {
-            addUpdateListener { _, _ ->
-                runOnMain {
-                    mBinding.viewPager.setCurrentItem(mPresenter.defaultPosition, false)
-                }
-            }
-        }
-
         override fun bindContentViewHolder(binding: AclinImagePreviewItemBinding, data: TextData?, viewType: Int, position: Int) {
             binding.apply {
                 entity = data
@@ -64,7 +58,7 @@ class PreviewFragment : OverrideMenuFragment() {
         }
     }
 
-    class Presenter(var mApp: Application) : MvpPresenter(mApp) {
+    class Presenter(app: Application) : MvpPresenter(app) {
 
         var count: Int = 0
         var defaultPosition: Int = 0

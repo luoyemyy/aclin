@@ -1,18 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <navigation xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto" android:id="@+id/aclin_image"
-    app:startDestination="@id/galleryFragment">
+    app:startDestination="@id/imageFragment">
 
     <fragment
-        android:id="@+id/galleryFragment"
-        android:name="com.github.luoyemyy.aclin.image.picker.gallery.GalleryFragment"
-        android:label="GalleryFragment" >
+        android:id="@+id/imageFragment"
+        android:name="com.github.luoyemyy.aclin.image.picker.gallery.image.ImageFragment"
+        android:label="" >
         <action
-            android:id="@+id/action_galleryFragment_to_previewFragment"
+            android:id="@+id/action_imageFragment_to_previewFragment"
             app:destination="@id/previewFragment" />
         <action
-            android:id="@+id/action_galleryFragment_to_cropFragment"
+            android:id="@+id/action_imageFragment_to_cropFragment"
             app:destination="@id/cropFragment" />
+        <action
+            android:id="@+id/action_imageFragment_to_bucketFragment"
+            app:destination="@id/bucketFragment" />
     </fragment>
     <fragment
         android:id="@+id/previewFragment"
@@ -21,5 +24,9 @@
     <fragment
         android:id="@+id/cropFragment"
         android:name="com.github.luoyemyy.aclin.image.crop.CropFragment"
-        android:label="CropFragment" />
+        android:label="" />
+    <fragment
+        android:id="@+id/bucketFragment"
+        android:name="com.github.luoyemyy.aclin.image.picker.gallery.bucket.BucketFragment"
+        android:label="" />
 </navigation>
