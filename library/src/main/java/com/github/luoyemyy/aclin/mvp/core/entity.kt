@@ -27,7 +27,7 @@ class DataItem<T : MvpData>() {
     }
 
     fun areItemsTheSame(oldItem: DataItem<T>): Boolean {
-        return this.type == oldItem.type && this.data == oldItem.data
+        return this == oldItem
     }
 
     fun areContentsTheSame(oldItem: DataItem<T>): Boolean {

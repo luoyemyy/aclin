@@ -42,6 +42,7 @@ open class ListLiveData<T : MvpData>(transform: (T) -> DataItem<T>) : MutableLiv
             mLoadStart.set(true)
             mLoadParams.refresh()
             if (!refreshData.isNullOrEmpty()) {
+                refreshData.forEach { it.dataItem = null }
                 post(mLoadParams.loadType, mDataSet.addStartData(refreshData))
                 mLoading.set(false)
                 return
