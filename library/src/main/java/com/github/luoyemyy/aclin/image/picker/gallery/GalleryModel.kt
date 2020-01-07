@@ -1,13 +1,11 @@
-package com.github.luoyemyy.aclin.image.picker.gallery.image
+package com.github.luoyemyy.aclin.image.picker.gallery
 
 import android.app.Application
 import android.provider.MediaStore
 import com.github.luoyemyy.aclin.R
-import com.github.luoyemyy.aclin.image.picker.gallery.Bucket
-import com.github.luoyemyy.aclin.image.picker.gallery.Image
 import java.io.File
 
-class ImageModel(private val mApp: Application) {
+class GalleryModel(private val mApp: Application) {
 
     companion object {
         const val BUCKET_ALL = "bucketAll"
@@ -62,8 +60,7 @@ class ImageModel(private val mApp: Application) {
         data?.close()
 
         //添加已选择分类
-        val bucketSelect =
-            Bucket(BUCKET_SELECT, mApp.getString(R.string.aclin_image_picker_gallery_bucket_select))
+        val bucketSelect = Bucket(BUCKET_SELECT, mApp.getString(R.string.aclin_image_picker_gallery_bucket_select))
         buckets.add(bucketSelect)
         bucketMap[bucketSelect.id] = bucketSelect
 
