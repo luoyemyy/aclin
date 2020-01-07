@@ -38,7 +38,14 @@ abstract class MvpAdapter<T : MvpData, BIND : ViewDataBinding>
         mLiveData.reversed(reversed)
         mLiveData.startInit()
         mLiveData.observe(owner, Observer {
-            mDiffer.update(it.items) { _, _ ->
+            mDiffer.update(it) { _, _ ->
+                if (LoadParams.isRefresh(it.loadType) && it.items.isNotEmpty()) {
+                    if (reversed) {
+                        mRecyclerView?.scrollToPosition(it.items.size - 1)
+                    } else {
+                        mRecyclerView?.scrollToPosition(0)
+                    }
+                }
                 notifyAfter(it.loadType)
             }
         })

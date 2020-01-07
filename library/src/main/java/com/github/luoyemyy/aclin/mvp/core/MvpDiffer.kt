@@ -27,9 +27,22 @@ class MvpDiffer<T : MvpData>(adapter: RecyclerView.Adapter<VH<ViewDataBinding>>)
         mListeners.add(listener)
     }
 
-    fun update(newList: List<DataItem<T>>, updateListener: UpdateListener<T>? = null) {
+    fun update(notifyItems: NotifyItems<T>, updateListener: UpdateListener<T>? = null) {
         val runGeneration = ++mMaxScheduledGeneration
         val oldList = mImmutableList
+        val newList = notifyItems.items
+        if (LoadParams.isRefresh(notifyItems.loadType)) {
+            mImmutableList = newList
+            if (oldList.isNotEmpty()) {
+                mUpdateCallback.onRemoved(0, oldList.size)
+            }
+            if (newList.isNotEmpty()) {
+                mUpdateCallback.onInserted(0, newList.size)
+            }
+            notifyUpdateListener(updateListener, oldList, newList)
+            return
+        }
+
         if (newList.isEmpty()) {
             if (oldList.isNotEmpty()) {
                 mImmutableList = listOf()

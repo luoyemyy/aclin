@@ -21,7 +21,10 @@ import com.github.luoyemyy.aclin.ext.toast
 import com.github.luoyemyy.aclin.fragment.OverrideMenuFragment
 import com.github.luoyemyy.aclin.image.picker.gallery.*
 import com.github.luoyemyy.aclin.mvp.adapter.FixedAdapter
-import com.github.luoyemyy.aclin.mvp.core.*
+import com.github.luoyemyy.aclin.mvp.core.DataItem
+import com.github.luoyemyy.aclin.mvp.core.ListLiveData
+import com.github.luoyemyy.aclin.mvp.core.MvpPresenter
+import com.github.luoyemyy.aclin.mvp.core.VH
 import com.github.luoyemyy.aclin.mvp.ext.getPresenter
 import com.github.luoyemyy.aclin.mvp.ext.setupGrid
 import com.github.luoyemyy.aclin.permission.PermissionManager
@@ -78,12 +81,8 @@ class ImageFragment : OverrideMenuFragment(), BusResult {
         mPresenter.titleLiveData.observe(this, Observer {
             requireActivity().title = mPresenter.getTitle()
         })
-
-        mBinding.apply {
-            recyclerView.setupGrid(Adapter().apply {
-                setup(this@ImageFragment, mPresenter.listLiveData)
-            }, mPresenter.getImageSpan())
-            recyclerView.setHasFixedSize(true)
+        if (!mPresenter.isInit()) {
+            initRecyclerView()
         }
         setBus(this, BUS_EVENT_SELECT_BUCKET)
         requestPermission(this, requireContext().getString(R.string.aclin_image_picker_gallery_permission_request))
@@ -96,9 +95,19 @@ class ImageFragment : OverrideMenuFragment(), BusResult {
                 .buildAndRequest(Manifest.permission.WRITE_EXTERNAL_STORAGE)
     }
 
+    private fun initRecyclerView() {
+        mBinding.apply {
+            recyclerView.setupGrid(Adapter().apply {
+                setup(this@ImageFragment, mPresenter.listLiveData)
+            }, mPresenter.getImageSpan())
+            recyclerView.setHasFixedSize(true)
+        }
+    }
+
     override fun busResult(msg: BusMsg) {
         if (BUS_EVENT_SELECT_BUCKET == msg.event) {
             mPresenter.selectBucket(msg.stringValue)
+            initRecyclerView()
         }
     }
 
@@ -159,15 +168,7 @@ class ImageFragment : OverrideMenuFragment(), BusResult {
         var selectBucket: Bucket? = null
         val menuLiveData = MutableLiveData<Boolean>()
         val titleLiveData = MutableLiveData<Boolean>()
-        val listLiveData = object : ListLiveData<Image>({ DataItem(it) }) {
-            override fun getData(loadParams: LoadParams): List<Image>? {
-                if (loadParams.isStart()) {
-                    mBuckets = mModel.getBuckets()
-                    setDefaultBucket()
-                }
-                return selectBucket?.images
-            }
-        }
+        val listLiveData = ListLiveData<Image> { DataItem(it) }
 
         fun getImageSpan(): Int = getImageInfo().first
 
@@ -178,7 +179,9 @@ class ImageFragment : OverrideMenuFragment(), BusResult {
         override fun loadData(bundle: Bundle?) {
             mMinSelect = GalleryBuilder.parseMinSelect(bundle)
             mMaxSelect = GalleryBuilder.parseMaxSelect(bundle)
-            listLiveData.loadStart()
+            mBuckets = mModel.getBuckets()
+            setDefaultBucket()
+            listLiveData.loadStart(selectBucket?.images)
         }
 
         fun getBucketJson(): String? {
@@ -220,7 +223,7 @@ class ImageFragment : OverrideMenuFragment(), BusResult {
                 mBuckets?.find { it.id == id }?.also { bucket ->
                     mApp.spfString(LAST_SELECT_BUCKET, id)
                     selectBucket(bucket)
-                    listLiveData.loadRefresh()
+                    listLiveData.loadRefresh(selectBucket?.images)
                 }
             }
         }

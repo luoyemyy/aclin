@@ -9,6 +9,8 @@ abstract class MvpPresenter(app: Application) : AndroidViewModel(app) {
 
     private val mInit = AtomicBoolean(false)
 
+    fun isInit() = mInit.get()
+
     fun loadInit(bundle: Bundle?) {
         if (mInit.compareAndSet(false, true)) {
             loadData(bundle)
