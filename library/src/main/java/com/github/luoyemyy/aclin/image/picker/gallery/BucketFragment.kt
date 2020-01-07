@@ -1,4 +1,4 @@
-package com.github.luoyemyy.aclin.image.picker.gallery.bucket
+package com.github.luoyemyy.aclin.image.picker.gallery
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -8,8 +8,6 @@ import androidx.navigation.fragment.findNavController
 import com.github.luoyemyy.aclin.databinding.AclinImagePickerBucketBinding
 import com.github.luoyemyy.aclin.databinding.AclinImagePickerBucketRecyclerBinding
 import com.github.luoyemyy.aclin.fragment.OverrideMenuFragment
-import com.github.luoyemyy.aclin.image.picker.gallery.Bucket
-import com.github.luoyemyy.aclin.image.picker.gallery.GalleryPresenter
 import com.github.luoyemyy.aclin.mvp.adapter.FixedAdapter
 import com.github.luoyemyy.aclin.mvp.core.VH
 import com.github.luoyemyy.aclin.mvp.ext.getPresenter
@@ -26,10 +24,9 @@ class BucketFragment : OverrideMenuFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         mGalleryPresenter = getPresenter()
-        mBinding.apply {
-            recyclerView.setupLinear(Adapter().apply {
-                setup(this@BucketFragment, mGalleryPresenter.bucketLiveData)
-            })
+        Adapter().also { adapter ->
+            adapter.setup(this, mGalleryPresenter.bucketLiveData())
+            mBinding.recyclerView.setupLinear(adapter)
         }
         mGalleryPresenter.loadInit(arguments)
     }

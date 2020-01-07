@@ -5,7 +5,7 @@
 
     <fragment
         android:id="@+id/imageFragment"
-        android:name="com.github.luoyemyy.aclin.image.picker.gallery.image.ImageFragment"
+        android:name="com.github.luoyemyy.aclin.image.picker.gallery.ImageFragment"
         android:label="" >
         <action
             android:id="@+id/action_imageFragment_to_previewFragment"
@@ -27,6 +27,6 @@
         android:label="" />
     <fragment
         android:id="@+id/bucketFragment"
-        android:name="com.github.luoyemyy.aclin.image.picker.gallery.bucket.BucketFragment"
+        android:name="com.github.luoyemyy.aclin.image.picker.gallery.BucketFragment"
         android:label="" />
 </navigation>

@@ -1,4 +1,4 @@
-package com.github.luoyemyy.aclin.image.picker.gallery.image
+package com.github.luoyemyy.aclin.image.picker.gallery
 
 import android.Manifest
 import android.app.Application
@@ -12,10 +12,6 @@ import com.github.luoyemyy.aclin.bus.postBus
 import com.github.luoyemyy.aclin.databinding.AclinImagePickerImageBinding
 import com.github.luoyemyy.aclin.databinding.AclinImagePickerImageRecyclerBinding
 import com.github.luoyemyy.aclin.fragment.OverrideMenuFragment
-import com.github.luoyemyy.aclin.image.picker.gallery.GalleryBuilder
-import com.github.luoyemyy.aclin.image.picker.gallery.GalleryPresenter
-import com.github.luoyemyy.aclin.image.picker.gallery.Image
-import com.github.luoyemyy.aclin.image.picker.gallery.calculateImageItemSize
 import com.github.luoyemyy.aclin.mvp.adapter.FixedAdapter
 import com.github.luoyemyy.aclin.mvp.core.MvpPresenter
 import com.github.luoyemyy.aclin.mvp.core.VH
@@ -53,6 +49,7 @@ class ImageFragment : OverrideMenuFragment() {
                 mGalleryPresenter.getSelectImages().apply {
                     postBus(GalleryBuilder.PICKER_RESULT, extra = bundleOf(GalleryBuilder.PICKER_RESULT to this))
                     findNavController().navigateUp()
+                    mGalleryPresenter.clear()
                 }
             }
             R.id.album -> {
@@ -71,26 +68,25 @@ class ImageFragment : OverrideMenuFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         mPresenter = getPresenter()
         mGalleryPresenter = requireActivity().getPresenter()
-        mGalleryPresenter.menuLiveData.observe(this, Observer {
+        mGalleryPresenter.menuLiveData().observe(this, Observer {
             requireActivity().invalidateOptionsMenu()
         })
-        mGalleryPresenter.titleLiveData.observe(this, Observer {
+        mGalleryPresenter.titleLiveData().observe(this, Observer {
             requireActivity().title = mGalleryPresenter.getTitle()
         })
-        mBinding.apply {
-            recyclerView.setupGrid(Adapter().apply {
-                setup(this@ImageFragment, mGalleryPresenter.imageLiveData)
-            }, mPresenter.getImageSpan())
-            recyclerView.setHasFixedSize(true)
+        Adapter().also { adapter ->
+            adapter.setup(this, mGalleryPresenter.imageLiveData())
+            mBinding.apply {
+                recyclerView.setupGrid(adapter, mPresenter.getImageSpan())
+                recyclerView.setHasFixedSize(true)
+            }
         }
         requestPermission(this, requireContext().getString(R.string.aclin_image_picker_gallery_permission_request))
-                .granted {
-                    mGalleryPresenter.loadInit(arguments)
-                }
-                .denied {
-                    PermissionManager.toSetting(this, requireContext().getString(R.string.aclin_image_picker_gallery_permission_failure))
-                }
-                .buildAndRequest(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+            .granted {
+                mGalleryPresenter.loadInit(arguments)
+            }.denied {
+                PermissionManager.toSetting(this, requireContext().getString(R.string.aclin_image_picker_gallery_permission_failure))
+            }.buildAndRequest(Manifest.permission.WRITE_EXTERNAL_STORAGE)
     }
 
     private fun toPreview(paths: ArrayList<String>, current: Int = 0) {

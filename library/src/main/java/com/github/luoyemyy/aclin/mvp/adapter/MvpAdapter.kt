@@ -37,6 +37,7 @@ abstract class MvpAdapter<T : MvpData, BIND : ViewDataBinding>
         mLiveData.enableMore(enableMore)
         mLiveData.reversed(reversed)
         mLiveData.startInit()
+        mLiveData.removeObservers(owner)
         mLiveData.observe(owner, Observer {
             mDiffer.update(it) { _, _ ->
                 if (LoadParams.isRefresh(it.loadType) && it.items.isNotEmpty()) {
