@@ -9,7 +9,10 @@ import com.github.luoyemyy.aclin.app.databinding.FragmentListBinding
 import com.github.luoyemyy.aclin.app.databinding.FragmentListItemBinding
 import com.github.luoyemyy.aclin.fragment.OverrideMenuFragment
 import com.github.luoyemyy.aclin.mvp.adapter.ReversedAdapter
-import com.github.luoyemyy.aclin.mvp.core.*
+import com.github.luoyemyy.aclin.mvp.core.ListLiveData
+import com.github.luoyemyy.aclin.mvp.core.LoadParams
+import com.github.luoyemyy.aclin.mvp.core.MvpPresenter
+import com.github.luoyemyy.aclin.mvp.core.TextData
 import com.github.luoyemyy.aclin.mvp.ext.getPresenter
 import com.github.luoyemyy.aclin.mvp.ext.setupLinear
 import kotlin.random.Random
@@ -27,7 +30,7 @@ class ReversedFragment : OverrideMenuFragment() {
         mPresenter = getPresenter()
         mBinding.apply {
             recyclerView.setupLinear(Adapter().apply {
-                setup(this@ReversedFragment,mPresenter.listLiveData)
+                setup(this@ReversedFragment, mPresenter.listLiveData)
             })
             swipeRefreshLayout.isEnabled = false
         }
@@ -50,7 +53,7 @@ class ReversedFragment : OverrideMenuFragment() {
 
     class Presenter(app: Application) : MvpPresenter(app) {
 
-        val listLiveData = object : ListLiveData<TextData>({ DataItem(it) }) {
+        val listLiveData = object : ListLiveData<TextData>() {
 
             override fun getData(loadParams: LoadParams): List<TextData>? {
                 Thread.sleep(1000)

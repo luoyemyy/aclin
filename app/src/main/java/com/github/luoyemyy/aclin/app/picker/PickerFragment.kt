@@ -16,7 +16,10 @@ import com.github.luoyemyy.aclin.image.crop.CropBuilder
 import com.github.luoyemyy.aclin.image.picker.camera.CameraBuilder
 import com.github.luoyemyy.aclin.image.picker.gallery.GalleryBuilder
 import com.github.luoyemyy.aclin.mvp.adapter.FixedAdapter
-import com.github.luoyemyy.aclin.mvp.core.*
+import com.github.luoyemyy.aclin.mvp.core.ListLiveData
+import com.github.luoyemyy.aclin.mvp.core.MvpPresenter
+import com.github.luoyemyy.aclin.mvp.core.TextData
+import com.github.luoyemyy.aclin.mvp.core.VH
 import com.github.luoyemyy.aclin.mvp.ext.getPresenter
 import com.github.luoyemyy.aclin.mvp.ext.setup
 import com.github.luoyemyy.aclin.mvp.ext.setupLinear
@@ -105,7 +108,7 @@ class PickerFragment : OverrideMenuFragment() {
 
     class Presenter(private var mApp: Application) : MvpPresenter(mApp) {
 
-        val listLiveData = ListLiveData<TextData> { DataItem(it) }
+        val listLiveData = ListLiveData<TextData>()
 
         override fun loadData(bundle: Bundle?) {
             listLiveData.loadStart(listOf(

@@ -10,7 +10,6 @@ import com.github.luoyemyy.aclin.databinding.AclinImagePreviewBinding
 import com.github.luoyemyy.aclin.databinding.AclinImagePreviewItemBinding
 import com.github.luoyemyy.aclin.fragment.OverrideMenuFragment
 import com.github.luoyemyy.aclin.mvp.adapter.FixedAdapter
-import com.github.luoyemyy.aclin.mvp.core.DataItem
 import com.github.luoyemyy.aclin.mvp.core.ListLiveData
 import com.github.luoyemyy.aclin.mvp.core.MvpPresenter
 import com.github.luoyemyy.aclin.mvp.core.TextData
@@ -62,7 +61,7 @@ class PreviewFragment : OverrideMenuFragment() {
 
         var count: Int = 0
         var defaultPosition: Int = 0
-        val listLiveData = ListLiveData<TextData> { DataItem(it) }
+        val listLiveData = ListLiveData<TextData>()
 
         override fun loadData(bundle: Bundle?) {
             defaultPosition = bundle?.getInt("current", 0) ?: 0

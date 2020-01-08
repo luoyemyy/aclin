@@ -12,7 +12,6 @@ import com.github.luoyemyy.aclin.app.databinding.FragmentListBinding
 import com.github.luoyemyy.aclin.app.databinding.FragmentListItem2Binding
 import com.github.luoyemyy.aclin.fragment.OverrideMenuFragment
 import com.github.luoyemyy.aclin.mvp.adapter.MvpAdapter
-import com.github.luoyemyy.aclin.mvp.core.DataItem
 import com.github.luoyemyy.aclin.mvp.core.ListLiveData
 import com.github.luoyemyy.aclin.mvp.core.LoadParams
 import com.github.luoyemyy.aclin.mvp.core.TextData
@@ -65,7 +64,7 @@ class PagingFragment : OverrideMenuFragment() {
 
     class Presenter(mApp: Application) : AndroidViewModel(mApp) {
 
-        val liveData = object : ListLiveData<TextData>({ DataItem(it) }) {
+        val liveData = object : ListLiveData<TextData>() {
 
             override fun getData(loadParams: LoadParams): List<TextData>? {
                 Thread.sleep(500)

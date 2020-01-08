@@ -2,8 +2,8 @@ package com.github.luoyemyy.aclin.mvp.ext
 
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
-import com.github.luoyemyy.aclin.mvp.core.MvpData
 import com.github.luoyemyy.aclin.mvp.core.ListLiveData
+import com.github.luoyemyy.aclin.mvp.core.MvpData
 
 class SortCallback<T : MvpData>(private val mLiveData: ListLiveData<T>) :
         ItemTouchHelper.SimpleCallback(ItemTouchHelper.DOWN or ItemTouchHelper.UP or ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT, 0) {

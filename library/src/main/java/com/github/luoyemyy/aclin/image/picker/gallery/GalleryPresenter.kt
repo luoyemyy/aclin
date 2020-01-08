@@ -5,7 +5,6 @@ import android.os.Bundle
 import androidx.lifecycle.MutableLiveData
 import com.github.luoyemyy.aclin.R
 import com.github.luoyemyy.aclin.ext.toast
-import com.github.luoyemyy.aclin.mvp.core.DataItem
 import com.github.luoyemyy.aclin.mvp.core.ListLiveData
 import com.github.luoyemyy.aclin.mvp.core.MvpPresenter
 
@@ -48,11 +47,11 @@ class GalleryPresenter(var mApp: Application) : MvpPresenter(mApp) {
     }
 
     fun imageLiveData(): ListLiveData<Image> {
-        return mImageLiveData ?: ListLiveData<Image> { DataItem(it) }.apply { mImageLiveData = this }
+        return mImageLiveData ?: ListLiveData<Image>().apply { mImageLiveData = this }
     }
 
     fun bucketLiveData(): ListLiveData<Bucket> {
-        return mBucketLiveData ?: ListLiveData<Bucket> { DataItem(it) }.apply { mBucketLiveData = this }
+        return mBucketLiveData ?: ListLiveData<Bucket>().apply { mBucketLiveData = this }
     }
 
     private fun countSelect(): Int {

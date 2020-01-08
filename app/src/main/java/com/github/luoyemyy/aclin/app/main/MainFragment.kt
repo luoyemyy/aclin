@@ -89,7 +89,7 @@ class MainFragment : Fragment(), BusResult {
 
     class Presenter(app: Application) : MvpPresenter(app) {
 
-        val listLiveData = ListLiveData<TextData> { DataItem(it) }
+        val listLiveData = ListLiveData<TextData>()
 
         override fun loadData(bundle: Bundle?) {
             listLiveData.loadStart(getData())

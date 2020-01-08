@@ -59,7 +59,7 @@ class ListFragment : OverrideMenuFragment() {
 
     class Presenter(app: Application) : MvpPresenter(app) {
 
-        val listLiveData = object : ListLiveData<TextData>({ DataItem(it) }) {
+        val listLiveData = object : ListLiveData<TextData>() {
 
             override fun getData(loadParams: LoadParams): List<TextData>? {
                 var random = Random.nextInt(9)

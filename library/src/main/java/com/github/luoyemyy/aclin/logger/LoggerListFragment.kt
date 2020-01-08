@@ -12,7 +12,10 @@ import com.github.luoyemyy.aclin.databinding.AclinLoggerListItemBinding
 import com.github.luoyemyy.aclin.ext.toast
 import com.github.luoyemyy.aclin.fragment.OverrideMenuFragment
 import com.github.luoyemyy.aclin.mvp.adapter.FixedAdapter
-import com.github.luoyemyy.aclin.mvp.core.*
+import com.github.luoyemyy.aclin.mvp.core.ListLiveData
+import com.github.luoyemyy.aclin.mvp.core.LoadParams
+import com.github.luoyemyy.aclin.mvp.core.MvpPresenter
+import com.github.luoyemyy.aclin.mvp.core.VH
 import com.github.luoyemyy.aclin.mvp.ext.getPresenter
 import com.github.luoyemyy.aclin.mvp.ext.setup
 import com.github.luoyemyy.aclin.mvp.ext.setupLinear
@@ -91,7 +94,7 @@ class LoggerListFragment : OverrideMenuFragment() {
 
     class Presenter(app: Application) : MvpPresenter(app) {
 
-        val liveData = object : ListLiveData<LoggerItem>({ DataItem(it) }) {
+        val liveData = object : ListLiveData<LoggerItem>() {
             override fun getData(loadParams: LoadParams): List<LoggerItem>? {
                 return files()
             }

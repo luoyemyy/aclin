@@ -18,7 +18,6 @@ import com.github.luoyemyy.aclin.ext.show
 import com.github.luoyemyy.aclin.file.FileManager
 import com.github.luoyemyy.aclin.fragment.OverrideMenuFragment
 import com.github.luoyemyy.aclin.mvp.adapter.FixedAdapter
-import com.github.luoyemyy.aclin.mvp.core.DataItem
 import com.github.luoyemyy.aclin.mvp.core.ListLiveData
 import com.github.luoyemyy.aclin.mvp.core.MvpPresenter
 import com.github.luoyemyy.aclin.mvp.core.VH
@@ -81,7 +80,7 @@ class CropFragment : OverrideMenuFragment(), View.OnClickListener {
         mPresenter.list.observe(this, Observer {
             mBinding.recyclerView.show()
             mBinding.recyclerView.setupLinear(Adapter().apply {
-                setup(this@CropFragment,mPresenter.listLiveData)
+                setup(this@CropFragment, mPresenter.listLiveData)
             }, false)
             mBinding.recyclerView.setHasFixedSize(true)
             mPresenter.loadInit(arguments)
@@ -154,7 +153,7 @@ class CropFragment : OverrideMenuFragment(), View.OnClickListener {
         val menu = MutableLiveData<Boolean>()
         val list = MutableLiveData<Boolean>()
 
-        val listLiveData = ListLiveData<CropImage> { DataItem(it) }
+        val listLiveData = ListLiveData<CropImage>()
 
         private lateinit var mCropArgs: CropArgs
         private lateinit var mCropImage: CropImage

@@ -13,7 +13,6 @@ import com.github.luoyemyy.aclin.app.databinding.FragmentProfileItemBinding
 import com.github.luoyemyy.aclin.bus.BusLiveData
 import com.github.luoyemyy.aclin.bus.getBusLiveData
 import com.github.luoyemyy.aclin.mvp.adapter.FixedAdapter
-import com.github.luoyemyy.aclin.mvp.core.DataItem
 import com.github.luoyemyy.aclin.mvp.core.ListLiveData
 import com.github.luoyemyy.aclin.mvp.core.MvpPresenter
 import com.github.luoyemyy.aclin.mvp.core.VH
@@ -64,7 +63,7 @@ class ProfileFragment : Fragment() {
 
     class Presenter(private var mApp: Application) : MvpPresenter(mApp) {
 
-        val listLiveData = ListLiveData<ProfileItem> { DataItem(it) }
+        val listLiveData = ListLiveData<ProfileItem>()
         lateinit var busLiveData: BusLiveData
 
         override fun loadData(bundle: Bundle?) {
