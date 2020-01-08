@@ -18,6 +18,10 @@ class DataItem<T : MvpData>() {
         this.data = data
     }
 
+    constructor(type: Int) : this() {
+        this.type = type
+    }
+
     var type: Int = 0
     var data: T? = null
     private var usePayload: Boolean = false

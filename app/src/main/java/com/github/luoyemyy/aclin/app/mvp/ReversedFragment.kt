@@ -53,6 +53,7 @@ class ReversedFragment : OverrideMenuFragment() {
         val listLiveData = object : ListLiveData<TextData>({ DataItem(it) }) {
 
             override fun getData(loadParams: LoadParams): List<TextData>? {
+                Thread.sleep(1000)
                 return (0 until 10).map { TextData(Random.nextDouble().toString()) }
             }
         }

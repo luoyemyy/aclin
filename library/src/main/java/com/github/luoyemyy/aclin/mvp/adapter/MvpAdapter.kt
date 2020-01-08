@@ -40,11 +40,15 @@ abstract class MvpAdapter<T : MvpData, BIND : ViewDataBinding>
         mLiveData.removeObservers(owner)
         mLiveData.observe(owner, Observer {
             mDiffer.update(it) { _, _ ->
-                if (LoadParams.isRefresh(it.loadType) && it.items.isNotEmpty()) {
+                if (it.items.isNotEmpty()) {
                     if (reversed) {
-                        mRecyclerView?.scrollToPosition(it.items.size - 1)
+                        if (LoadParams.isStart(it.loadType) || LoadParams.isRefresh(it.loadType)) {
+                            mRecyclerView?.scrollToPosition(it.items.size - 1)
+                        }
                     } else {
-                        mRecyclerView?.scrollToPosition(0)
+                        if (LoadParams.isRefresh(it.loadType)) {
+                            mRecyclerView?.scrollToPosition(0)
+                        }
                     }
                 }
                 notifyAfter(it.loadType)

@@ -66,6 +66,7 @@ class ListFragment : OverrideMenuFragment() {
                 if (random > 3) {
                     random = 9
                 }
+                Thread.sleep(1000)
                 return (0..random).map { TextData(Random.nextDouble().toString()) }
             }
         }

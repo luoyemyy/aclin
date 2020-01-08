@@ -12,6 +12,8 @@ class LoadParams {
         const val TYPE_MORE = 4
 
         fun isRefresh(type: Int): Boolean = type == TYPE_REFRESH
+        fun isStart(type: Int): Boolean = type == TYPE_START
+        fun isMore(type: Int): Boolean = type == TYPE_MORE
     }
 
     @IntDef(TYPE_INIT, TYPE_UPDATE, TYPE_START, TYPE_REFRESH, TYPE_MORE)
