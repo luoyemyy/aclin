@@ -23,12 +23,12 @@ class BucketFragment : OverrideMenuFragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        mGalleryPresenter = getPresenter()
+        mGalleryPresenter = requireActivity().getPresenter()
         Adapter().also { adapter ->
             adapter.setup(this, mGalleryPresenter.bucketLiveData())
             mBinding.recyclerView.setupLinear(adapter)
         }
-        mGalleryPresenter.loadInit(arguments)
+        mGalleryPresenter.loadBuckets()
     }
 
     inner class Adapter : FixedAdapter<Bucket, AclinImagePickerBucketRecyclerBinding>() {

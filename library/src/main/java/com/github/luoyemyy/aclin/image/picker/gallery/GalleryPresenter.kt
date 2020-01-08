@@ -15,42 +15,44 @@ class GalleryPresenter(var mApp: Application) : MvpPresenter(mApp) {
     private val mModel = GalleryModel(mApp)
     private var mMinSelect: Int = 0
     private var mMaxSelect: Int = 0
-    private var selectBucket: Bucket? = null
-    private var menuLiveData: MutableLiveData<Boolean>? = null
-    private var titleLiveData: MutableLiveData<Boolean>? = null
-    private var imageLiveData: ListLiveData<Image>? = null
-    private var bucketLiveData: ListLiveData<Bucket>? = null
+    private var mSelectBucket: Bucket? = null
+    private var mMenuLiveData: MutableLiveData<Boolean>? = null
+    private var mTitleLiveData: MutableLiveData<Boolean>? = null
+    private var mImageLiveData: ListLiveData<Image>? = null
+    private var mBucketLiveData: ListLiveData<Bucket>? = null
 
     override fun loadData(bundle: Bundle?) {
         mMinSelect = GalleryBuilder.parseMinSelect(bundle)
         mMaxSelect = GalleryBuilder.parseMaxSelect(bundle)
         mBuckets = mModel.getBuckets()
-        setDefaultBucket()
-        imageLiveData().loadStart(selectBucket?.images)
-        bucketLiveData().loadStart(mBuckets)
+        selectDefaultBucket()
+        imageLiveData().loadStart(mSelectBucket?.images)
     }
 
-    fun clear() {
-        menuLiveData = null
-        titleLiveData = null
-        imageLiveData = null
-        bucketLiveData = null
+    public override fun clear() {
+        super.clear()
+        mBuckets = null
+        mSelectBucket = null
+        mMenuLiveData = null
+        mTitleLiveData = null
+        mImageLiveData = null
+        mBucketLiveData = null
     }
 
     fun menuLiveData(): MutableLiveData<Boolean> {
-        return menuLiveData ?: MutableLiveData<Boolean>().apply { menuLiveData = this }
+        return mMenuLiveData ?: MutableLiveData<Boolean>().apply { mMenuLiveData = this }
     }
 
     fun titleLiveData(): MutableLiveData<Boolean> {
-        return titleLiveData ?: MutableLiveData<Boolean>().apply { titleLiveData = this }
+        return mTitleLiveData ?: MutableLiveData<Boolean>().apply { mTitleLiveData = this }
     }
 
     fun imageLiveData(): ListLiveData<Image> {
-        return imageLiveData ?: ListLiveData<Image> { DataItem(it) }.apply { imageLiveData = this }
+        return mImageLiveData ?: ListLiveData<Image> { DataItem(it) }.apply { mImageLiveData = this }
     }
 
     fun bucketLiveData(): ListLiveData<Bucket> {
-        return bucketLiveData ?: ListLiveData<Bucket> { DataItem(it) }.apply { bucketLiveData = this }
+        return mBucketLiveData ?: ListLiveData<Bucket> { DataItem(it) }.apply { mBucketLiveData = this }
     }
 
     private fun countSelect(): Int {
@@ -63,27 +65,25 @@ class GalleryPresenter(var mApp: Application) : MvpPresenter(mApp) {
     }
 
     fun getTitle(): String {
-        return selectBucket?.name ?: ""
+        return mSelectBucket?.name ?: mApp.getString(R.string.aclin_image_picker_gallery_bucket_all)
     }
 
-    private fun setDefaultBucket() {
-        mBuckets?.find { it.id == GalleryModel.BUCKET_ALL }?.also {
-            selectBucket(it)
-        }
+    fun loadBuckets() {
+        bucketLiveData().loadStart(mBuckets)
     }
 
-    private fun selectBucket(bucket: Bucket) {
-        selectBucket?.select = false
-        selectBucket = bucket
-        selectBucket?.select = true
-        titleLiveData().postValue(true)
+    private fun selectDefaultBucket() {
+        selectBucket(GalleryModel.BUCKET_ALL)
     }
 
     fun selectBucket(id: String?) {
         id?.also {
             mBuckets?.find { it.id == id }?.also { bucket ->
-                selectBucket(bucket)
-                imageLiveData().loadRefresh(selectBucket?.images)
+                mSelectBucket?.select = false
+                mSelectBucket = bucket
+                mSelectBucket?.select = true
+                titleLiveData().postValue(true)
+                imageLiveData().loadRefresh(mSelectBucket?.images)
             }
         }
     }
@@ -128,7 +128,7 @@ class GalleryPresenter(var mApp: Application) : MvpPresenter(mApp) {
         if (select) {
             mBuckets?.find { it.id == GalleryModel.BUCKET_SELECT }?.images
         } else {
-            selectBucket?.images
+            mSelectBucket?.images
         }?.mapTo(arrayListOf()) { it.path }?.apply {
             if (this.isNotEmpty()) {
                 callback(position, this)

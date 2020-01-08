@@ -26,8 +26,7 @@ class GalleryModel(private val mApp: Application) {
         val bucketMap = mutableMapOf<String, Bucket>()
 
         //添加全部分类
-        val bucketAll =
-            Bucket(BUCKET_ALL, mApp.getString(R.string.aclin_image_picker_gallery_bucket_all))
+        val bucketAll = Bucket(BUCKET_ALL, mApp.getString(R.string.aclin_image_picker_gallery_bucket_all))
         buckets.add(bucketAll)
         bucketMap[bucketAll.id] = bucketAll
 

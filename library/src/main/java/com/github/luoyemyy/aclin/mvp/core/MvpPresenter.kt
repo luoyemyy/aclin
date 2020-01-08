@@ -17,6 +17,10 @@ abstract class MvpPresenter(app: Application) : AndroidViewModel(app) {
         }
     }
 
+    protected open fun clear() {
+        mInit.set(false)
+    }
+
     protected abstract fun loadData(bundle: Bundle?)
 
 }

@@ -49,7 +49,6 @@ class ImageFragment : OverrideMenuFragment() {
                 mGalleryPresenter.getSelectImages().apply {
                     postBus(GalleryBuilder.PICKER_RESULT, extra = bundleOf(GalleryBuilder.PICKER_RESULT to this))
                     findNavController().navigateUp()
-                    mGalleryPresenter.clear()
                 }
             }
             R.id.album -> {
@@ -72,8 +71,9 @@ class ImageFragment : OverrideMenuFragment() {
             requireActivity().invalidateOptionsMenu()
         })
         mGalleryPresenter.titleLiveData().observe(this, Observer {
-            requireActivity().title = mGalleryPresenter.getTitle()
+            setTitle()
         })
+        setTitle()
         Adapter().also { adapter ->
             adapter.setup(this, mGalleryPresenter.imageLiveData())
             mBinding.apply {
@@ -82,11 +82,20 @@ class ImageFragment : OverrideMenuFragment() {
             }
         }
         requestPermission(this, requireContext().getString(R.string.aclin_image_picker_gallery_permission_request))
-            .granted {
-                mGalleryPresenter.loadInit(arguments)
-            }.denied {
-                PermissionManager.toSetting(this, requireContext().getString(R.string.aclin_image_picker_gallery_permission_failure))
-            }.buildAndRequest(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                .granted {
+                    mGalleryPresenter.loadInit(arguments)
+                }.denied {
+                    PermissionManager.toSetting(this, requireContext().getString(R.string.aclin_image_picker_gallery_permission_failure))
+                }.buildAndRequest(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        mGalleryPresenter.clear()
+    }
+
+    private fun setTitle() {
+        requireActivity().title = mGalleryPresenter.getTitle()
     }
 
     private fun toPreview(paths: ArrayList<String>, current: Int = 0) {
