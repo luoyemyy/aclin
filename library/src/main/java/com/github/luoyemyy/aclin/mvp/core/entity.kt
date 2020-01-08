@@ -18,10 +18,6 @@ class DataItem<T : MvpData>() {
         this.data = data
     }
 
-    constructor(type: Int) : this() {
-        this.type = type
-    }
-
     var type: Int = 0
     var data: T? = null
     private var usePayload: Boolean = false
@@ -31,7 +27,7 @@ class DataItem<T : MvpData>() {
     }
 
     fun areItemsTheSame(oldItem: DataItem<T>): Boolean {
-        return this == oldItem
+        return type >= 0 && this == oldItem
     }
 
     fun areContentsTheSame(oldItem: DataItem<T>): Boolean {

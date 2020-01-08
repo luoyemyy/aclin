@@ -25,6 +25,7 @@ class DataSet<T : MvpData>(private val mTransform: (T) -> DataItem<T>) {
     var reversed: Boolean = false
     val dataList: MutableList<T> = mutableListOf()
     var lastItemList: List<DataItem<T>>? = null
+    private val mExtraItem by lazy { DataItem<T>() }
 
     /**
      * state流程图
@@ -97,12 +98,12 @@ class DataSet<T : MvpData>(private val mTransform: (T) -> DataItem<T>) {
             }
         }
         if (mState != INIT_END) {
+            mExtraItem.type = mState
             if (mState !in arrayOf(INIT_LOADING, INIT_EMPTY) || enableInit) {
-                val extraItem = DataItem<T>(mState)
                 if (reversed) {
-                    list.add(0, extraItem)
+                    list.add(0, mExtraItem)
                 } else {
-                    list.add(extraItem)
+                    list.add(mExtraItem)
                 }
             }
         }
