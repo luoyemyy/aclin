@@ -2,12 +2,15 @@ package com.github.luoyemyy.aclin.permission
 
 import android.content.pm.PackageManager
 import android.os.Bundle
+import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
-import androidx.lifecycle.Observer
-import com.github.luoyemyy.aclin.mvp.ext.getPresenter
+import com.github.luoyemyy.aclin.bus.BusMsg
+import com.github.luoyemyy.aclin.bus.BusResult
+import com.github.luoyemyy.aclin.bus.postBus
+import com.github.luoyemyy.aclin.bus.setBus
 
-class PermissionFragment : Fragment(), Observer<PermissionManager.Request> {
+class PermissionFragment : Fragment(), BusResult {
 
     companion object {
         private const val PERMISSION_FRAGMENT_TAG = "com.github.luoyemyy.aclin.permission.PermissionFragment"
@@ -21,29 +24,37 @@ class PermissionFragment : Fragment(), Observer<PermissionManager.Request> {
         }
     }
 
-    private lateinit var mPresenter: PermissionPresenter
+    private var mRequestCode: Int = 0
+    private lateinit var mAllPerms: Array<String>
+    private lateinit var mNotPerms: Array<String>
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
-        mPresenter = requireActivity().getPresenter()
-        mPresenter.request.observe(this, this)
+        setBus(this, PermissionManager.EVENT_REQUEST)
     }
 
-    override fun onChanged(value: PermissionManager.Request?) {
-        value?.apply {
-            if (!notGrantedPerms.isNullOrEmpty()) {
-                requestPermissions(notGrantedPerms, requestCode)
+    override fun busResult(msg: BusMsg) {
+        if (msg.event == PermissionManager.EVENT_REQUEST) {
+            msg.extra?.apply {
+                mRequestCode = getInt(PermissionManager.KEY_REQUEST_CODE)
+                mAllPerms = getStringArray(PermissionManager.KEY_ALL_PERMS) ?: return
+                mNotPerms = getStringArray(PermissionManager.KEY_NOT_PERMS) ?: return
+                if (mNotPerms.isNotEmpty()) {
+                    requestPermissions(mNotPerms, mRequestCode)
+                }
             }
         }
     }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
-        val value = mPresenter.request.value ?: return
-        if (value.requestCode == requestCode) {
+        if (mRequestCode == requestCode) {
             val deniedPerms = permissions
                     .filterIndexed { index, _ -> grantResults[index] != PackageManager.PERMISSION_GRANTED }
                     .toTypedArray()
-            mPresenter.response.postValue(PermissionManager.Response(value.requestCode, deniedPerms.isEmpty(), value.allPerms, deniedPerms))
+            postBus(PermissionManager.EVENT_RESPONSE, extra = bundleOf(
+                PermissionManager.KEY_REQUEST_CODE to mRequestCode,
+                PermissionManager.KEY_ALL_PERMS to mAllPerms,
+                PermissionManager.KEY_DENIED_PERMS to deniedPerms))
         }
     }
 }

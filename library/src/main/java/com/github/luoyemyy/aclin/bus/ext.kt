@@ -6,7 +6,7 @@ import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.ViewModelProvider
 
 
-fun FragmentActivity.setBus(busResult: BusResult,vararg events: String){
+fun FragmentActivity.setBus(busResult: BusResult, vararg events: String) {
     getBusLiveData().also {
         it.observe(this, BusObserver(busResult, events.toList()))
     }
@@ -20,9 +20,8 @@ fun FragmentActivity.getBusLiveData(): BusLiveData {
     return ViewModelProvider(this)[BusPresenter::class.java].busLiveData
 }
 
-fun Fragment.setBus(busResult: BusResult,vararg events: String) {
+fun Fragment.setBus(busResult: BusResult, vararg events: String) {
     getBusLiveData().also {
-        it.removeObservers(this)
         it.observe(this, BusObserver(busResult, events.toList()))
     }
 }

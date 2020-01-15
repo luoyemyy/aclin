@@ -32,9 +32,10 @@ class LoggerListFragment : OverrideMenuFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         mPresenter = getPresenter()
-        mBinding.recyclerView.setupLinear(Adapter().apply {
-            setup(this@LoggerListFragment, mPresenter.liveData)
-        })
+        Adapter().also {
+            it.setup(this, mPresenter.liveData)
+            mBinding.recyclerView.setupLinear(it)
+        }
         mBinding.swipeRefreshLayout.setup(mPresenter.liveData)
         mPresenter.loadInit(arguments)
     }

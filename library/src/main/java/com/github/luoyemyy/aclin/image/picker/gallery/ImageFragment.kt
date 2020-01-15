@@ -81,12 +81,12 @@ class ImageFragment : OverrideMenuFragment() {
                 recyclerView.setHasFixedSize(true)
             }
         }
-        requestPermission(this, requireContext().getString(R.string.aclin_image_picker_gallery_permission_request))
+        requestPermission(requireContext().getString(R.string.aclin_image_picker_gallery_permission_request), Manifest.permission.WRITE_EXTERNAL_STORAGE)
                 .granted {
                     mGalleryPresenter.loadInit(arguments)
                 }.denied {
                     PermissionManager.toSetting(this, requireContext().getString(R.string.aclin_image_picker_gallery_permission_failure))
-                }.buildAndRequest(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                }.request()
     }
 
     override fun onDestroy() {

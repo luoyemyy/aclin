@@ -1,3 +1,5 @@
+@file:Suppress("unused")
+
 package com.github.luoyemyy.aclin.permission
 
 import android.content.Context
@@ -9,20 +11,31 @@ import android.provider.Settings
 import androidx.annotation.Size
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
-import androidx.lifecycle.LifecycleOwner
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.Observer
 import com.github.luoyemyy.aclin.R
+import com.github.luoyemyy.aclin.bus.BusMsg
+import com.github.luoyemyy.aclin.bus.BusResult
+import com.github.luoyemyy.aclin.bus.postBus
+import com.github.luoyemyy.aclin.bus.setBus
 import com.github.luoyemyy.aclin.ext.confirm
-import com.github.luoyemyy.aclin.mvp.ext.getPresenter
 
 object PermissionManager {
 
     private var mRequestCode = 1
+    internal const val EVENT_REQUEST = "REQUEST_PERMISSION"
+    internal const val EVENT_RESPONSE = "RESPONSE_PERMISSION"
+    internal const val KEY_REQUEST_CODE = "request_code"
+    internal const val KEY_ALL_PERMS = "all_perms"
+    internal const val KEY_NOT_PERMS = "not_perms"
+    internal const val KEY_DENIED_PERMS = "denied_perms"
 
-    fun toSetting(activity: FragmentActivity, msg: String) {
+    fun toSetting(fragment: Fragment, msg: String) {
+        toSetting(fragment.requireActivity(), msg)
+    }
+
+    private fun toSetting(activity: FragmentActivity, msg: String) {
         activity.apply {
             confirm(title = getString(R.string.aclin_permission_failure_title), message = msg, okText = R.string.aclin_permission_to_setting, ok = {
                 toSetting(this)
@@ -30,13 +43,8 @@ object PermissionManager {
         }
     }
 
-    fun toSetting(fragment: Fragment, msg: String) {
-        toSetting(fragment.requireActivity(), msg)
-    }
-
     private fun toSetting(activity: FragmentActivity) {
-        val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
-                .setData(Uri.fromParts("package", activity.packageName, null))
+        val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).setData(Uri.fromParts("package", activity.packageName, null))
         activity.startActivityForResult(intent, 1)
     }
 
@@ -47,112 +55,79 @@ object PermissionManager {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
             return arrayOf()
         }
-        return perms.filter {
-            ContextCompat.checkSelfPermission(context, it) != PackageManager.PERMISSION_GRANTED
-        }.toTypedArray()
+        return perms.filter { ContextCompat.checkSelfPermission(context, it) != PackageManager.PERMISSION_GRANTED }.toTypedArray()
     }
 
-    class Builder private constructor() {
+    class Callback(private val mRequestCode: Int) : BusResult {
 
-        /**
-         * 授权成功回调
-         */
-        private var mGrantedCallback: PermissionCallback? = null
-        /**
-         * 授权拒绝回调
-         */
-        private var mDeniedCallback: PermissionCallback? = null
+        internal var granted: PermissionCallback? = null
 
-        private lateinit var mContext: Context
-        private lateinit var mOwner: LifecycleOwner
-        private lateinit var mActivity: FragmentActivity
-        private var mRationale: String? = null
+        internal var denied: PermissionCallback? = null
 
-        constructor(fragment: Fragment, rationale: String? = null) : this() {
-            mContext = fragment.requireContext()
-            mOwner = fragment
-            mActivity = fragment.requireActivity()
-            mRationale = rationale
-        }
-
-        /**
-         * 设置授权成功回调
-         */
-        fun granted(callback: PermissionCallback): Builder {
-            mGrantedCallback = callback
-            return this
-        }
-
-        /**
-         * 设置授权拒绝回调
-         */
-        fun denied(callback: PermissionCallback): Builder {
-            mDeniedCallback = callback
-            return this
-        }
-
-        fun buildAndRequest(vararg perms: String) {
-            val allPerms = perms.toList().toTypedArray()
-            val notGrantedPerms = filterNotGrantedPermissions(mContext, *perms)
-            if (notGrantedPerms.isNullOrEmpty()) {
-                mGrantedCallback?.invoke(allPerms)
-            } else {
-                if (hasRationale() && !hasNeverAsk(notGrantedPerms)) {
-                    confirmRequest(allPerms, notGrantedPerms)
-                } else {
-                    request(allPerms, notGrantedPerms)
-                }
-            }
-        }
-
-        private fun hasRationale(): Boolean {
-            return !mRationale.isNullOrEmpty()
-        }
-
-        private fun hasNeverAsk(notGrantedPerms: Array<String>): Boolean {
-            return notGrantedPerms.any {
-                !ActivityCompat.shouldShowRequestPermissionRationale(mActivity, it)
-            }
-        }
-
-        private fun confirmRequest(allPerms: Array<String>, notGrantedPerms: Array<String>) {
-            mRationale?.apply {
-                mActivity.confirm(title = mActivity.getString(R.string.aclin_permission_request_title), message = this, ok = {
-                    request(allPerms, notGrantedPerms)
-                }, cancel = {
-                    mDeniedCallback?.invoke(notGrantedPerms)
-                })
-            }
-        }
-
-        private fun request(allPerms: Array<String>, notGrantedPerms: Array<String>) {
-            mRequestCode++
-            PermissionFragment.injectIfNeededIn(mActivity)
-            mActivity.getPresenter<PermissionPresenter>().apply {
-                response.observe(mOwner, ResponseObserver(mRequestCode, response, mGrantedCallback ?: {}, mDeniedCallback ?: {}))
-                request.postValue(Request(mRequestCode, allPerms, notGrantedPerms))
-            }
-        }
-    }
-
-    class Request(val requestCode: Int, val allPerms: Array<String>, val notGrantedPerms: Array<String>)
-    class Response(val requestCode: Int, val grant: Boolean, val allPerms: Array<String>, val deniedPerms: Array<String>)
-
-    class ResponseObserver(private val mRequestCode: Int,
-                           private val mLiveData: LiveData<Response>,
-                           private val mGrantedCallback: PermissionCallback,
-                           private val mDeniedCallback: PermissionCallback) : Observer<Response> {
-        override fun onChanged(value: Response?) {
-            value?.apply {
-                if (mRequestCode == requestCode) {
-                    if (grant) {
-                        mGrantedCallback(allPerms)
-                    } else {
-                        mDeniedCallback(deniedPerms)
+        override fun busResult(msg: BusMsg) {
+            if (msg.event == EVENT_RESPONSE) {
+                msg.extra?.apply {
+                    val requestCode = getInt(KEY_REQUEST_CODE)
+                    if (mRequestCode == requestCode) {
+                        val allPerms = getStringArray(KEY_ALL_PERMS) ?: arrayOf()
+                        val deniedPerms = getStringArray(KEY_DENIED_PERMS) ?: arrayOf()
+                        if (deniedPerms.isEmpty()) {
+                            granted?.invoke(allPerms)
+                        } else {
+                            denied?.invoke(deniedPerms)
+                        }
                     }
-                    mLiveData.removeObserver(this@ResponseObserver)
                 }
             }
+        }
+    }
+
+    class Builder internal constructor(private val mFragment: Fragment,
+                                       private val mRationale: String? = null,
+                                       vararg perms: String) {
+
+        private val mAllPerms: Array<String> = perms.toList().toTypedArray()
+        private val mNotGrantedPerms: Array<String> = filterNotGrantedPermissions(mFragment.requireContext(), *perms)
+        private var mCallback: Callback = Callback(++mRequestCode)
+
+        fun granted(callback: PermissionCallback): Builder {
+            mCallback.granted = callback
+            return this
+        }
+
+        fun denied(callback: PermissionCallback): Builder {
+            mCallback.denied = callback
+            return this
+        }
+
+        fun request() {
+            if (mNotGrantedPerms.isNullOrEmpty()) {
+                mCallback.granted?.invoke(mAllPerms)
+            } else {
+                if (showRationale()) {
+                    rationaleRequest()
+                } else {
+                    baseRequest()
+                }
+            }
+        }
+
+        private fun showRationale(): Boolean {
+            return !mRationale.isNullOrEmpty() && mNotGrantedPerms.any { ActivityCompat.shouldShowRequestPermissionRationale(mFragment.requireActivity(), it) }
+        }
+
+        private fun rationaleRequest() {
+            mFragment.requireActivity().confirm(title = mFragment.requireContext().getString(R.string.aclin_permission_request_title), message = mRationale, ok = {
+                baseRequest()
+            }, cancel = {
+                mCallback.denied?.invoke(mNotGrantedPerms)
+            })
+        }
+
+        private fun baseRequest() {
+            PermissionFragment.injectIfNeededIn(mFragment.requireActivity())
+            mFragment.setBus(mCallback, EVENT_RESPONSE)
+            mFragment.postBus(EVENT_REQUEST, extra = bundleOf(KEY_REQUEST_CODE to mRequestCode, KEY_ALL_PERMS to mAllPerms, KEY_NOT_PERMS to mNotGrantedPerms))
         }
     }
 }

@@ -25,7 +25,7 @@ class PermissionFragment : Fragment(), View.OnClickListener {
     }
 
     override fun onClick(p0: View?) {
-        requestPermission(this, "使用拍照功能需要相机权限")
+        requestPermission("使用拍照功能需要相机和文件权限", Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE)
                 .granted {
                     requireContext().toast("已取得权限")
                 }
@@ -33,9 +33,9 @@ class PermissionFragment : Fragment(), View.OnClickListener {
                     if (Manifest.permission.CAMERA in it) {
                         PermissionManager.toSetting(this, "使用拍照功能需要相机权限")
                     } else if (Manifest.permission.WRITE_EXTERNAL_STORAGE in it) {
-                        PermissionManager.toSetting(this, "使用拍照功能需要读写文件权限")
+                        PermissionManager.toSetting(this, "使用拍照功能需要文件权限")
                     }
-                }.buildAndRequest(Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                }.request()
     }
 
 }
