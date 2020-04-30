@@ -55,6 +55,8 @@ dependencies {
 
     kapt "androidx.room:room-compiler:$room_version"
 
+    implementation 'com.google.android.exoplayer:exoplayer:2.11.4'
+
     implementation "com.squareup.retrofit2:converter-gson:$retrofit_version"
     implementation "com.squareup.okhttp3:logging-interceptor:$okhttp_version"
     implementation "com.squareup.retrofit2:adapter-rxjava2:$retrofit_version"

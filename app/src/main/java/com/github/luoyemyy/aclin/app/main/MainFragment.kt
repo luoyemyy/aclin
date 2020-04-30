@@ -80,6 +80,7 @@ class MainFragment : Fragment(), BusResult {
                 "image" -> findNavController().navigate(R.id.action_mainFragment_to_pickerFragment)
                 "logger" -> findNavController().navigate(R.id.action_mainFragment_to_aclin_logger)
                 "paging" -> findNavController().navigate(R.id.action_mainFragment_to_pagingFragment)
+                "files" -> findNavController().navigate(R.id.action_mainFragment_to_filesListFragment)
                 "qrcode" -> QrCodeBuilder(this@MainFragment)
                         .action(R.id.action_mainFragment_to_qrCodeFragment)
                         .buildAndScan { requireContext().toast(it) }
@@ -104,7 +105,8 @@ class MainFragment : Fragment(), BusResult {
                 "image",
                 "logger",
                 "paging",
-                "qrcode").map { TextData(it) }
+                "qrcode",
+                "files").map { TextData(it) }
         }
 
         fun updateProfile() {

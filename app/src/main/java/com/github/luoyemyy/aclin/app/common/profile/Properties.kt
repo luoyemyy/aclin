@@ -6,6 +6,6 @@ import com.github.luoyemyy.aclin.profile.ProfileProperties
 
 class Properties : ProfileAdd {
     override fun add() {
-        Profile.add(ProfileProperties.API_URL, "http://127.0.0.1:8080/")
+        Profile.add(ProfileProperties.API_URL, "http://192.168.0.105:10000/files/")
     }
 }

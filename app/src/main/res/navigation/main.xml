@@ -32,6 +32,9 @@
         <action
             android:id="@+id/action_mainFragment_to_pagingFragment"
             app:destination="@id/pagingFragment" />
+        <action
+            android:id="@+id/action_mainFragment_to_filesListFragment"
+            app:destination="@id/filesListFragment" />
 
     </fragment>
     <fragment
@@ -77,5 +80,25 @@
         android:id="@+id/pagingFragment"
         android:name="com.github.luoyemyy.aclin.app.paging.PagingFragment"
         android:label="PagingFragment" />
+    <fragment
+        android:id="@+id/filesListFragment"
+        android:name="com.github.luoyemyy.aclin.app.files.FilesListFragment"
+        android:label="FilesListFragment" >
+        <action
+            android:id="@+id/action_filesListFragment_to_filesSubListFragment"
+            app:destination="@id/filesSubListFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/filesSubListFragment"
+        android:name="com.github.luoyemyy.aclin.app.files.FilesSubListFragment"
+        android:label="FilesSubListFragment" >
+        <action
+            android:id="@+id/action_filesSubListFragment_to_filesPlayerFragment"
+            app:destination="@id/filesPlayerFragment" />
+    </fragment>
+    <activity
+        android:id="@+id/filesPlayerFragment"
+        android:name="com.github.luoyemyy.aclin.app.files.FilesPlayerFragment"
+        android:label="FilesPlayerFragment" />
 
 </navigation>
