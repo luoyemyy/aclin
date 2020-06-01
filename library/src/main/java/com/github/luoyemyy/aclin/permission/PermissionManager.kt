@@ -113,7 +113,8 @@ object PermissionManager {
         }
 
         private fun showRationale(): Boolean {
-            return !mRationale.isNullOrEmpty() && mNotGrantedPerms.any { ActivityCompat.shouldShowRequestPermissionRationale(mFragment.requireActivity(), it) }
+            return !mRationale.isNullOrEmpty()
+                    && mNotGrantedPerms.any { ActivityCompat.shouldShowRequestPermissionRationale(mFragment.requireActivity(), it) }
         }
 
         private fun rationaleRequest() {
